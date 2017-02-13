@@ -1,0 +1,1 @@
+el log del enviarMensajePorGCMAppceleratorCloudApi {"to_tokens":"APA91bFu4Yqnn9SQfiPf1UoTtebJHNugkVkgJoBnnKrwg10xMOx7jW3r2rY_TbiJLhrS_llZps-wTyx9WY3p3o2lEFirEmz7oq1glqrJ0CDKvadZ0MHHpdanFHS_G4ah7ITZjWJMHetM","channel":"CMG","title":"Nuevo mensaje","message":"3241234234324"}

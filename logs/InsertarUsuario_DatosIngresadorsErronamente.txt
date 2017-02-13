@@ -1,0 +1,13 @@
+txtUrlImagen => ../../uploads/Mario-Bros.jpg
+txtRol => 1
+txtProfile => 
+txtAdminsCompanyAlta => 
+txtNickname => MAarioboros
+txtPassword => 123456
+txtName => MarioBros
+txtLastName => Bros
+txtLastNameOp => Bros
+txtEmail => mario@x.com.xxassd
+txtPhoneNumber => 8114978896
+agenciaTipo => 
+agenciaPlazo => 

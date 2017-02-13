@@ -1,0 +1,8 @@
+/*!Don't remove this!
+ * jQuery DCalendar and DCalendar Picker plugin styles
+ * 
+ * Author: Dionlee Uy
+ * Email: dionleeuy@gmail.com
+ *
+ * Date: Mon Mar 2 2013
+ */.calendar{position:relative;font-family:'Century Gothic','Segoe UI',Calibri,Arial;font-size:12px;border-collapse:collapse;margin:0;padding:0;z-index:4;border:1px solid rgba(0,0,0,.08);width:250px;color:#000;text-align:center;background-color:#FFF}.calendar td,.calendar th{text-align:center;-webki-ttransition:all .3s ease;-moz-transition:all .3s ease;transition:all .3s ease}.calendar td:first-child,.calendar th:first-child{margin-left:5px}.calendar span{padding:6px 4px;display:block}.calendar .month{padding:15px}.calendar .nMDate,.calendar .pMDate{color:#AAA}.calendar .date,.calendar .month,.calendar .nMDate,.calendar .pMDate{cursor:pointer}.calendar .date:hover,.calendar .month:hover,.calendar .nMDate:hover,.calendar .pMDate:hover{background-color:#E2E2E2}.calendar .date:active,.calendar .month:active,.calendar .nMDate:active,.calendar .pMDate:active{background-color:#22A7F0;color:#FFF}.calendar .selected{background-color:#22A7F0!important;color:#FFF!important}.calendar tr:first-child th{background-color:#00853f;padding:8px 4px 4px;font-size:14px;cursor:pointer;color:#FFF}.calendar tr:first-child th:active,.calendar tr:first-child th:hover{color:#22A7F0}.calendar thead tr:nth-child(2) th{color:#555;padding:8px 3px}.calendar #next,.calendar #prev{font-family:'Times New Roman';font-size:20px;padding:0}.calendar #today{text-align:center;cursor:pointer;color:#22A7F0;padding:10px 6px}.calendar #today:hover{color:#80A7DD}.calendar #today:active{color:#000}.calendar #currDay{color:#22A7F0}.datepicker{background:url(./icon.png)right no-repeat;background-size:contain}

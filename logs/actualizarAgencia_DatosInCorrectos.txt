@@ -1,0 +1,11 @@
+txtId => 15
+txtUrlImagen => http://vignette2.wikia.nocookie.net/onepiece/images/6/61/Estatua_de_cera_de_Luffy.png/revision/latest?cb=20121231203632&path-prefix=es
+txtNickname => LuffyAgencia
+txtPassword => ninja
+txtName => Luffy
+txtLastName => Zulauf
+txtLastNameOp => Hintz
+txtEmail => 
+txtPhoneNumber => 
+txtTipoAgencia => 2
+txtPhAgencia => demo

@@ -1,0 +1,1 @@
+{"affected_rows":null,"insert_id":null,"num_rows":null,"param_count":null,"field_count":null,"errno":null,"error":null,"error_list":null,"sqlstate":null,"id":null}

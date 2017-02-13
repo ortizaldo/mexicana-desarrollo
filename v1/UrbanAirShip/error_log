@@ -1,0 +1,4 @@
+[21-Jun-2016 10:12:34 America/Denver] PHP Notice:  Undefined variable: URL_URBANAIRSHIP in /home3/softmcom/public_html/mexicana/v1/UrbanAirShip/Api.php on line 21
+[21-Jun-2016 10:12:34 America/Denver] PHP Notice:  Undefined variable: acttion in /home3/softmcom/public_html/mexicana/v1/UrbanAirShip/Api.php on line 26
+[21-Jun-2016 10:12:39 America/Denver] PHP Notice:  Undefined variable: URL_URBANAIRSHIP in /home3/softmcom/public_html/mexicana/v1/UrbanAirShip/Api.php on line 21
+[21-Jun-2016 10:12:39 America/Denver] PHP Notice:  Undefined variable: acttion in /home3/softmcom/public_html/mexicana/v1/UrbanAirShip/Api.php on line 26

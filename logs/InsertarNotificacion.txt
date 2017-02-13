@@ -1,0 +1,1 @@
+el log del spInsertarNotificacion {"CodigoRespuesta":0,"MensajeRespuesta":"NO ES AGENCIA Y\/O NO TIENE UN TOKEN ASIGNADO EL EMPLEADO","url":"admins.php"}

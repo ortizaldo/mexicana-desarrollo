@@ -1,0 +1,14 @@
+txtId => 203
+txtUrlImagen => ../../assets/img/logoMexicana.png
+txtRol => 4
+txtProfile => 7
+txtAdminsCompanyAlta => 63
+txtNickname => imeg1
+txtPassword => 1234
+txtName => JOEL
+txtLastName => LARA
+txtLastNameOp => LARA
+txtEmail => joel.lara@gmail.com
+txtPhoneNumber => 8444549183
+agenciaTipo => 
+agenciaPlazo => 

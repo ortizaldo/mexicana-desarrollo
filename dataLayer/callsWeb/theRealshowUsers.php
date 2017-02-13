@@ -1,0 +1,303 @@
+<?php include_once "../DAO.php";
+include_once "../libs/utils.php";
+session_start();
+
+$DB = new DAO();
+$conn = $DB->getConnect();
+
+$username; $param; $agencyID; $data = [];
+
+if( isset($_POST['nickname']) && isset($_POST['param']) ) {
+	$username = $_POST['nickname'];
+	$param = $_POST['param'];
+} else if ( isset($_POST['elem']) && isset($_POST['param']) ) {
+	$username = $_POST['elem'];
+	$param = $_POST['param'];
+}
+
+if( isset($_POST['agency']) ) {
+	$agencyID = $_POST['agency'];
+}
+$users = array();
+$returnData = array();
+
+$returnAdmins = array();
+$returnAgencies = array();
+$returnEmployees = array();
+
+$id; $nickname; $email; $type;
+
+$getUserNickname = $conn->prepare("SELECT `user`.`nickname`, `user`.`email`, `rol`.`type` FROM `user` INNER JOIN `user_rol` ON `user_rol`.`idUser` = `user`.`id` INNER JOIN `rol` ON `rol`.`id` = `user_rol`.`idRol` AND `user_rol`.`idUser` = `user`.`id` WHERE `user`.`nickname` = ? AND `user`.`active` = 1;");
+$getUserNickname->bind_param('s', $username);
+
+if( $getUserNickname->execute() ) {
+	$getUserNickname->store_result();
+	$getUserNickname->bind_result($nickname, $email, $type);
+
+	if( $getUserNickname->fetch() ) {
+		$_SESSION["nickname"] = $nickname;
+		$_SESSION["email"] = $email;
+		$_SESSION["rol"] = $type;
+	}
+}
+$getUserNickname->close();
+
+if( isset($_SESSION["nickname"]) && $param == "admins" && isset($_SESSION["rol"]) && $_SESSION["rol"] == "SuperAdmin" ) {
+	retrieveAdmins($conn);
+} else if( isset($_SESSION["nickname"]) && $param == "agencies" && isset($_SESSION["rol"]) && $_SESSION["rol"] == "SuperAdmin" ) {
+	retrieveAgencies($conn);
+} else if( isset($_SESSION["nickname"]) && $param == "employees" && isset($_SESSION["rol"]) && $_SESSION["rol"] == "SuperAdmin" ) {
+	retrieveEmployees($conn);
+} else if( isset($_SESSION["nickname"]) && $param == "agencies" && isset($_SESSION["rol"]) && $_SESSION["rol"] == "Admin" ) {
+	retrieveAgencies($conn);
+} else if( isset($_SESSION["nickname"]) && $param == "employees" && isset($_SESSION["rol"]) && isset($agencyID) ) {
+	retrieveEmployeesAgency($conn, $agencyID);
+} else if( isset($_SESSION["nickname"]) && $param == "employees" && isset($_SESSION["rol"]) && $_SESSION["rol"] == "Agency" ) {
+	retrieveEmployees($conn);
+}
+
+function retrieveAdmins($conn) {
+	$getAdmins = "SELECT US.id, US.nickname, US.name, US.lastName, US.email, US.avatar, US.phoneNumber, US.active
+				 FROM user AS US INNER JOIN user_rol AS trur ON trur.idUser=US.id WHERE trur.idRol = 2;";
+	$result = $conn->query($getAdmins);
+
+	while ($row = $result->fetch_array()) {
+		$users['id'] = $row[0];
+		$users['nickname'] = $row[1];
+		$users['name'] = $row[2];
+		$users['lastName'] = $row[3];
+		$users['email'] = $row[4];
+		$users['avatar'] = $row[5];
+		$users['phoneNumber'] = $row[6];
+		$users['active'] = $row[7];
+		$returnAdmins[] = $users;
+	}
+	$users = null;
+
+	$getAgenciesResult = "SELECT US.id, US.nickname, US.name, US.lastName, US.lastNameOP, US.email, US.avatar, US.phoneNumber, US.created_at, AG.tipo, AG.plazo, US.active
+                    FROM agency AS AG
+                    INNER JOIN user AS US ON US.id = AG.idUser INNER JOIN user_rol AS trur ON trur.idUser=US.id WHERE trur.idRol = 3;";
+	$resultAgenciesData = $conn->query($getAgenciesResult);
+
+	while( $row = $resultAgenciesData->fetch_array() ) {
+		$users['id'] = $row[0];
+		$users['nickname'] = $row[1];
+		$users['name'] = $row[2];
+		$users['lastName'] = $row[3];
+		$users['lastNameOP'] = $row[4];
+		$users['email'] = $row[5];
+		$users['avatar'] = $row[6];
+		$users['phoneNumber'] = $row[7];
+		$users['created_at'] = $row[8];
+		$users['tipo'] = $row[9];
+		$users['plazo'] = $row[10];
+		$users['active'] = $row[11];
+		$returnAgencies[]=$users;
+	}
+	$users=null;
+
+	$getEmployeesFinal = "SELECT tu.id, (SELECT nickname FROM user WHERE id = ta.idUser) AS agency,
+							tu.nickname AS employee, tu.name AS employeeName, tu.lastName AS employeeLastName, tu.email, tu.phoneNumber AS phone, tp.name AS profile, tu.active
+							FROM user AS tu
+							INNER JOIN user_rol AS trur ON tu.id=trur.idUser
+							INNER JOIN employee AS te ON te.idUser=tu.id
+							INNER JOIN agency_employee AS trae ON trae.idemployee=te.id
+							INNER JOIN agency AS ta ON ta.id=trae.idAgency
+							INNER JOIN profile AS tp ON tp.id=te.idProfile
+							WHERE trur.idRol = 4
+							ORDER BY id";
+	$resultEmployees = $conn->query($getEmployeesFinal);
+
+	while( $row = $resultEmployees->fetch_array() ) {
+		$users['id'] = $row[0];
+		$users['agency'] = $row[1];
+		$users['employee'] = $row[2];
+		$users['employeeName'] = $row[3];
+		$users['employeeLastName'] = $row[4];
+		$users['email'] = $row[5];
+		$users['phone'] = $row[6];
+		$users['profile'] = $row[7];
+		$users['active'] = $row[8];
+		$returnEmployees[]=$users;
+	}
+	$users=null;
+
+	$returnData["Admins"] = $returnAdmins;
+	$logInfo=json_encode($returnData["Admins"]);
+	grabarLog($logInfo);
+	$returnData["Agencies"] = $returnAgencies;
+	$returnData["Employees"] = $returnEmployees;
+
+	/*echo "<pre>";
+        print_r($returnData);
+    echo "</pre>";
+    exit;*/
+	echo json_encode($returnData);
+}
+
+function retrieveAgencies($conn) {
+	$agenciesData=array();
+
+	$getAgencies = "SELECT US.id, US.nickname, US.name, US.lastName, US.email, US.avatar, US.phoneNumber, US.photoUrl, rol.type, USAG.name, US.active FROM user AS US INNER JOIN user_rol AS USR ON US.id = USR.idUser INNER JOIN rol ON rol.id = USR.idRol INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AE ON AE.idemployee = EM.id INNER JOIN agency AS AG ON AG.id = AE.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser WHERE rol.type = 'Agency';";
+	$result = $conn->query($getAgencies);
+
+	while( $row = $result->fetch_array() ) {
+		$agency['id'] = $row[0];
+		$agency['nickname'] = $row[1];
+		$agency['name'] = $row[2];
+		$agency['lastName'] = $row[3];
+		$agency['email'] = $row[4];
+		$agency['avatar'] = $row[5];
+		$agency['phoneNumber'] = $row[6];
+		$agency['photoUrl'] = $row[7];
+		$agency['type'] = $row[8];
+		$agency['agency'] = $row[9];
+		$agency['active'] = $row[10];
+
+		$agenciesData['id'] = $row[0];
+		$agenciesData['nickname'] = $row[1];
+		$agenciesData['name'] = $row[2];
+
+		$returnAgencies[]=$agency;
+		$returnAgenciesSelect[]=$agenciesData;
+	}
+	$users=null;
+	$dropTable = "DROP TABLE employeesAssigned";
+	$result = $conn->query($dropTable);
+
+	$crateTempEmployeesTables = "CREATE TEMPORARY TABLE IF NOT EXISTS employeesAssigned AS (SELECT US.id AS id, USAG.nickname AS agency,
+															US.nickname AS employee, US.name AS employeeName, US.lastName AS employeeLastName, US.email AS email, US.phoneNumber as phone, PF.name as profile, US.active AS active
+											FROM user AS US INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AGEM ON AGEM.idemployee = EM.id
+											INNER JOIN agency AS AG ON AG.id = AGEM.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser
+											INNER JOIN profile AS PF ON PF.id = EM.idProfile WHERE US.id <> AGEM.idAgency ORDER BY AG.id);";
+	$result = $conn->query($crateTempEmployeesTables);
+
+	$getEmployeesFinal = "SELECT id, agency, employee, employeeName, employeeLastName, email, phone, profile, active FROM employeesAssigned ORDER BY id;";
+	$resultEmployees = $conn->query($getEmployeesFinal);
+
+	while( $row = $resultEmployees->fetch_array() ) {
+		$users['id'] = $row[0];
+		$users['agency'] = $row[1];
+		$users['employee'] = $row[2];
+		$users['employeeName'] = $row[3];
+		$users['employeeLastName'] = $row[4];
+		$users['email'] = $row[5];
+		$users['phone'] = $row[6];
+		$users['profile'] = $row[7];
+		$users['active'] = $row[8];
+
+		$returnEmployees[]=$users;
+	}
+	$users=null;
+
+	$returnData["Agencies"]=$returnAgencies;
+	$returnData["AgenciesSelect"]=$returnAgenciesSelect;
+	$returnData["Employees"]=$returnEmployees;
+	echo json_encode($returnData);
+}
+
+function retrieveEmployees($conn) {
+	$getAgencies = "SELECT US.id, US.nickname, US.name, US.lastName, US.email, US.avatar, US.phoneNumber, US.photoUrl, rol.type, USAG.name, US.active FROM user AS US INNER JOIN user_rol AS USR ON US.id = USR.idUser INNER JOIN rol ON rol.id = USR.idRol INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AE ON AE.idemployee = EM.id INNER JOIN agency AS AG ON AG.id = AE.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser WHERE rol.type = 'Agency';";
+	$result = $conn->query($getAgencies);
+
+	while( $row = $result->fetch_array() ) {
+		$agency['id'] = $row[0];
+		$agency['nickname'] = $row[1];
+		$agency['name'] = $row[2];
+		$agency['active'] = $row[3];
+		$returnAgencies[]=$agency;
+	}
+	$users=null;
+
+	$dropTable = "DROP TABLE employeesAssigned";
+	$result = $conn->query($dropTable);
+
+	$crateTempEmployeesTables = "CREATE TEMPORARY TABLE IF NOT EXISTS employeesAssigned AS (SELECT US.id AS id, USAG.nickname AS agency,
+															US.nickname AS employee, US.name AS employeeName, US.lastName AS employeeLastName, US.email AS email, US.phoneNumber as phone, PF.name as profile, US.active AS active,
+											FROM user AS US INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AGEM ON AGEM.idemployee = EM.id
+											INNER JOIN agency AS AG ON AG.id = AGEM.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser
+											INNER JOIN profile AS PF ON PF.id = EM.idProfile WHERE US.id <> AGEM.idAgency ORDER BY AG.id);";
+	$result = $conn->query($crateTempEmployeesTables);
+
+	$getEmployeesFinal = "SELECT id, agency, employee, employeeName, employeeLastName, email, phone, profile, active FROM employeesAssigned ORDER BY id;";
+	$resultEmployees = $conn->query($getEmployeesFinal);
+
+	while( $row = $resultEmployees->fetch_array() ) {
+		$users['id'] = $row[0];
+		$users['agency'] = $row[1];
+		$users['employee'] = $row[2];
+		$users['employeeName'] = $row[3];
+		$users['employeeLastName'] = $row[4];
+		$users['email'] = $row[5];
+		$users['phone'] = $row[6];
+		$users['profile'] = $row[7];
+		$users['active'] = $row[8];
+
+		$returnEmployees[]=$users;
+	}
+
+	$users=null;
+
+	$returnData["Agencies"]=$returnAgencies;
+	$returnData["Employees"]=$returnEmployees;
+	//$users=null;
+	echo json_encode($returnData);
+}
+
+function retrieveEmployeesAgency($conn, $agencyID) {
+
+	$id=0; $employee=""; $employeeName=""; $employeeLastName=""; $active =0;
+
+	//Cambiar sentencia y solo obtener el nombre de la agencia seleccionada
+
+	$getAgencies = "SELECT US.id, US.nickname, US.name, US.lastName, US.email, US.avatar, US.phoneNumber, US.photoUrl, rol.type, USAG.name, US.active FROM user AS US INNER JOIN user_rol AS USR ON US.id = USR.idUser INNER JOIN rol ON rol.id = USR.idRol INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AE ON AE.idemployee = EM.id INNER JOIN agency AS AG ON AG.id = AE.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser WHERE rol.type = 'Agency';";
+	$result = $conn->query($getAgencies);
+
+	while( $row = $result->fetch_array() ) {
+		$agency['id'] = $row[0];
+		$agency['nickname'] = $row[1];
+		$agency['name'] = $row[2];
+		$agency['active'] = $row[3];
+		$returnAgencies[]=$agency;
+	}
+
+	$users=null;
+
+	$getEmployeesByAgency = $conn->prepare("SELECT US.id AS id, US.nickname AS employee, US.name AS employeeName, US.lastName AS employeeLastName, US.active AS active
+										FROM user AS US INNER JOIN employee AS EM ON EM.idUser = US.id INNER JOIN agency_employee AS AGEM ON AGEM.idemployee = EM.id
+										INNER JOIN agency AS AG ON AG.id = AGEM.idAgency INNER JOIN user AS USAG ON USAG.id = AG.idUser
+										INNER JOIN profile AS PF ON PF.id = EM.idProfile WHERE US.id <> AGEM.idAgency AND AG.id = ? ORDER BY AG.id;");
+	$getEmployeesByAgency->bind_param("i", $agencyID);
+
+	$getEmployeesByAgency->store_result();
+	$getEmployeesByAgency->bind_result($id, $employee, $employeeName, $employeeLastName, $active);
+
+	if( $getEmployeesByAgency->execute() ) {
+		while( $getEmployeesByAgency->fetch() ) {
+			$users['id'] = $id;
+			$users['employee'] = $employee;
+			$users['employeeName'] = $employeeName;
+			$users['employeeLastName'] = $employeeLastName;
+			$users['active'] = $active;
+			$returnEmployees[]=$users;
+		}
+
+		$users=null;
+
+		$returnData["selectedAgency"]=$agencyID;
+		$returnData["Agencies"]=$returnAgencies;
+		$returnData["Employees"]=$returnEmployees;
+		echo json_encode($returnData);
+	}
+}
+
+function grabarLog($logInfo){
+	/***TODO LOGS PARA EL SERVICIO**/
+	$dir = "../../logs/";
+	$fileName = "showUsers.txt";
+	$fileData = fopen($dir.$fileName, "w");
+	fwrite($fileData, $logInfo);
+	fclose($fileData);
+
+}
+?>

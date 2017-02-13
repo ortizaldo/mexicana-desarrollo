@@ -1,0 +1,11 @@
+txtId => 
+txtUrlImagen => ../../assets/img/logoMexicana.png
+txtNickname => AgenciaNinja
+txtPassword => 1234
+txtName => Ruben
+txtLastName => Juarez
+txtLastNameOp => Rivera
+txtEmail => rjuarez@migesa.com.mx
+txtPhoneNumber => 8114972289
+txtTipoAgencia => 1
+txtPhAgencia => 

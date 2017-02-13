@@ -1,0 +1,14 @@
+txtId => 
+txtUrlImagen => 
+txtRol => 2
+txtProfile => 
+txtAdminsCompanyAlta => 
+txtNickname => dsafdsfsdfs
+txtPassword => 123456
+txtName => asdfsdfsdfasd
+txtLastName => fsdfasdfsd
+txtLastNameOp => fasdfsdfsdfasdfsd
+txtEmail => fasdfsadf 
+txtPhoneNumber => safdfasdfsd
+agenciaTipo => 
+agenciaPlazo => 

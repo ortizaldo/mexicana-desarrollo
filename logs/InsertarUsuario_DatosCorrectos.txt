@@ -1,0 +1,13 @@
+txtUrlImagen => 
+txtRol => 4
+txtProfile => 2
+txtAdminsCompanyAlta => 82
+txtNickname => aldo sertec
+txtPassword => 22222
+txtName => aldo sertec
+txtLastName => ortiz
+txtLastNameOp => garcia
+txtEmail => orzaldo14@gmail.com
+txtPhoneNumber => 8442640072
+txtAgenciaTipo => 
+agenciaPlazo => 

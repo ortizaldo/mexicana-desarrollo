@@ -1,0 +1,16 @@
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  mysqli::mysqli(): (42000/1044): Access denied for user 'softmcom_config'@'localhost' to database 'softmcom_mexicana' in /home3/softmcom/public_html/mexicana/dataLayer/DAO.php on line 15
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  mysqli::set_charset(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/DAO.php on line 17
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 07:56:39 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  mysqli::mysqli(): (42000/1044): Access denied for user 'softmcom_mxadmin'@'localhost' to database 'softmcom_mexicana' in /home3/softmcom/public_html/mexicana/dataLayer/DAO.php on line 15
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  mysqli::set_charset(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/DAO.php on line 17
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Property access is not allowed yet in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9
+[14-Jun-2016 08:17:22 America/Denver] PHP Warning:  print_r(): Couldn't fetch mysqli in /home3/softmcom/public_html/mexicana/dataLayer/dbConnTest.php on line 9

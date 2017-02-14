@@ -81,11 +81,5 @@
 
 <script src="assets/js/scripts.js"></script>
 <script src="assets/js/base64.js"></script>
-<script src="assets/js/scripts.js"></script>
-
-<!--pulsate-->
-<script type="text/javascript" src="js/jquery.pulsate.min.js"></script>
-<script src="js/pulstate.js" type="text/javascript"></script>
-
 </body>
 </html>

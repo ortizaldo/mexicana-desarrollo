@@ -2,7 +2,7 @@
 
 $DB = new DAO();
 $conn = $DB->getConnect();
-$reportID=$_GET['id'];
+$reportID=$_GET['agencia'];
 $returnData = []; $reports = [];
 
 /*$getReportStatus = "SELECT E.idReporte, E.idAgenciaInstalacion,USAG.nickname  from tEstatusContrato

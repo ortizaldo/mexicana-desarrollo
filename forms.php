@@ -89,6 +89,20 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                $_SESSION['typeAgency'] == 'Instalacion y Comercializadora'){ ?>
                                 <tr>
                                     <th>
+                                        <div class="checkboxAsignacionMasiva">
+                                            <label>
+                                                <input type="checkbox" class="seleccionarChecks" name="seleccionarChecks">
+                                                <i class="fa fa-check-square-o" aria-hidden="true"></i> Habilitar <br> Opciones
+                                            </label>
+                                        </div>
+                                        <div class="select" style="display: none">
+                                            <label>
+                                                <select id="asignarUsuario" class="form-control">
+                                                </select>
+                                            </label>
+                                        </div>
+                                    </th>
+                                    <th>
                                         <button id="asignacionMasiva" 
                                                 data-toggle="button" 
                                                 style="width:144px" 
@@ -96,13 +110,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                                 aria-pressed="true">
                                             <i class="fa fa-wrench"></i> Asignacion masiva <br> de Instalacion
                                         </button>
-                                        <div class="checkboxAsignacionMasiva">
-                                            <label>
-                                                <br>
-                                                <input type="checkbox" class="seleccionarChecks" name="seleccionarChecks">
-                                                <i class="fa fa-check-square-o" aria-hidden="true"></i> Habilitar <br> Opciones
-                                            </label>
-                                        </div>
                                     </th>
                                 </tr>
                         <?php 
@@ -1569,12 +1576,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             body += '<i class="fa fa-user" aria-hidden="true"></i>';
                         body += '</label>';
                     body += '</div>';
-                    body += '<div class="select">';
-                        body += '<label>';
-                            body += '<select id="asignarUsuario-'+idReporte+'" class="form-control" style="display:none">';
-                            body += '</select>';
-                        body += '</label>';
-                    body += '</div>';
                 body += '</td>' ;
             }else{
                 body += '<td>';
@@ -1636,29 +1637,44 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         });*/
     }
 
-    function loadEmployeesInstallation(reportID) {
-        console.log('reportID', reportID);
-        if (reportID > 0) {
+    $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {
+        var checkboxes = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
+        if (checkboxes.length > 0) {
+            var isChecked = $('input.seleccionarChecks').is(':checked');
+            if (isChecked) {
+                var row="", idRPTr=0;
+                $("#tablaReporte .checkbox").show();
+                loadEmployeesInstallation(localStorage.getItem("id"));
+            }else{
+                $("#tablaReporte .checkbox").hide();
+                $(".select").hide();
+            }
+        }
+    });
+
+    function loadEmployeesInstallation(agencia) {
+        console.log('reportID', agencia);
+        if (agencia !== "") {
             $.ajax({
                 method: "GET",
-                url: "dataLayer/callsWeb/getDataInstalacion.php",
+                url: "dataLayer/callsWeb/getDInstalacionMasiva.php",
                 data: {
-                    id: reportID,
+                    'agencia':localStorage.getItem("id"),
                 },
                 dataType: "JSON",
                 success: function (data) {
                     console.log('loadEmployeesInstallation', data);
                     if(data.length > 0){
                         tipo=data[0].tipo;
-                        $("#asignarUsuario-"+reportID).empty().append('whatever');
-                        $("#asignarUsuario-"+reportID).append($('<option>', {
+                        $("#asignarUsuario").empty().append('whatever');
+                        $("#asignarUsuario").append($('<option>', {
                             value: 0,
                             text: "Seleccionar"
                         }));
                         _.each(data, function (row, idx) {
-                            $("#asignarUsuario-"+reportID).append('<option value="' + row.IDEmp + '">' + row.nicknameEmp + '</option>');
+                            $("#asignarUsuario").append('<option value="' + row.IDEmp + '">' + row.nicknameEmp + '</option>');
                         });
-                        $("#asignarUsuario-"+reportID).show();
+                        $(".select").show();
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
@@ -1667,32 +1683,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             });
         }
     }
-    
-    $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {
-        var checkboxes = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
-        if (checkboxes.length > 0) {
-            var isChecked = $('input.seleccionarChecks').is(':checked');
-            if (isChecked) {
-                var row="", idRPTr=0;
-                $("#tablaReporte .checkbox").show();
-                $(checkboxes).on("click", function() {
-                    console.log('checkbox');
-                    var checkedState = this.checked
-                    row=$(this).parents("tr");
-                    idRPTr=row.data('id');
-                    console.log('checkedState', checkedState);
-                    if (checkedState) {
-                        loadEmployeesInstallation(idRPTr)
-                    }else{
-                        $("#asignarUsuario-"+idRPTr).hide();
-                    }
-                });
-            }else{
-                $("#tablaReporte .checkbox").hide();
-                $("#asignarUsuario-"+idRPTr).hide();
-            }
-        }
-    });
 
     $('#tablaReporte').on('click', '#asignacionMasiva:not(:disabled)', function(e) {
         e.preventDefault();
@@ -1704,7 +1694,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             if (this.checked === true) {
                 row=$(this).parents("tr");
                 idRPTr=row.data('id');
-                idEmployee = $("#asignarUsuario-"+idRPTr).val();
+                idEmployee = $("#asignarUsuario").val();
                 if (parseInt(idEmployee) > 0) {
                     msg = 'Se ha asignado una solicitud de Instalacion';
                     employeeProfile = '4';

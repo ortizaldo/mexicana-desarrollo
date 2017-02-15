@@ -808,8 +808,9 @@ function loadForm(idForm, type, idUsuario) {
                                 request,documentNumber,tapon,colorTapon,ri,riText,
                                 observations,newPipe,content,ph,
                                 pipesCount,path,
-                                fall,htmlAppend,diagram,img1, img2;
+                                fall,htmlAppend,diagram,img1, img2, idClienteGenerado, reporteID;
                             reporteID = (data[0].idReporte === '' || typeof(data[0].idReporte) === 'undefined' || typeof(data[0].idReporte) === null) ? '' : data[0].idReporte;
+                            idClienteGenerado = (data[0].idClienteGenerado === '' || typeof(data[0].idClienteGenerado) === 'undefined' || typeof(data[0].idClienteGenerado) === null) ? '' : data[0].idClienteGenerado;
                             formId = (data[0].consecutive === '' || typeof(data[0].consecutive) === 'undefined' || typeof(data[0].consecutive) === null) ? '' : data[0].consecutive;
                             namePerso = (data[0].namePerso === '' || typeof(data[0].namePerso) === 'undefined' || typeof(data[0].namePerso) === null) ? '' : data[0].namePerso;
                             lastName = (data[0].lastName === '' || typeof(data[0].lastName) === 'undefined' || typeof(data[0].lastName) === null) ? '' : data[0].lastName;
@@ -1127,12 +1128,16 @@ function loadForm(idForm, type, idUsuario) {
                             
                             $("#formsDetails .toggle").hide();
                             $("#formsDetails #numTomasSel").val(pipesCount);
+                            console.log('$idClienteGenerado', idClienteGenerado );
                             var string_nickname = localStorage.getItem("id");
                             console.log('string_nickname', string_nickname);
                             if ((string_nickname.toUpperCase() === "SUPERADMIN" || 
                                  string_nickname.toUpperCase() === "CALLCENTER" ||
                                  string_nickname.toUpperCase() === "ADMIN" ||
                                  string_nickname.toUpperCase() === "AYOPSA")) {
+                                $("#editPlomeria").hide();
+                                $("#editPlomerialLabel").hide();
+                            }else if(idClienteGenerado !== ""){
                                 $("#editPlomeria").hide();
                                 $("#editPlomerialLabel").hide();
                             }
@@ -2446,8 +2451,40 @@ function loadForm(idForm, type, idUsuario) {
                                                 htmlAppendInstall += '<input class="form-control" type="text" id="marcaMedidor" value="' + brand + '" disabled="disabled">';
                                                 htmlAppendInstall += '<label>No. de serie</label>';
                                                 htmlAppendInstall += '<input class="form-control" type="text" id="serialNumber" value="' + serialNumber + '">';
-                                                htmlAppendInstall += '<br><label>Car&aacute;tula del medidor<br/>';
+                                                htmlAppendInstall += '<br>';
+                                                htmlAppendInstall += '<label>Car&aacute;tula del medidor';
+                                                htmlAppendInstall += '<br/>';
+
                                                 htmlAppendInstall += '<a onclick="showImagesInstallation(2);">';
+                                                    htmlAppendInstall+= '<div id="myCarousel4" class="carousel slide">';
+                                                        htmlAppendInstall += '<div class="carousel-inner">';
+                                                        htmlAppendInstall += itemsInstallation;
+                                                        htmlAppendInstall += '</div>';
+                                                        htmlAppendInstall += '<a class="left carousel-control" href="#myCarousel4" data-slide="prev">';
+                                                            htmlAppendInstall += '<span class="icon-prev"></span>';
+                                                        htmlAppendInstall += '</a>';
+                                                        htmlAppendInstall += '<a class="right carousel-control" href="#myCarousel4" data-slide="next">';
+                                                            htmlAppendInstall += '<span class="icon-next"></span>';
+                                                        htmlAppendInstall += '</a>';
+                                                    htmlAppendInstall += '</div><br/><br/>';
+                                                htmlAppendInstall += '</a>';
+
+                                                    /*htmlAppendInstall += '<div class="form-group imagenCuadroMed" style="display:none">';
+                                                        htmlAppendInstall +='<form id="uploadimageCM" action="" method="post" enctype="multipart/form-data">';
+                                                            htmlAppendInstall += '<div id="selectImage">';
+                                                                htmlAppendInstall +='<label class="btn btn-success" for="imagenCuadroMed">';
+                                                                htmlAppendInstall +='<input id="imagenCuadroMed" type="file" style="display:none;">';
+                                                                htmlAppendInstall +='<input id="statusInstalacion" type="hidden" value="' + data[0].estatusAsignacionInstalacion + '" style="display:none;">';
+                                                                htmlAppendInstall +='<input id="idReporteF" type="hidden" value="' + data[0].reportID + '" style="display:none;">';
+                                                                htmlAppendInstall +='<i class="fa fa-cloud-upload" aria-hidden="true">';
+                                                                htmlAppendInstall +='</i>';
+                                                                htmlAppendInstall +='</label>&nbsp&nbsp';
+                                                                htmlAppendInstall +='<button type="button" id="delImagenCuadroMed" class="btn btn-danger"><i class="fa fa-chain-broken" aria-hidden="true"></i></button>';
+                                                            htmlAppendInstall += '</div>';
+                                                        htmlAppendInstall += '</form>';
+                                                    htmlAppendInstall += '</div>';*/
+
+                                                /*htmlAppendInstall += '<a onclick="showImagesInstallation(2);">';
                                                 htmlAppendInstall += '<div id="myCarousel4" class="carousel slide">';
                                                     htmlAppendInstall += '<div class="carousel-inner">' + itemsInstallation + '</div>';
                                                     htmlAppendInstall += '<a class="left carousel-control" href="#myCarousel4" data-slide="prev">';
@@ -2458,7 +2495,7 @@ function loadForm(idForm, type, idUsuario) {
                                                     htmlAppendInstall += '</a>';
                                                 htmlAppendInstall += '</div>';
                                                 htmlAppendInstall += '</label>';
-                                                htmlAppendInstall += '<br/><br/>';
+                                                htmlAppendInstall += '<br/><br/>';*/
                                             htmlAppendInstall += '</div>';
 
                                             htmlAppendInstall += '<div class="col-md-6">';

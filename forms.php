@@ -2284,8 +2284,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     $('#addSecondSell').prop('disabled', false);
                     if (_.has(data, 'faultstring')) {
                         MostrarToast(2, "Error al generar el contrato", data.faultstring);
-                        data.ip_contrato = 22223;
-                        asignarInstalacion(id, idEmployee, data.ip_contrato, agency);
+                        //data.ip_contrato = 22223;
+                        //asignarInstalacion(id, idEmployee, data.ip_contrato, agency);
                         $('#addSecondSell').prop('disabled', false);
                     }else{
                         if (data.code === '500' && data.status === 'ERROR') {

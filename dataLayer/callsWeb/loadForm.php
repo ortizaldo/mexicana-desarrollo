@@ -118,7 +118,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
             $conn = $DB->getConnect();
             $querySmtFrmPlumb = "SELECT RP.idReport,FP.id, FP.consecutive,FP.name,FP.lastName, FP.request, 
                                 FP.documentNumber, FP.tapon, FP.ri, FP.comments, FP.newPipe, 
-                                FP.diagram, FP.pipesCount, FP.ph, RP.created_at, tec.estatusAsignacionInstalacion                                 
+                                FP.diagram, FP.pipesCount, FP.ph, RP.created_at, tec.estatusAsignacionInstalacion, tec.idClienteGenerado
                                 FROM reportHistory AS RP
                                 -- INNER JOIN report_employee_form AS REF ON RP.idReport = REF.idReport
                                 INNER JOIN form_plumber AS FP ON FP.id = RP.idFormulario
@@ -134,7 +134,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                     $stmtFrmPlumb->store_result();
                     $stmtFrmPlumb->bind_result($reporteID,$id,$consecutive,$name,$lastName,$request,
                             $documentNumber,$tapon,$ri,$observations,$newPipe,
-                            $diagram,$pipesCount, $resPH,  $created_at, $estatusAsignacionInstalacion);
+                            $diagram,$pipesCount, $resPH,  $created_at, $estatusAsignacionInstalacion, $idClienteGenerado);
                     //var_dump($stmtFrmPlumb);
                     if ($stmtFrmPlumb->num_rows > 0) {
                         if($stmtFrmPlumb->fetch()){
@@ -153,6 +153,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                             $responseArray['diagram'] = $diagram;
                             $responseArray['resultadoPH'] = $resPH;
                             $responseArray["created_at"] = $created_at;
+                            $responseArray["idClienteGenerado"] = $idClienteGenerado;
                             $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                         }
                         $querySmtFrmPlumbIMG = "SELECT MUL.content, MUL.name, MUL.id

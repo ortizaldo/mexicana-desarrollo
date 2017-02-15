@@ -11,15 +11,21 @@ include_once dirname(dirname(dirname(__FILE__))) . "/dataLayer/DAO.php";
 $DB = new DAO();
 $conn = $DB->getConnect();
 //validamos si el archivo existe en la carpeta
-$archivoCSV = "../../uploads/csvAgencias/direcciones_agencias.csv";
 error_log('message ruta '.getcwd());
+$rutaActual = getcwd();
+chdir('../../uploads/csvAgencias');
+error_log('message ruta '.getcwd());
+$archivoCSV = getcwd()."/direcciones_agencia.csv";
+error_log($archivoCSV);
 if (file_exists($archivoCSV)) {
+    error_log('message existe archivo');
+    chdir($rutaActual);
     $stmtDelFirst="TRUNCATE TABLE direccionesAgenciaCSV";
     if ($delDirAgency = $conn->prepare($stmtDelFirst)) {
         if ($delDirAgency->execute()) {
             error_log("registros eliminados");
             mysqli_query($conn,"SET NAMES 'UTF8'");
-            $sql2 = "LOAD DATA LOCAL INFILE '../../uploads/csvAgencias/direcciones_agencias.csv' INTO TABLE `direccionesAgenciaCSV` FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n' (idAgencia, nombreAgencia, idDireccion, calle, numero, entreCalles, idMunicipio, idColonia)";
+            $sql2 = "LOAD DATA LOCAL INFILE '../../uploads/csvAgencias/direcciones_agencia.csv' INTO TABLE `direccionesAgenciaCSV` FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n' (idAgencia, nombreAgencia, idDireccion, calle, numero, entreCalles, idMunicipio, idColonia)";
             $resultDump=mysqli_query($conn, $sql2);
             //mysqli_set_local_infile_default($conn);
             if($resultDump){

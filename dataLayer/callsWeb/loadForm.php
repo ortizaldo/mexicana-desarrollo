@@ -118,7 +118,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
             $conn = $DB->getConnect();
             $querySmtFrmPlumb = "SELECT RP.idReport,FP.id, FP.consecutive,FP.name,FP.lastName, FP.request, 
                                 FP.documentNumber, FP.tapon, FP.ri, FP.comments, FP.newPipe, 
-                                FP.diagram, FP.pipesCount, FP.ph, RP.created_at, tec.estatusAsignacionInstalacion, tec.idClienteGenerado
+                                FP.diagram, FP.pipesCount, FP.ph, FP.created_at, tec.estatusAsignacionInstalacion, tec.idClienteGenerado
                                 FROM reportHistory AS RP
                                 -- INNER JOIN report_employee_form AS REF ON RP.idReport = REF.idReport
                                 INNER JOIN form_plumber AS FP ON FP.id = RP.idFormulario

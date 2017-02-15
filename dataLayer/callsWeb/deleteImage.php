@@ -35,7 +35,8 @@ $dataDate=getMonthAndYear($idReporte, $tipoImg);
 $year=date('Y', strtotime($dataDate["fechaCreacion"]));
 $month=date('m', strtotime($dataDate["fechaCreacion"]));
 $carpetaVenta="";
-if ((intval($getDatosStatus['estatusInstalacion']) != 51 || intval($getDatosStatus['estatusInstalacion']) != 54) && $tipoImg != "cuadro") {
+if ((intval($getDatosStatus['estatusInstalacion']) != 51 || intval($getDatosStatus['estatusInstalacion']) != 54) && 
+    ($tipoImg != "cuadro" || $tipoImg == "caratula")) {
     
     if ($financialServiceVal != "" && $financialServiceVal == 1) {
         $carpetaVenta=$CARPETA_AYOPSA;
@@ -55,7 +56,7 @@ if ((intval($getDatosStatus['estatusInstalacion']) != 51 || intval($getDatosStat
         $base_url2= $base_url2.$CARPETA_IMAGENES."/".$CARPETA_VENTAS."/".$CARPETA_EN_PROCESO."/".$carpetaVenta."/".$year."/".$month."/".$getDatosStatus['numContrato']."/";
     }
     //mandamos la url generada a la funcion que eliminara el archivo
-}elseif ($tipoImg == "cuadro") {
+}elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
     if (intval($getDatosStatus['estatusInstalacion']) == 51 || intval($getDatosStatus['estatusInstalacion']) == 54) {
         $carpeta=$CARPETA_TERMINADOS;
     }else{
@@ -81,7 +82,7 @@ function eliminarArchivo($CARPETA_IMAGENES,$rutaImagenes, $tipoImg, $CARPETA_PLO
                  $tipoImg == "aviso" || 
                  $tipoImg == "contrato") {
             $rutaModificada=getcwd().'/'.$CARPETA_VENTAS."/".$CARPETA_EN_PROCESO."/".$carpetaVenta."/".$year."/".$month."/".$numContrato."/";
-        }elseif ($tipoImg == "cuadro") {
+        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $rutaModificada=getcwd().'/'.$CARPETA_INSTALACION."/".$carpeta."/".$year."/".$month."/".$numContrato."/";
         }
         $targetPath = $rutaModificada . $filenameImg;
@@ -107,7 +108,7 @@ function eliminarArchivo($CARPETA_IMAGENES,$rutaImagenes, $tipoImg, $CARPETA_PLO
                                          $tipoImg == "aviso" || 
                                          $tipoImg == "contrato") {
                                     $getMulForm = "SELECT id FROM form_sells_multimedia WHERE idMultimedia=?";
-                                }elseif ($tipoImg == "cuadro") {
+                                }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
                                     $getMulForm = "SELECT id FROM form_installation_multimedia WHERE idMultimedia=?";
                                 }
                                 if ($getFormMult = $conn->prepare($getMulForm)) {
@@ -130,7 +131,7 @@ function eliminarArchivo($CARPETA_IMAGENES,$rutaImagenes, $tipoImg, $CARPETA_PLO
                                                                  $tipoImg == "aviso" || 
                                                                  $tipoImg == "contrato") {
                                                             $deleteFMulSQL="DELETE FROM form_sells_multimedia where id=?;";//$idSecondSell
-                                                        }elseif ($tipoImg == "cuadro") {
+                                                        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
                                                             $deleteFMulSQL="DELETE FROM form_installation_multimedia where id=?;";//$idSecondSell
                                                         }
                                                         if ($deleteFPMul = $conn->prepare($deleteFMulSQL)) {
@@ -249,7 +250,7 @@ function getIdForm($idReporte, $tipoImg)
                                   0 = 0 AND fs.id = rh.idFormSell
                                   AND idReport = $idReporte
                                   AND rh.idReportType = 2";
-        }elseif ($tipoImg == "cuadro") {
+        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $getNumContratoSQL = "SELECT 
                                     a.id
                                 FROM
@@ -344,6 +345,13 @@ function getImgs($idReporte, $tipo)
                                     LEFT JOIN form_installation_multimedia AS FIM ON FIM.idFormInstallation = FI.id
                                     LEFT JOIN multimedia AS MUL ON MUL.id = FIM.idMultimedia
                                     WHERE RP.idReportType=4 AND RP.idReport =$idReporte and MUL.name LIKE 'foto_cuadro%';";
+        }elseif ($tipo == 'caratula') {
+            $querySmtFrmPlumbIMG = "SELECT MUL.content, MUL.name, MUL.id, MUL.created_at
+                                    FROM reportHistory AS RP
+                                    INNER JOIN form_installation AS FI ON FI.consecutive = RP.idFormSell
+                                    LEFT JOIN form_installation_multimedia AS FIM ON FIM.idFormInstallation = FI.id
+                                    LEFT JOIN multimedia AS MUL ON MUL.id = FIM.idMultimedia
+                                    WHERE RP.idReportType=4 AND RP.idReport =$idReporte and MUL.name LIKE 'foto_caratula%';";
         }
         $arrIMG=array();
         //echo 'query '.$querySmtFrmPlumbIMG;
@@ -393,7 +401,7 @@ function getMonthAndYear($idReporte, $tipoImg)
                                 AND tec.idReporte = rh.idReport
                                 AND idReport = $idReporte
                                 AND rh.idReportType = 2;";
-        }elseif ($tipoImg == "cuadro") {
+        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $getYearContrato = "SELECT 
                                     a.created_at
                                 FROM

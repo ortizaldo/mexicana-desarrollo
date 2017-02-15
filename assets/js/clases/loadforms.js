@@ -1024,7 +1024,7 @@ function loadForm(idForm, type, idUsuario) {
                                             }
                                             html+= '<label id="tuberia">Instalaci&oacute;n de tuber&iacute;a</label><br/>';
                                             html+= '<a onclick="showImages(8);">';
-                                            html+= '<div id="myCarousel2" class="carousel slide"><div class="carousel-inner">' + itemsTuberia + '</div>' + '<a class="left carousel-control" href="#myCarousel2" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel2" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div><br/><br/></a>';
+                                            html+= '<div id="myCarousel2" class="carousel slide"><div class="carousel-inner">' + itemsTuberia + '</div>' + '<a class="left carousel-control" href="#myCarousel2" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel2" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div></a>';
                                             html += '<div class="form-group imagenInstTub" style="display:none">';
                                                 html +='<form id="uploadimageInstTub" action="" method="post" enctype="multipart/form-data">';
                                                 html += '<div id="selectImage">';
@@ -1045,7 +1045,7 @@ function loadForm(idForm, type, idUsuario) {
                                             img2 =(img2 === '' || typeof(img2) === 'undefined' || img2 === null) ? base_url2 + CARPETA_IMAGENES +'/diagramas/not-available.png' : img2;
                                             html+= '<label id="pieDerecho">Pie derecho con etiqueta<br/>';
                                             html += '<a onclick="showImages(9);">';
-                                            html += '<div id="myCarousel3" class="carousel"><div class="carousel-inner">' + itemsPieDer + '</div>' + '<a class="left carousel-control" href="#myCarousel3" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel3" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div><br/><br/></a>';
+                                            html += '<div id="myCarousel3" class="carousel"><div class="carousel-inner">' + itemsPieDer + '</div>' + '<a class="left carousel-control" href="#myCarousel3" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel3" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div></a>';
                                             html += '<div class="form-group imagenEtiqueta" style="display:none">';
                                                 html +='<form id="uploadimageEti" action="" method="post" enctype="multipart/form-data">';
                                                 html += '<div id="selectImage">';
@@ -1130,14 +1130,18 @@ function loadForm(idForm, type, idUsuario) {
                             $("#formsDetails #numTomasSel").val(pipesCount);
                             console.log('$idClienteGenerado', idClienteGenerado );
                             var string_nickname = localStorage.getItem("id");
-                            console.log('string_nickname', string_nickname);
+                            console.log('idClienteGenerado', _.isEmpty(idClienteGenerado));
+                            console.log('idClienteGenerado', _.isNull(idClienteGenerado));
+                            console.log('idClienteGenerado', _.isUndefined(idClienteGenerado));
                             if ((string_nickname.toUpperCase() === "SUPERADMIN" || 
                                  string_nickname.toUpperCase() === "CALLCENTER" ||
                                  string_nickname.toUpperCase() === "ADMIN" ||
                                  string_nickname.toUpperCase() === "AYOPSA")) {
                                 $("#editPlomeria").hide();
                                 $("#editPlomerialLabel").hide();
-                            }else if(idClienteGenerado !== ""){
+                            }else if(!_.isEmpty(idClienteGenerado) &&
+                                     !_.isNull(idClienteGenerado) &&
+                                     !_.isUndefined(idClienteGenerado)){
                                 $("#editPlomeria").hide();
                                 $("#editPlomerialLabel").hide();
                             }
@@ -2453,49 +2457,38 @@ function loadForm(idForm, type, idUsuario) {
                                                 htmlAppendInstall += '<input class="form-control" type="text" id="serialNumber" value="' + serialNumber + '">';
                                                 htmlAppendInstall += '<br>';
                                                 htmlAppendInstall += '<label>Car&aacute;tula del medidor';
-                                                htmlAppendInstall += '<br/>';
+                                                    htmlAppendInstall += '<br/>';
 
-                                                htmlAppendInstall += '<a onclick="showImagesInstallation(2);">';
-                                                    htmlAppendInstall+= '<div id="myCarousel4" class="carousel slide">';
-                                                        htmlAppendInstall += '<div class="carousel-inner">';
-                                                        htmlAppendInstall += itemsInstallation;
+                                                    htmlAppendInstall += '<a onclick="showImagesInstallation(2);">';
+                                                        htmlAppendInstall+= '<div id="myCarousel4" class="carousel slide">';
+                                                            htmlAppendInstall += '<div class="carousel-inner">';
+                                                            htmlAppendInstall += itemsInstallation;
+                                                            htmlAppendInstall += '</div>';
+                                                            htmlAppendInstall += '<a class="left carousel-control" href="#myCarousel4" data-slide="prev">';
+                                                                htmlAppendInstall += '<span class="icon-prev"></span>';
+                                                            htmlAppendInstall += '</a>';
+                                                            htmlAppendInstall += '<a class="right carousel-control" href="#myCarousel4" data-slide="next">';
+                                                                htmlAppendInstall += '<span class="icon-next"></span>';
+                                                            htmlAppendInstall += '</a>';
                                                         htmlAppendInstall += '</div>';
-                                                        htmlAppendInstall += '<a class="left carousel-control" href="#myCarousel4" data-slide="prev">';
-                                                            htmlAppendInstall += '<span class="icon-prev"></span>';
-                                                        htmlAppendInstall += '</a>';
-                                                        htmlAppendInstall += '<a class="right carousel-control" href="#myCarousel4" data-slide="next">';
-                                                            htmlAppendInstall += '<span class="icon-next"></span>';
-                                                        htmlAppendInstall += '</a>';
-                                                    htmlAppendInstall += '</div><br/><br/>';
-                                                htmlAppendInstall += '</a>';
+                                                    htmlAppendInstall += '</a>';
 
-                                                    /*htmlAppendInstall += '<div class="form-group imagenCuadroMed" style="display:none">';
-                                                        htmlAppendInstall +='<form id="uploadimageCM" action="" method="post" enctype="multipart/form-data">';
+                                                    htmlAppendInstall += '<div class="form-group imagenCaratulaMed" style="display:none">';
+                                                        htmlAppendInstall +='<form id="uploadimageCaratulaM" action="" method="post" enctype="multipart/form-data">';
                                                             htmlAppendInstall += '<div id="selectImage">';
-                                                                htmlAppendInstall +='<label class="btn btn-success" for="imagenCuadroMed">';
-                                                                htmlAppendInstall +='<input id="imagenCuadroMed" type="file" style="display:none;">';
+                                                                htmlAppendInstall +='<label class="btn btn-success" for="imagenCaratulaMed">';
+                                                                htmlAppendInstall +='<input id="imagenCaratulaMed" type="file" style="display:none;">';
                                                                 htmlAppendInstall +='<input id="statusInstalacion" type="hidden" value="' + data[0].estatusAsignacionInstalacion + '" style="display:none;">';
                                                                 htmlAppendInstall +='<input id="idReporteF" type="hidden" value="' + data[0].reportID + '" style="display:none;">';
                                                                 htmlAppendInstall +='<i class="fa fa-cloud-upload" aria-hidden="true">';
                                                                 htmlAppendInstall +='</i>';
                                                                 htmlAppendInstall +='</label>&nbsp&nbsp';
-                                                                htmlAppendInstall +='<button type="button" id="delImagenCuadroMed" class="btn btn-danger"><i class="fa fa-chain-broken" aria-hidden="true"></i></button>';
+                                                                htmlAppendInstall +='<button type="button" id="delImagenCaratulaMed" class="btn btn-danger"><i class="fa fa-chain-broken" aria-hidden="true"></i></button>';
                                                             htmlAppendInstall += '</div>';
                                                         htmlAppendInstall += '</form>';
-                                                    htmlAppendInstall += '</div>';*/
+                                                    htmlAppendInstall += '</div>';
 
-                                                /*htmlAppendInstall += '<a onclick="showImagesInstallation(2);">';
-                                                htmlAppendInstall += '<div id="myCarousel4" class="carousel slide">';
-                                                    htmlAppendInstall += '<div class="carousel-inner">' + itemsInstallation + '</div>';
-                                                    htmlAppendInstall += '<a class="left carousel-control" href="#myCarousel4" data-slide="prev">';
-                                                        htmlAppendInstall += '<span class="icon-prev"></span>';
-                                                    htmlAppendInstall += '</a>';
-                                                    htmlAppendInstall += '<a class="right carousel-control" href="#myCarousel4" data-slide="next">';
-                                                        htmlAppendInstall += '<span class="icon-next"></span>';
-                                                    htmlAppendInstall += '</a>';
-                                                htmlAppendInstall += '</div>';
                                                 htmlAppendInstall += '</label>';
-                                                htmlAppendInstall += '<br/><br/>';*/
                                             htmlAppendInstall += '</div>';
 
                                             htmlAppendInstall += '<div class="col-md-6">';
@@ -2505,7 +2498,7 @@ function loadForm(idForm, type, idUsuario) {
                                                 htmlAppendInstall += '<input class="form-control" type="text" id="measurement" value="' + measurement + '">' + '<br/>';
                                                 htmlAppendInstall += '<label>Cuadro de medici&oacute;n<br/>';
 
-                                                    htmlAppendInstall+= '<div id="myCarousel3" class="carousel slide"><div class="carousel-inner">' + itemsMeasurer + '</div>' + '<a class="left carousel-control" href="#myCarousel3" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel3" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div><br/><br/></a>';
+                                                    htmlAppendInstall+= '<div id="myCarousel3" class="carousel slide"><div class="carousel-inner">' + itemsMeasurer + '</div>' + '<a class="left carousel-control" href="#myCarousel3" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel3" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div></a>';
                                                     htmlAppendInstall += '<div class="form-group imagenCuadroMed" style="display:none">';
                                                         htmlAppendInstall +='<form id="uploadimageCM" action="" method="post" enctype="multipart/form-data">';
                                                             htmlAppendInstall += '<div id="selectImage">';

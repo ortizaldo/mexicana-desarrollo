@@ -2963,6 +2963,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $("#sendInstalacion").hide();
             $("#saveInstalacion").show();
             $(".imagenCuadroMed").show();
+            $(".imagenCaratulaMed").show();
             $("#formsDetailsBody .eliminaMaterial").show();
             $("#formsDetailsBody .materialSelect").show();
             $("#formsDetailsBody .cantMaterial").show();
@@ -2972,6 +2973,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $("#sendInstalacion").show();
             $("#saveInstalacion").hide();
             $(".imagenCuadroMed").hide();
+            $(".imagenCaratulaMed").hide();
             $("#formsDetailsBody .eliminaMaterial").hide();
             $("#formsDetailsBody .materialSelect").hide();
             $("#formsDetailsBody .cantMaterial").hide();
@@ -3242,42 +3244,54 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'comprobante';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenID:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'identificacion';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenSolicitud:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'solicitud';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenPagare:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'pagare';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenAviso:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'aviso';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenContrato:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'contrato';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('change', '#imagenCuadroMed:not(:disabled)',  (function(e) {
@@ -3285,7 +3299,17 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         e.preventDefault();
         var file = this.files[0];
         var tipo = 'cuadro';
-        uploadImageVentas(file, tipo);
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
+    }));
+    $("#formsDetailsBody").on('change', '#imagenCaratulaMed:not(:disabled)',  (function(e) {
+        e.preventDefault();
+        var file = this.files[0];
+        var tipo = 'caratula';
+        if (typeof(file) !== 'undefined') {
+            uploadImageVentas(file, tipo);
+        }
     }));
 
     $("#formsDetailsBody").on('click', '#delImagenComprobante:not(:disabled)',  (function(e) {
@@ -3293,7 +3317,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         var tipo = 'comprobante';
         var elementImage =$('div.active a[data-lightbox="example-comprobante"]');
         var lengthImageActive=elementImage.length;
-        console.log('lengthImageActive', lengthImageActive);
         if (lengthImageActive > 0) {
             var nombre = $('div.active a[data-lightbox="example-comprobante"]').attr("href");
             var arrNombre = nombre.split('/');
@@ -3312,7 +3335,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     }));
 
     $("#formsDetailsBody").on('click', '#delImagenID:not(:disabled)',  (function(e) {
-        console.log(e);
         e.preventDefault();
         var tipo = 'identificacion';
         var elementImage =$('div.active a[data-lightbox="example-identificacion"]');
@@ -3442,6 +3464,27 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         }
     }));
 
+    $("#formsDetailsBody").on('click', '#delImagenCaratulaMed:not(:disabled)',  (function(e) {
+        e.preventDefault();
+        var tipo = 'caratula';
+        elementImage =$('div.active a[data-lightbox="example-caratula"]');
+        if (lengthImageActive > 0) {
+            var nombre = $('div.active a[data-lightbox="example-caratula"]').attr("href");
+            var arrNombre = nombre.split('/');
+            if (arrNombre.length > 6 ) {
+                deleteImageVentas(tipo);
+            }else if(arrNombre.length === 0){
+                $("#uploadimageCaratulaM").notify(
+                    "No existe una imagen para eliminar", "error"
+                );
+            }else if(arrNombre.length === 6){
+                $("#uploadimageCaratulaM").notify(
+                    "Esta imagen no se permite eliminar", "error"
+                );
+            }
+        }
+    }));
+
     function uploadImageVentas(fileImage, typeImage) {
         //generalizamos el codigo para no repetirlo
         var imagefile = fileImage.type;
@@ -3480,6 +3523,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     break;
                 case 'cuadro':
                     $("#uploadimageCM").notify(
+                        "El archivo seleccionado no es permitido", "error"
+                    );
+                    break;
+                case 'caratula':
+                    $("#uploadimageCaratulaM").notify(
                         "El archivo seleccionado no es permitido", "error"
                     );
                     break;
@@ -3531,6 +3579,12 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     );
                     elementImage =$('div.active a[data-lightbox="example-cuadro"]');
                     break;
+                case 'caratula':
+                    $("#uploadimageCaratulaM").notify(
+                        "Cargando imagen", "info"
+                    );
+                    elementImage =$('div.active a[data-lightbox="example-caratula"]');
+                    break;
             }
             //var filesLoad=this.files[0];
             var idReporte=parseInt($("#consecutive").val());
@@ -3546,7 +3600,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             var formData = new FormData();
             var month=moment().month();
             var year=moment().year();
-            if (typeImage === 'cuadro') {
+            if (typeImage === 'cuadro' || typeImage === 'caratula') {
+                console.log('typeImage', typeImage);
                 var statusInstalacion=parseInt($("#statusInstalacion").val());
                 var idReporte=parseInt($("#idReporteF").val());
                 formData.append("reportID", idReporte);
@@ -3616,6 +3671,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     "La imagen se cargo con exito", "success"
                                 );
                                 break;
+                            case 'caratula':
+                                $("#uploadimageCaratulaM").notify(
+                                    "La imagen se cargo con exito", "success"
+                                );
+                                break;
                         }
                         imageIsLoadedVentas(data.responseRuta, data.responseImg, typeImage);
                     }else if (respnseCode === 500){
@@ -3652,6 +3712,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                 break;
                             case 'cuadro':
                                 $("#uploadimageCM").notify(
+                                    data.response, "error"
+                                );
+                                break;
+                            case 'caratula':
+                                $("#uploadimageCaratulaM").notify(
                                     data.response, "error"
                                 );
                                 break;
@@ -3709,10 +3774,16 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 );
                 elementImage =$('div.active a[data-lightbox="example-cuadro"]');
                 break;
+            case 'caratula':
+                $("#uploadimageCaratulaM").notify(
+                    "Eliminando imagen", "info"
+                );
+                elementImage =$('div.active a[data-lightbox="example-caratula"]');
+                break;
         }
         //var filesLoad=this.files[0];
         var idReporte=parseInt($("#consecutive").val());
-        if(typeImage === 'cuadro'){
+        if(typeImage === 'cuadro' || typeImage === 'caratula'){
             idReporte=parseInt($("#idReporteF").val());
         }
         lengthImageActive=elementImage.length;
@@ -3780,6 +3851,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     "La imagen se elimino con exito", "success"
                                 );
                                 break;
+                            case 'caratula':
+                                $("#uploadimageCaratulaM").notify(
+                                    "La imagen se elimino con exito", "success"
+                                );
+                                break;
                         }
                         imageIsLoadedVentas(data.responseRuta, data.responseImg, typeImage);
                     }else if (respnseCode === 500){
@@ -3816,6 +3892,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                 break;
                             case 'cuadro':
                                 $("#uploadimageCM").notify(
+                                    data.response, "error"
+                                );
+                                break;
+                            case 'caratula':
+                                $("#uploadimageCaratulaM").notify(
                                     data.response, "error"
                                 );
                                 break;
@@ -3857,6 +3938,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     break;
                 case 'cuadro':
                     $("#uploadimageCM").notify(
+                        'No existe imagen por eliminar', "error"
+                    );
+                    break;
+                case 'caratula':
+                    $("#uploadimageCaratulaM").notify(
                         'No existe imagen por eliminar', "error"
                     );
                     break;
@@ -3921,6 +4007,12 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         carruselOP = $("#myCarousel3");
                         lightboxCar = $("a[data-lightbox='example-cuadro']");
                         idCarrusel= {normal:"#myCarousel3", normalOp:"#myCarousel3"};
+                        break;
+                    case 'caratula':
+                        carrusel = $("#myCarousel4");
+                        carruselOP = $("#myCarousel4");
+                        lightboxCar = $("a[data-lightbox='example-cuadro']");
+                        idCarrusel= {normal:"#myCarousel4", normalOp:"#myCarousel4"};
                         break;
                 }
 
@@ -3997,6 +4089,12 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     break;
                 case 'pagare':
                     $("#myCarousel5").html("");
+                    break;
+                case 'cuadro':
+                    $("#myCarousel3").html("");
+                    break;
+                case 'caratula':
+                    $("#myCarousel4").html("");
                     break;
             }
         }

@@ -16,8 +16,6 @@ $imgComprobante=$_POST["imgComprobante"];
 $financialServiceVal=$_POST["financialServiceVal"];
 $statusInstalacion=$_POST["statusInstalacion"];
 $getDatosStatus = getNumeroContrato($idReporte);
-//var_dump($getDatosStatus);
-//die();
 $base_url2= "http://siscomcmg.com:8080/";
 //$base_url2= "http://siscomcmg.com/";
 //$base_url2= "http://localhost/mexicanaDesarrollo/mexicana-de-gas-backoffice/";
@@ -48,7 +46,7 @@ if (isset($_FILES["PostImage"]["type"]) && isset($_POST["reportID"])) {
             //echo "Return Code: " . $_FILES["PostImage"]["error"] . "<br/><br/>";
         } else {
             if ((intval($getDatosStatus['estatusInstalacion']) != 51 || intval($getDatosStatus['estatusInstalacion']) != 54) &&
-                $tipoImg != "cuadro") {
+                $tipoImg != "cuadro" && $tipoImg != "caratula") {
                 //generamos la ruta para la carpeta en proceso
                 $dataDate=getMonthAndYear($idReporte, $tipoImg);
                 $year=date('Y', strtotime($dataDate["fechaCreacion"]));
@@ -102,7 +100,7 @@ if (isset($_FILES["PostImage"]["type"]) && isset($_POST["reportID"])) {
                 $imageName = $imageName  . "_File_" . generateRandomString() . "." . $file_extension;
                 $sourcePath = $_FILES['PostImage']['tmp_name'];
                 
-            }elseif($tipoImg == "cuadro"){
+            }elseif($tipoImg == "cuadro" || $tipoImg == "caratula"){
                 //generamos la ruta para la carpeta en proceso
                 $dataDate=getMonthAndYear($idReporte, $tipoImg);
                 $year=date('Y', strtotime($dataDate["fechaCreacion"]));
@@ -120,6 +118,9 @@ if (isset($_FILES["PostImage"]["type"]) && isset($_POST["reportID"])) {
                 switch ($tipoImg) {
                     case 'cuadro':
                         $imageName="foto_cuadro";
+                        break;
+                    case 'caratula':
+                        $imageName="foto_caratula";
                         break;
                 }
                 $imageName = $imageName  . "_File_" . generateRandomString() . "." . $file_extension;
@@ -147,7 +148,7 @@ if (isset($_FILES["PostImage"]["type"]) && isset($_POST["reportID"])) {
                              $tipoImg == "aviso" || 
                              $tipoImg == "contrato") {
                         $rutaModificada=getcwd().'/'.$CARPETA_VENTAS."/".$CARPETA_EN_PROCESO."/".$carpetaVenta."/".$year."/".$month."/".$getDatosStatus['numContrato']."/";
-                    }elseif ($tipoImg == "cuadro") {
+                    }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
                         if ($statusInstalacion == 51 || $statusInstalacion == 54) {
                             $carpeta=$CARPETA_TERMINADOS;
                         }else{
@@ -179,7 +180,7 @@ if (isset($_FILES["PostImage"]["type"]) && isset($_POST["reportID"])) {
                                         $idFormSell=getIdForm($idReporte, $tipoImg);
                                         $id=$idFormSell["idForm"];
                                         $stmtInsertFotoM="INSERT INTO form_sells_multimedia(idSell,idMultimedia,created_at,updated_at)VALUES(?,?,NOW(),NOW());";
-                                    }elseif ($tipoImg == "cuadro") {
+                                    }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
                                         $idFormInstall=getIdForm($idReporte, $tipoImg);
                                         $id=$idFormInstall["idForm"];
                                         $stmtInsertFotoM="INSERT INTO form_installation_multimedia(idFormInstallation,idMultimedia,created_at,updated_at)VALUES(?,?,NOW(),NOW());";
@@ -314,7 +315,7 @@ function getIdForm($idReporte, $tipoImg)
                                   0 = 0 AND fs.id = rh.idFormSell
                                   AND idReport = $idReporte
                                   AND rh.idReportType = 2";
-        }elseif ($tipoImg == "cuadro") {
+        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $getNumContratoSQL = "SELECT 
                                     a.id
                                 FROM
@@ -409,6 +410,13 @@ function getImgs($idReporte, $tipo)
                                     LEFT JOIN form_installation_multimedia AS FIM ON FIM.idFormInstallation = FI.id
                                     LEFT JOIN multimedia AS MUL ON MUL.id = FIM.idMultimedia
                                     WHERE RP.idReportType=4 AND RP.idReport =$idReporte and MUL.name LIKE 'foto_cuadro%';";
+        }elseif ($tipo == 'caratula') {
+            $querySmtFrmPlumbIMG = "SELECT MUL.content, MUL.name, MUL.id, MUL.created_at
+                                    FROM reportHistory AS RP
+                                    INNER JOIN form_installation AS FI ON FI.consecutive = RP.idFormSell
+                                    LEFT JOIN form_installation_multimedia AS FIM ON FIM.idFormInstallation = FI.id
+                                    LEFT JOIN multimedia AS MUL ON MUL.id = FIM.idMultimedia
+                                    WHERE RP.idReportType=4 AND RP.idReport =$idReporte and MUL.name LIKE 'foto_caratula%';";
         }
         $arrIMG=array();
         //echo 'query '.$querySmtFrmPlumbIMG;
@@ -458,7 +466,7 @@ function getMonthAndYear($idReporte, $tipoImg)
                                 AND tec.idReporte = rh.idReport
                                 AND idReport = $idReporte
                                 AND rh.idReportType = 2;";
-        }elseif ($tipoImg == "cuadro") {
+        }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $getYearContrato = "SELECT 
                                     a.created_at
                                 FROM

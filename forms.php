@@ -3004,28 +3004,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         }
     });
 
-    $('#formsDetailsBody').on('click', '#addMaterial:not(:disabled)', function(e) {
-        e.preventDefault();
-        $("#addMaterial").prop('disabled', true);
-        var isChecked=$("#editInstall").is(':checked');
-        if (isChecked === true) {
-            console.log('$(this)', $("#addMaterial").attr("data-id"));
-            var dataID=parseInt($("#addMaterial").attr("data-id"));
-            var materialSelect=$("#materialSelect option:selected").html();
-            var materialSelectVal=parseInt($("#materialSelect").val());
-            var cantidadMaterial=$("#cantidadMaterial").val();
-            if (!_.isEmpty(cantidadMaterial) && parseInt(materialSelectVal) !== 0) {
-                insertMaterialInst(dataID, cantidadMaterial, materialSelect);
-            }else{
-                $("#addMaterial").notify(
-                    "Faltan datos por capturar", "error"
-                );
-                $("#addMaterial").prop('disabled', false);
-            }
-            //loadMaterialInst(dataID);
-        }
-    });
-
     $("#formsDetailsBody").on('change', '#imagenInstTub:not(:disabled)',  (function(e) {
         e.preventDefault();
         var file = this.files[0];
@@ -3426,6 +3404,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         e.preventDefault();
         var tipo = 'contrato';
         var elementImage =$('div.active a[data-lightbox="example-contrato"]');
+        var lengthImageActive=elementImage.length;
         if (lengthImageActive > 0) {
             var nombre = $('div.active a[data-lightbox="example-contrato"]').attr("href");
             var arrNombre = nombre.split('/');
@@ -3446,7 +3425,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     $("#formsDetailsBody").on('click', '#delImagenCuadroMed:not(:disabled)',  (function(e) {
         e.preventDefault();
         var tipo = 'cuadro';
-        elementImage =$('div.active a[data-lightbox="example-cuadro"]');
+        var elementImage =$('div.active a[data-lightbox="example-cuadro"]');
+        var lengthImageActive=elementImage.length;
         if (lengthImageActive > 0) {
             var nombre = $('div.active a[data-lightbox="example-cuadro"]').attr("href");
             var arrNombre = nombre.split('/');
@@ -3467,7 +3447,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     $("#formsDetailsBody").on('click', '#delImagenCaratulaMed:not(:disabled)',  (function(e) {
         e.preventDefault();
         var tipo = 'caratula';
-        elementImage =$('div.active a[data-lightbox="example-caratula"]');
+        var elementImage =$('div.active a[data-lightbox="example-caratula"]');
+        var lengthImageActive=elementImage.length;
         if (lengthImageActive > 0) {
             var nombre = $('div.active a[data-lightbox="example-caratula"]').attr("href");
             var arrNombre = nombre.split('/');
@@ -3792,11 +3773,16 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         if (lengthImageActive > 0) {
             nameImage= elementImage.attr("href");
             arrayNameImage= nameImage.split("/");
-            nameImage=arrayNameImage[10];
+            if (arrayNameImage.length > 10) {
+                nameImage=arrayNameImage[10];
+            }else if(arrayNameImage.length === 10){
+                nameImage=arrayNameImage[9];
+            }
             if (typeImage === 'cuadro') {
                 nameImage=arrayNameImage[9];    
             }
             //nameImage=arrayNameImage[11];
+            console.log('nameImage', nameImage);
         }
         console.log('nameImage', nameImage);
         var financialServiceVal=parseInt($("#financialServiceVal").val());

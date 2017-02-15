@@ -36,7 +36,7 @@ $year=date('Y', strtotime($dataDate["fechaCreacion"]));
 $month=date('m', strtotime($dataDate["fechaCreacion"]));
 $carpetaVenta="";
 if ((intval($getDatosStatus['estatusInstalacion']) != 51 || intval($getDatosStatus['estatusInstalacion']) != 54) && 
-    ($tipoImg != "cuadro" || $tipoImg == "caratula")) {
+    ($tipoImg != "cuadro" && $tipoImg != "caratula")) {
     
     if ($financialServiceVal != "" && $financialServiceVal == 1) {
         $carpetaVenta=$CARPETA_AYOPSA;
@@ -309,7 +309,7 @@ function getImgs($idReporte, $tipo)
                                     INNER JOIN form_sells AS FS ON FS.id = RP.idFormSell
                                     LEFT JOIN form_sells_multimedia AS FSM ON FSM.idSell = FS.id
                                     LEFT JOIN multimedia AS MUL ON MUL.id = FSM.idMultimedia
-                                    WHERE RP.idReportType=2 AND RP.idReport =$idReporte and MUL.name LIKE 'identificacion%';";
+                                    WHERE RP.idReportType=2 AND RP.idReport =$idReporte and (MUL.name LIKE 'identificacion%' OR MUL.name LIKE 'indentificacion%');";
         }elseif ($tipo == 'solicitud') {
             $querySmtFrmPlumbIMG = "SELECT MUL.content, MUL.name, MUL.id, MUL.created_at
                                     FROM reportHistory AS RP

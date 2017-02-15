@@ -6,12 +6,13 @@ ini_set('memory_limit', '-1');
 $starttime = microtime(true);
 /* do stuff here */
 error_log('message time starttime: '.date("H:i:s",$starttime));
-require_once('../../dataLayer/libs/nusoap_lib/nusoap.php');
+//require_once('../../dataLayer/libs/nusoap_lib/nusoap.php');
 include_once dirname(dirname(dirname(__FILE__))) . "/dataLayer/DAO.php";
 $DB = new DAO();
 $conn = $DB->getConnect();
 //validamos si el archivo existe en la carpeta
 $archivoCSV = "../../uploads/csvAgencias/direcciones_agencias.csv";
+error_log('message ruta '.getcwd());
 if (file_exists($archivoCSV)) {
     $stmtDelFirst="TRUNCATE TABLE direccionesAgenciaCSV";
     if ($delDirAgency = $conn->prepare($stmtDelFirst)) {
@@ -48,6 +49,8 @@ if (file_exists($archivoCSV)) {
     }else{
         error_log($conn->error);
     }
+}else{
+    error_log('message no existe archivo');
 }
 function updateIdAgencia($nicknameagencia, $idAgenciaSiscom)
 {

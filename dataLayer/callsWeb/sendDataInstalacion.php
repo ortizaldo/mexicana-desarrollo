@@ -138,7 +138,8 @@ function sendInstalacion($post)
     $inst['t_Lectura']=$post['measurement'];
     $inst['t_Instalador']=258;
     $inst['t_Fecha_Ins']=$post['created_at'];
-    $inst['t_Anomalia']=$post['abnormalities'];
+    //$inst['t_Anomalia']=$post['abnormalities'];
+    $inst['t_Anomalia']=0;
     $inst['t_Observaciones']=$post['comments'];
     $inst['t_Union_3-4']=0;
     $inst['t_Red_Camp_3-4_1-2']=0;

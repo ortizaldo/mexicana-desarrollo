@@ -1,8 +1,9 @@
-<?php include_once "../DAO.php";
+<?php 
+include_once "../DAO.php";
 
 $DB = new DAO();
 $conn = $DB->getConnect();
-$reportID=$_GET['agencia'];
+$reportID=$_GET['id'];
 $returnData = []; $reports = [];
 
 /*$getReportStatus = "SELECT E.idReporte, E.idAgenciaInstalacion,USAG.nickname  from tEstatusContrato
@@ -29,6 +30,7 @@ LEFT JOIN reportHistory AS rpH ON rpH.idReport = repH.idReporte
 WHERE EMP.idProfile in (4,8,9) and USEMP.active=1 and repH.idReporte=$reportID and rpH.idReportType=4";
 
 
+//echo "getReportStatus ".$getReportStatus;
 
 $result = $conn->query($getReportStatus);
 while( $row = $result->fetch_array() ) {

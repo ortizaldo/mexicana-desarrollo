@@ -468,14 +468,16 @@ function getMonthAndYear($idReporte, $tipoImg)
                                 AND rh.idReportType = 2;";
         }elseif ($tipoImg == "cuadro" || $tipoImg == "caratula") {
             $getYearContrato = "SELECT 
-                                    a.created_at
+                                    c.fechaAlta
                                 FROM
                                     form_installation a,
-                                    reportHistory b
+                                    reportHistory b,
+                                    tEstatusContrato c,
                                 WHERE
                                     a.consecutive = b.idFormSell
-                                        AND b.idReport = $idReporte
-                                        AND b.idReportType = 4;";
+                                    c.idReporte = b.idReport
+                                    AND b.idReport = $idReporte
+                                    AND b.idReportType = 4;";
         }
         //$getYearContrato = "SELECT created_at FROM report WHERE id = $idReporte;";
         $result = $conn->query($getYearContrato);

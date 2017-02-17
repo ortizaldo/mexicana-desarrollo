@@ -244,6 +244,9 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 			error_log('inFinancialService2 '.$inFinancialService);
 
 			$responseArrayInsertarFormularioTipoVentaUno=array();
+
+			$resGetStatusReport=getStatusReport($idAsignacion);
+			
 			$responseArrayInsertarFormularioTipoVentaUno = insertarFormularioTipoVentaUno(
 				$conn,$idUsuario,$idAsignacion,$estatusWorkFlow,$tipoDeReporte,$inAgreementNumber, 
 				$inClientName, $inClientLastName1, $inClientLastName2, $coloniaCallejero,$streetCallejero,
@@ -259,7 +262,13 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 				/**SACAMOS EL ID REPORTE QUE GENERO LA CONSULTA**/
 				$idFormSellsGenerado= $responseArrayInsertarFormularioTipoVentaUno["idFormSellsGenerado"];
                 /**  BUG IMAGEN  */
-                borrarImagenFormSell($idFormSellsGenerado);
+                error_log('message status '.$resGetStatusReport[0]["estatusVenta"]);
+                if (intval($resGetStatusReport[0]["estatusVenta"]) == 9) {
+                	error_log('message entre a estatus rehazado');
+                	borrarImagenFormSell($idFormSellsGenerado, $idAsignacion, $estatus);
+                }
+                //borrarImagenFormSell($idFormSellsGenerado, $idAsignacion, $estatus);
+                
                 /**  BUG IMAGEN  */
                 /***AHORA DEBEMOS INSERTAR LA RELACION DE LAS FOTOGRAFIAS CON LA VENTA ESTO
 				 * RECORRIENDO EL ARREGLO DE FOTOGRAFIAS***/
@@ -1748,18 +1757,254 @@ function getIdCity($city)
 	}
 }
 
-function borrarImagenFormSell($idFormSellsGenerado)
+function borrarImagenFormSell($idFormSellsGenerado, $idReport, $estatus)
 {
     $DB = new DAO();
     $conn = $DB->getConnect();
-    
-    $delSQL = "DELETE FROM form_sells_multimedia WHERE idSell = ?;";
-    $smtDel = $conn->prepare($delSQL);
-    $smtDel->bind_param("i", $idFormSellsGenerado);
-    $smtDel->execute();
+    $rechazo = validarSiEsRechazo($idReport);
+
+    $trustedHome = $rechazo[0]["trustedHome"];
+    $requestImage = $rechazo[0]["requestImage"];
+    $privacyAdvice = $rechazo[0]["privacyAdvice"];
+    $identificationImage = $rechazo[0]["identificationImage"];
+    $payerImage = $rechazo[0]["payerImage"];
+    $agreegmentImage = $rechazo[0]["agreegmentImage"];
+    error_log('message payerImage '.$payerImage);
+    $querys = [];
+    if (intval($trustedHome) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND d.name like 'comprobante%'";
+		array_push($querys,$stmtDeletePic);
+    }
+    if (intval($requestImage) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND d.name like 'solicitud%'";
+		array_push($querys,$stmtDeletePic);
+    }
+    if (intval($privacyAdvice) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND d.name like 'aviso%'";
+		array_push($querys,$stmtDeletePic);
+    }
+    if (intval($identificationImage) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND (d.name like 'identificacion%' OR d.name like 'indentificacion%')";
+		array_push($querys,$stmtDeletePic);
+    }
+    if (intval($payerImage) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND d.name like 'pagare%'";
+		array_push($querys,$stmtDeletePic);
+    }
+    if (intval($agreegmentImage) == 0) {
+    	//creamos el statment para eliminar la imagen que se esta rechazando
+    	$stmtDeletePic = "SELECT 
+						  d.id, d.name
+						  FROM
+						  reportHistory a,
+						  form_sells b,
+						  form_sells_multimedia c,
+						  multimedia d
+						  WHERE
+						  0 = 0 
+						  AND a.idFormSell = b.id
+						  AND b.id = c.idSell
+						  AND c.idMultimedia = d.id
+						  AND a.idReportType = 2
+						  AND a.idReport = $idReport
+						  AND d.name like 'contrato%'";
+		array_push($querys,$stmtDeletePic);
+    }
+    foreach ($querys as $key => $stmt) {
+    	//recorremos el arreglo de consultas
+    	$result = $conn->query($stmt);
+	    if ($result->num_rows > 0) {
+	    	while($row = $result->fetch_array()) {
+	        	if (intval($row[0]) > 0) {
+	        		error_log('message entre a borrar las imagenes');
+	        		$delSQL = "DELETE FROM form_sells_multimedia WHERE idMultimedia = ?;";
+				    if ($smtDel = $conn->prepare($delSQL)) {
+				    	$idImagen = intval($row[0]);
+				    	$smtDel->bind_param("i", $row[0]);
+				    	if ($smtDel->execute()) {
+				    		error_log('message borramos la imagen '.$row[1]);
+				    	}
+				    }
+	        	}
+	        }
+	    }
+    }
+    /*$result = $conn->query($stmtDeletePic);
+    if ($result->num_rows > 0) {
+    	while($row = $result->fetch_array()) {
+        	if (intval($row[0]) > 0) {
+        		error_log('message entre a borrar las imagenes');
+        		$delSQL = "DELETE FROM form_sells_multimedia WHERE idMultimedia = ?;";
+			    if ($smtDel = $conn->prepare($delSQL)) {
+			    	$idImagen = intval($row[0]);
+			    	$smtDel->bind_param("i", $row[0]);
+			    	if ($smtDel->execute()) {
+			    		error_log('message borramos la imagen '.$row[1]);
+			    	}
+			    }
+        	}
+        }
+    }*/
     
     $conn->close(); 
 }
+
+function getStatusReport($idReport)
+{
+	if ($idReport != '') {
+        $DB = new DAO();
+        $conn = $DB->getConnect();
+        $getIdRepHSQL = "SELECT 
+						    a.idReport,
+						    b.estatusVenta
+						FROM
+						    reportHistory a,
+						    tEstatusContrato b
+						WHERE
+						    0 = 0 
+						    AND a.idFormSell = b.idReporte
+						    AND a.idReportType = 2
+						    AND a.idReport = $idReport";
+        $result = $conn->query($getIdRepHSQL);
+        $res=[];
+        if ($result->num_rows > 0) {
+        	$cont = 0;
+            while($row = $result->fetch_array()) {
+            	$res[$cont]["idReport"]=$row[0];
+            	$res[$cont]["estatusVenta"]=$row[1];
+                $cont++;
+            }
+        }
+        $conn->close();
+        return $res;
+    }
+
+}
+
+
+function validarSiEsRechazo($idReport)
+{
+	if ($idReport != '') {
+        $DB = new DAO();
+        $conn = $DB->getConnect();
+        $getIdRepHSQL = "SELECT 
+						    a.idReport,
+						    a.idStatusReport,
+						    a.rechazado,
+						    c.requestImage,
+						    c.privacyAdvice,
+						    c.identificationImage,
+						    c.payerImage,
+						    c.agreegmentImage,
+						    c.trustedHome
+						FROM
+						    reportHistory a,
+						    form_sells b,
+						    form_sells_validation c
+						WHERE
+						    0 = 0 
+						    AND a.idFormSell = b.id
+						    AND b.id = c.idFormSell
+						    AND a.idReportType = 2
+						    AND a.idReport = $idReport";
+        $result = $conn->query($getIdRepHSQL);
+        $res=[];
+        if ($result->num_rows > 0) {
+        	$cont = 0;
+            while($row = $result->fetch_array()) {
+            	$res[$cont]["idReport"]=$row[0];
+            	$res[$cont]["idStatusReport"]=$row[1];
+                $res[$cont]["rechazado"]=$row[2];
+                $res[$cont]["requestImage"]=$row[3];
+                $res[$cont]["privacyAdvice"]=$row[4];
+                $res[$cont]["identificationImage"]=$row[5];
+                $res[$cont]["payerImage"]=$row[6];
+                $res[$cont]["agreegmentImage"]=$row[7];
+                $res[$cont]["trustedHome"]=$row[8];
+                $cont++;
+            }
+        }
+        $conn->close();
+        return $res;
+    }
+
+}
+
 function actualizarReportTiempos($idReporteGenerado, $estatusWorkFlow)
 { 
     
@@ -2127,9 +2372,9 @@ function callWebService($p_cia,$p_usr_id,$it_instalaciones,$jsonItSolicitud, $re
 
 	    $arrayItSolicitud = json_decode($jsonItSolicitud);
 	    $it_solicitud = (array)$arrayItSolicitud;
-	    $clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
+	    $clienteSoapMexicana = "http://111.111.111.3/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
 	    $nuSoapClientMexicana = new nusoap_client($clienteSoapMexicana, true);
-	    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
+	    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.3/wsa/wsa1/";
 	    $nuSoapClientMexicana->soap_defencoding = 'UTF-8';
 	    $nuSoapClientMexicana->decode_utf8 = false;
 	    $postData = array(

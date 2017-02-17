@@ -946,7 +946,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     itemsAnnouncementOP += '</div>';
                                 }
                                 numElem++;
-                            } else if (res == 'identificacion') {
+                            } else if (res == 'identificacion' || res == 'indentificacion') {
                                 if (second) {
                                     numElem = 1;
                                     elementsIdentification += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
@@ -2112,6 +2112,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     });
 
     $('#btnCreateSell').click(function () {
+        $('#btnCreateSell').prop("disabled", true);
         var city = $("#txMun option:selected").text();
         if (city == "") {
             //Activar toast para el aviso de llenado en los campos correspondientes
@@ -2156,11 +2157,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     $('#modalform').modal('hide');
                     configurarToastCentrado();
                     MostrarToast(1, "Venta Creada", "La creación de Venta y notificación de la asignación de la misma se realizó con éxito");
-                   window.location='forms.php';
+                    window.location='forms.php';
                     //loadMain(); 
                 }, error: function (response) {
                     //alert(xhr.status);
-            }
+                }
             });
         }
     });
@@ -2705,8 +2706,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         var tipoReporte;
                         var arrObjDatos=[], myFailure;
                         _.each(data, function(dato, index) {
-                            if(index === 0){
-                                console.log('data',dato);
+                            //if(index === 0){
+                                //console.log('data',dato);
                                 switch(parseInt(data[index].idReportType)) {
                                     case 1:
                                         tipoReporte='Censo';
@@ -2736,7 +2737,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     async: false,
                                     dataType: "JSON"
                                 }));
-                            }
+                            //}
                         });
                         $.when(arrObjDatos).then(mySuccessFunction, myFailure);
                     }
@@ -2756,7 +2757,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         });
         console.log('arrDatos', arrDatos);
         //$('#btn_download').prop('disabled', false);
-        /*if(arrDatos.length > 0){
+        if(arrDatos.length > 0){
             $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
             $.ajax({
                 method: "POST",
@@ -2782,7 +2783,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
                 }
             });
-        }*/
+        }
     }
     $('#addSecondSell:not(:disabled)').click(function () {
         $('#addSecondSell').prop('disabled', true);
@@ -4795,6 +4796,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     }
     //---- boton btnSendF -------
     $(document).on('click', '#btnSendSell', function () {
+        $("#btnSendSell").prop("disabled", true);
         var idForm = $('#formID').val();
         var id = localStorage.getItem("id");
         if (idForm == undefined) {

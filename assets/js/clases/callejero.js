@@ -31,26 +31,31 @@ function loadCities() {
 }
 
 function loadColonias(city) {
-    $.ajax({
-        method: "POST",
-        url: "dataLayer/callsWeb/siscomColonias.php",
-        data: {city: city},
-        dataType: "JSON",
-        success: function (data) {
-            console.log(data);
-            var tempData = [];
-            tempData = data.ot_colonias;
-            tempData = tempData.ot_coloniasRow;
-            $('#txtCol').html('');
-            $('#txtCol').append("<option value=''>SELECCIONAR</option>");
-            for (city in tempData) {
-                if (tempData[city].nombre !== null) {
-                    $('#txtCol').append('<option value="' + tempData[city].idcolonia + '">' + tempData[city].nombre + '</option>');
+    console.log('_.isEmpty(city)', _.isEmpty(city));
+    if (!_.isEmpty(city)) {
+        $.ajax({
+            method: "POST",
+            url: "dataLayer/callsWeb/siscomColonias.php",
+            data: {city: city},
+            dataType: "JSON",
+            success: function (data) {
+                console.log(data);
+                var tempData = [];
+                tempData = data.ot_colonias;
+                tempData = tempData.ot_coloniasRow;
+                console.log('has col', _.has(data, "ot_colonias"));
+                for (city in tempData) {
+                    if (tempData[city].nombre !== null) {
+                        $('#txtCol').append('<option value="' + tempData[city].idcolonia + '">' + tempData[city].nombre + '</option>');
+                    }
                 }
+                sortSelectOptions('#txtCol', true);
             }
-            sortSelectOptions('#txtCol', true);
-        }
-    });
+        });
+    }else{
+        $('#txtCol').html('');
+        $('#txtCol').append("<option value=''>SELECCIONAR</option>");
+    }
 }
 function getNumeros(street, direccionesarray) {
     numerosArray = [];

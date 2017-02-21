@@ -1675,7 +1675,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     });
 
     $('#completos').on('click', function(e) {
-        console.log('completos');
         var isChecked = $('#completos').is(':checked');
         if (isChecked) {
             var isCheckedGeneral = $('#general').is(':checked');
@@ -1909,7 +1908,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     MostrarToast(1, texto, data.result);
                     configurarToastCentrado();
                     //loadMain();
-                    window.location='forms.php';
+                    //window.location='forms.php';
+                    cargarReportes();
                     $("#asignacionMasiva").prop("disabled", false);
                 }
             }, error: function (xhr, ajaxOptions, thrownError) {
@@ -2321,7 +2321,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     $('#modalform').modal('hide');
                     configurarToastCentrado();
                     MostrarToast(1, "Venta Creada", "La creación de Venta y notificación de la asignación de la misma se realizó con éxito");
-                    window.location='forms.php';
+                    //window.location='forms.php';
+                    cargarReportes();
                     //loadMain(); 
                 }, error: function (response) {
                     //alert(xhr.status);
@@ -3040,7 +3041,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     configurarToastCentrado();
                                     $('#sendInstalacion').html(data.result);
                                     $('#formsDetails').modal('hide');
-                                    window.location='forms.php';
+                                    //window.location='forms.php';
+                                    cargarReportes();
                                 }
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -4660,14 +4662,16 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         $('#taskForm').modal('hide');
                         configurarToastCentrado();
                         //loadMain();
-                        window.location='forms.php';
+                        //window.location='forms.php';
+                        cargarReportes();
                         $('#formInstallationSale').trigger("reset");
                         $('#txtTaskAgency').empty().append('whatever');
                         $('#txtTaskEmployee').empty().append('whatever');
                         $('#btnAssign').prop('disabled', false);
                     }else if(data.code === '100' || data.code === 100){
                         MostrarToast(1, "Asignación Finalizada", data.result);
-                        window.location='forms.php';
+                        //window.location='forms.php';
+                        cargarReportes();
                     }
                 }
 
@@ -5024,7 +5028,9 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             configurarToastCentrado();
                             MostrarToast(1, "Rechazo Exitoso", data.response);
                             
-                            window.location='forms.php';
+                            //window.location='forms.php';
+                            //aqui cargamos los pendientes o completos dependiendo de que en que estatus este
+                            cargarReportes();
                         }
 
                         if(data.status == "BAD"){
@@ -5055,7 +5061,9 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                         MostrarToast(2, "Venta Rechazada", "La venta fue rechazada por no cumplir con las fotografias correctas");
                                     }
 
-                                    window.location='forms.php';
+                                    //window.location='forms.php';
+                                    cargarReportes();
+                                    //aqui cargamos los pendientes o completos dependiendo de que en que estatus este
 
                                 } else {
                                     $('#formsDetails').modal('hide');
@@ -5071,7 +5079,61 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
         }
     });
-
+    function cargarReportes() {
+        //general completos pendientes
+        var general = $("#general").is(':checked');
+        var completos = $("#completos").is(':checked');
+        var pendientes = $("#pendientes").is(':checked');
+        var tipoReporte = "";
+        if (general) {
+            tipoReporte = "general";
+        }else if (completos) {
+            tipoReporte = "completos";
+        }else if (pendientes) {
+            tipoReporte = "pendientes";
+        }
+        var idUser = $("#inputIdUser").val();
+        var tipoAgencia = $("#typeAgency").val();
+        if (!_.isEmpty(tipoReporte)) {
+            //cargamos el reporte dependiendo de que se tenga seleccionado
+            $("#limpiarFiltros").notify("Cargando informacion..", "info");
+            $.ajax({
+                method: "POST",
+                url: "dataLayer/callsWeb/loadForms.php",
+                dataType: "JSON",
+                data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:tipoReporte},
+                success: function (data) {
+                    $('#bodyReport').html('');
+                    var sizeData = data.length;
+                    if (sizeData > 0) {
+                        var sizeReportes = data.length;
+                        construirProcesosReporte(0, sizeReportes, data);
+                    } else {
+                        $("#tablaLoader").html('');
+                    }
+                }
+            });
+        }else{
+            //cargamos los pendientes por defecto
+            $("#limpiarFiltros").notify("Cargando informacion..", "info");
+            $.ajax({
+                method: "POST",
+                url: "dataLayer/callsWeb/loadForms.php",
+                dataType: "JSON",
+                data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
+                success: function (data) {
+                    $('#bodyReport').html('');
+                    var sizeData = data.length;
+                    if (sizeData > 0) {
+                        var sizeReportes = data.length;
+                        construirProcesosReporte(0, sizeReportes, data);
+                    } else {
+                        $("#tablaLoader").html('');
+                    }
+                }
+            });
+        }
+    }
     $(document).on('click', '#btnCancelTaskAssign', function () {
         $('#taskForm').modal('hide');
     });

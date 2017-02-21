@@ -9,7 +9,6 @@ $DB = new DAO();
 $conn = $DB->getConnect();
 $datosForms=$_POST["collection"];
 if (isset($_POST["collection"])) {
-    //echo json_encode($_POST["collection"]);
     
     $objPHPExcel = new PHPExcel();
     $objPHPExcel->getProperties()->setCreator("Mexicana de Gas")

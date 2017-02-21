@@ -10,6 +10,7 @@ var carouselDebtor;
 var carouselAgreement;
 
 var base_url2= "http://siscomcmg.com:8080/";
+//var base_url2= "http://siscomcmg.com/";
 //var base_url2= "http://localhost/mexicanaDesarrollo/mexicana-de-gas-backoffice/";
 //var base_url2= "http://localhost/mexicana-de-gas-backoffice/";
 var CARPETA_NOMBRE_PROYECTO = "mexicana-de-gas-backoffice";
@@ -846,90 +847,91 @@ function loadForm(idForm, type, idUsuario) {
                             var itemsPieDerOP = "";
                             if (data[0].arrIMG.length > 0) {
                                 _.each(data[0].arrIMG, function (dataImg, idx) {
-                                    var FileType = getFileType(dataImg.nameIMG);
-                                    var urlFinal = getRutaPlomeria(data[0].estatusAsignacionInstalacion, data[0].created_at,data[0].request,dataImg.nameIMG)
-                                    //if (FileType == 'foto_tuberia') {
-                                    if (FileType == 'tuberia') {
-                                        
-                                        if (zero) {
-                                            elementsTuberia += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
+                                    if (!_.isNull(dataImg.nameIMG) && !_.isEmpty(dataImg.nameIMG) && !_.isUndefined(dataImg.nameIMG)) {
+                                        var FileType = getFileType(dataImg.nameIMG);
+                                        var urlFinal = getRutaPlomeria(data[0].estatusAsignacionInstalacion, data[0].created_at,data[0].request,dataImg.nameIMG)
+                                        //if (FileType == 'foto_tuberia') {
+                                        if (FileType == 'tuberia') {
+                                            if (zero) {
+                                                elementsTuberia += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
 
-                                            itemsTuberia += '<div class="item active">';
-                                            itemsTuberia += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
-                                            //itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" />';
-                                            itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" style="" />';
-                                            itemsTuberia += '</a>';
-                                            itemsTuberia += '</div>';
+                                                itemsTuberia += '<div class="item active">';
+                                                itemsTuberia += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
+                                                //itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" />';
+                                                itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" style="" />';
+                                                itemsTuberia += '</a>';
+                                                itemsTuberia += '</div>';
 
-                                            elementsTuberiaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
+                                                elementsTuberiaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
 
-                                            itemsTuberiaOP += '<div class="item active">';
-                                            itemsTuberiaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
-                                            itemsTuberiaOP += '<img src="' +  urlFinal + '" alt="tuberia" height="1024px" width="1248px" style="" />';
-                                            itemsTuberiaOP += '</a>';
-                                            itemsTuberiaOP += '</div>';
+                                                itemsTuberiaOP += '<div class="item active">';
+                                                itemsTuberiaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
+                                                itemsTuberiaOP += '<img src="' +  urlFinal + '" alt="tuberia" height="1024px" width="1248px" style="" />';
+                                                itemsTuberiaOP += '</a>';
+                                                itemsTuberiaOP += '</div>';
 
-                                            zero = false;
-                                        } else {
-                                            elementsTuberia += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '"></li>';
+                                                zero = false;
+                                            } else {
+                                                elementsTuberia += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '"></li>';
 
-                                            itemsTuberia += '<div class="item">';
-                                            itemsTuberia += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
-                                            itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" style="" />';
-                                            itemsTuberia += '</a>';
-                                            itemsTuberia += '</div>';
+                                                itemsTuberia += '<div class="item">';
+                                                itemsTuberia += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
+                                                itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" style="" />';
+                                                itemsTuberia += '</a>';
+                                                itemsTuberia += '</div>';
 
-                                            elementsTuberiaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '"></li>';
+                                                elementsTuberiaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '"></li>';
 
-                                            itemsTuberiaOP += '<div class="item">';
-                                            itemsTuberiaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
-                                            itemsTuberiaOP += '<img src="' +  urlFinal + '" alt="tuberia" height="1024px" width="1248px" style="" />';
-                                            itemsTuberiaOP += '</a>';
-                                            itemsTuberiaOP += '</div>';
+                                                itemsTuberiaOP += '<div class="item">';
+                                                itemsTuberiaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-tuberia" >';
+                                                itemsTuberiaOP += '<img src="' +  urlFinal + '" alt="tuberia" height="1024px" width="1248px" style="" />';
+                                                itemsTuberiaOP += '</a>';
+                                                itemsTuberiaOP += '</div>';
+                                            }
+                                            numElem++;
+                                            //} else if (FileType == 'foto_pie_derecho') {
+
+                                        } else if (FileType == 'pie') {
+                                            if (first) {
+                                                numElem = 1;
+                                                elementsPieDerecho += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                                itemsPieDer += '<div class="item active">';
+                                                itemsPieDer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
+                                                //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
+                                                itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
+                                                itemsPieDer += '</a>';
+                                                itemsPieDer += '</div>';
+
+                                                elementsPieDerechoOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                                itemsPieDerOP += '<div class="item active">';
+                                                itemsPieDerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
+                                                itemsPieDerOP += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
+                                                itemsPieDerOP += '</a>';
+                                                itemsPieDerOP += '</div>';
+
+                                                first = false;
+                                            } else {
+                                                elementsPieDerecho += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '"></li>';
+
+                                                itemsPieDer += '<div class="item">';
+                                                itemsPieDer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
+                                                itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
+                                                itemsPieDer += '</a>';
+                                                itemsPieDer += '</div>';
+
+                                                elementsPieDerechoOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                                itemsPieDerOP += '<div class="item">';
+                                                itemsPieDerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
+                                                itemsPieDerOP += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
+                                                itemsPieDerOP += '</a>';
+                                                itemsPieDerOP += '</div>';
+                                            }
+                                            numElem++;
+                                            //} else if (FileType == 'foto_pagare') {
                                         }
-                                        numElem++;
-                                        //} else if (FileType == 'foto_pie_derecho') {
-
-                                    } else if (FileType == 'pie') {
-                                        if (first) {
-                                            numElem = 1;
-                                            elementsPieDerecho += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                            itemsPieDer += '<div class="item active">';
-                                            itemsPieDer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
-                                            //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
-                                            itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
-                                            itemsPieDer += '</a>';
-                                            itemsPieDer += '</div>';
-
-                                            elementsPieDerechoOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                            itemsPieDerOP += '<div class="item active">';
-                                            itemsPieDerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
-                                            itemsPieDerOP += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
-                                            itemsPieDerOP += '</a>';
-                                            itemsPieDerOP += '</div>';
-
-                                            first = false;
-                                        } else {
-                                            elementsPieDerecho += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '"></li>';
-
-                                            itemsPieDer += '<div class="item">';
-                                            itemsPieDer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
-                                            itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
-                                            itemsPieDer += '</a>';
-                                            itemsPieDer += '</div>';
-
-                                            elementsPieDerechoOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                            itemsPieDerOP += '<div class="item">';
-                                            itemsPieDerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-pie" >';
-                                            itemsPieDerOP += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" style="" />';
-                                            itemsPieDerOP += '</a>';
-                                            itemsPieDerOP += '</div>';
-                                        }
-                                        numElem++;
-                                        //} else if (FileType == 'foto_pagare') {
                                     }
                                 })
                             }
@@ -1247,7 +1249,6 @@ function loadForm(idForm, type, idUsuario) {
                         var fifth = true;
                         var numElem = 1;
                         
-                        console.log('data', data);
                         if (data.length > 0) {
                             _.each(data[0].arrIMG, function (rowImage, idx) {
                                 console.log('rowImage', rowImage);
@@ -2259,128 +2260,130 @@ function loadForm(idForm, type, idUsuario) {
                         
                         if (data[0].arrIMG.length > 0) {
                             _.each(data[0].arrIMG, function (dataImg, idx) {
-                                var res = dataImg.nameIMG.split("_");
-                                var FileType = res[1];
-                                var urlFinal = getRutaInstalacion(data[0].estatusAsignacionInstalacion, data[0].created_at, data[0].agreementNumber, dataImg.nameIMG);
-                                if (FileType == 'estado') {
-                                    
-                                    if (zero) {
-                                        elementsAcometida += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
+                                if (!_.isNull(dataImg.nameIMG) && !_.isEmpty(dataImg.nameIMG) && !_.isUndefined(dataImg.nameIMG)) {
+                                    var res = dataImg.nameIMG.split("_");
+                                    var FileType = res[1];
+                                    var urlFinal = getRutaInstalacion(data[0].estatusAsignacionInstalacion, data[0].created_at, data[0].agreementNumber, dataImg.nameIMG);
+                                    if (FileType == 'estado') {
+                                        
+                                        if (zero) {
+                                            elementsAcometida += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
 
-                                        itemsAcometida += '<div class="item active">';
-                                        itemsAcometida += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
-                                        //itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" />';
-                                        itemsAcometida += '<img src="' +  urlFinal + '" alt="acometida" height="256px" width="256px" style="" />';
-                                        itemsAcometida += '</a>';
-                                        itemsAcometida += '</div>';
+                                            itemsAcometida += '<div class="item active">';
+                                            itemsAcometida += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
+                                            //itemsTuberia += '<img src="' +  urlFinal + '" alt="tuberia" height="256px" width="256px" />';
+                                            itemsAcometida += '<img src="' +  urlFinal + '" alt="acometida" height="256px" width="256px" style="" />';
+                                            itemsAcometida += '</a>';
+                                            itemsAcometida += '</div>';
 
-                                        elementsAcometidaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
+                                            elementsAcometidaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '" class="active"></li>';
 
-                                        itemsAcometidaOP += '<div class="item active">';
-                                        itemsAcometidaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
-                                        itemsAcometidaOP += '<img src="' +  urlFinal + '" alt="acometida" height="1024px" width="1248px" style="" />';
-                                        itemsAcometidaOP += '</a>';
-                                        itemsAcometidaOP += '</div>';
+                                            itemsAcometidaOP += '<div class="item active">';
+                                            itemsAcometidaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
+                                            itemsAcometidaOP += '<img src="' +  urlFinal + '" alt="acometida" height="1024px" width="1248px" style="" />';
+                                            itemsAcometidaOP += '</a>';
+                                            itemsAcometidaOP += '</div>';
 
-                                        zero = false;
-                                    } else {
-                                        elementsAcometida += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '"></li>';
+                                            zero = false;
+                                        } else {
+                                            elementsAcometida += '<li data-target="#myCarousel2" data-slide-to="' + dataImg.nameIMG + '"></li>';
 
-                                        itemsAcometida += '<div class="item">';
-                                        itemsAcometida += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
-                                        itemsAcometida += '<img src="' +  urlFinal + '" alt="acometida" height="256px" width="256px" style="" />';
-                                        itemsAcometida += '</a>';
-                                        itemsAcometida += '</div>';
+                                            itemsAcometida += '<div class="item">';
+                                            itemsAcometida += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
+                                            itemsAcometida += '<img src="' +  urlFinal + '" alt="acometida" height="256px" width="256px" style="" />';
+                                            itemsAcometida += '</a>';
+                                            itemsAcometida += '</div>';
 
-                                        elementsAcometidaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '"></li>';
+                                            elementsAcometidaOP += '<li data-target="#myCarousel2OP" data-slide-to="' + dataImg.nameIMG + '"></li>';
 
-                                        itemsAcometidaOP += '<div class="item">';
-                                        itemsAcometidaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
-                                        itemsAcometidaOP += '<img src="' +  urlFinal + '" alt="acometida" height="1024px" width="1248px" style="" />';
-                                        itemsAcometidaOP += '</a>';
-                                        itemsAcometidaOP += '</div>';
+                                            itemsAcometidaOP += '<div class="item">';
+                                            itemsAcometidaOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-acometida" >';
+                                            itemsAcometidaOP += '<img src="' +  urlFinal + '" alt="acometida" height="1024px" width="1248px" style="" />';
+                                            itemsAcometidaOP += '</a>';
+                                            itemsAcometidaOP += '</div>';
+                                        }
+                                        numElem++;
+                                    } else if (FileType == 'cuadro') {
+                                        console.log('first', first);
+                                        if (first) {
+                                            numElem = 1;
+                                            elementsMeasurer += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsMeasurer += '<div class="item active">';
+                                            itemsMeasurer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
+                                            //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
+                                            itemsMeasurer += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
+                                            itemsMeasurer += '</a>';
+                                            itemsMeasurer += '</div>';
+
+                                            elementsMeasurerOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsMeasurerOP += '<div class="item active">';
+                                            itemsMeasurerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
+                                            itemsMeasurerOP += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
+                                            itemsMeasurerOP += '</a>';
+                                            itemsMeasurerOP += '</div>';
+
+                                            first = false;
+                                        } else {
+                                            elementsMeasurer += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '"></li>';
+
+                                            itemsMeasurer += '<div class="item">';
+                                            itemsMeasurer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
+                                            itemsMeasurer += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
+                                            itemsMeasurer += '</a>';
+                                            itemsMeasurer += '</div>';
+
+                                            elementsMeasurerOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsMeasurerOP += '<div class="item">';
+                                            itemsMeasurerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
+                                            itemsMeasurerOP += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
+                                            itemsMeasurerOP += '</a>';
+                                            itemsMeasurerOP += '</div>';
+                                        }
+                                        numElem++;
+                                    } else if (FileType == 'caratula') {
+                                        if (second) {
+                                            numElem = 1;
+                                            elementsInstallation += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsInstallation += '<div class="item active">';
+                                            itemsInstallation += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
+                                            //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
+                                            itemsInstallation += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
+                                            itemsInstallation += '</a>';
+                                            itemsInstallation += '</div>';
+
+                                            elementsInstallationOP += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsInstallationOP += '<div class="item active">';
+                                            itemsInstallationOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
+                                            itemsInstallationOP += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
+                                            itemsInstallationOP += '</a>';
+                                            itemsInstallationOP += '</div>';
+
+                                            second = false;
+                                        } else {
+                                            elementsInstallation += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsInstallation += '<div class="item">';
+                                            itemsInstallation += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
+                                            //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
+                                            itemsInstallation += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
+                                            itemsInstallation += '</a>';
+                                            itemsInstallation += '</div>';
+
+                                            elementsInstallationOP += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
+
+                                            itemsInstallationOP += '<div class="item">';
+                                            itemsInstallationOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
+                                            itemsInstallationOP += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
+                                            itemsInstallationOP += '</a>';
+                                            itemsInstallationOP += '</div>';
+                                        }
+                                        numElem++;
                                     }
-                                    numElem++;
-                                } else if (FileType == 'cuadro') {
-                                    console.log('first', first);
-                                    if (first) {
-                                        numElem = 1;
-                                        elementsMeasurer += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsMeasurer += '<div class="item active">';
-                                        itemsMeasurer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
-                                        //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
-                                        itemsMeasurer += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
-                                        itemsMeasurer += '</a>';
-                                        itemsMeasurer += '</div>';
-
-                                        elementsMeasurerOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsMeasurerOP += '<div class="item active">';
-                                        itemsMeasurerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
-                                        itemsMeasurerOP += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
-                                        itemsMeasurerOP += '</a>';
-                                        itemsMeasurerOP += '</div>';
-
-                                        first = false;
-                                    } else {
-                                        elementsMeasurer += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '"></li>';
-
-                                        itemsMeasurer += '<div class="item">';
-                                        itemsMeasurer += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
-                                        itemsMeasurer += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
-                                        itemsMeasurer += '</a>';
-                                        itemsMeasurer += '</div>';
-
-                                        elementsMeasurerOP += '<li data-target="#myCarousel3" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsMeasurerOP += '<div class="item">';
-                                        itemsMeasurerOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-cuadro" >';
-                                        itemsMeasurerOP += '<img src="' +  urlFinal + '" alt="cuadro" height="256px" width="256px" style="" />';
-                                        itemsMeasurerOP += '</a>';
-                                        itemsMeasurerOP += '</div>';
-                                    }
-                                    numElem++;
-                                } else if (FileType == 'caratula') {
-                                    if (second) {
-                                        numElem = 1;
-                                        elementsInstallation += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsInstallation += '<div class="item active">';
-                                        itemsInstallation += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
-                                        //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
-                                        itemsInstallation += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
-                                        itemsInstallation += '</a>';
-                                        itemsInstallation += '</div>';
-
-                                        elementsInstallationOP += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsInstallationOP += '<div class="item active">';
-                                        itemsInstallationOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
-                                        itemsInstallationOP += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
-                                        itemsInstallationOP += '</a>';
-                                        itemsInstallationOP += '</div>';
-
-                                        second = false;
-                                    } else {
-                                        elementsInstallation += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsInstallation += '<div class="item">';
-                                        itemsInstallation += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
-                                        //itemsPieDer += '<img src="' +  urlFinal + '" alt="pie_derecho" height="256px" width="256px" />';
-                                        itemsInstallation += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
-                                        itemsInstallation += '</a>';
-                                        itemsInstallation += '</div>';
-
-                                        elementsInstallationOP += '<li data-target="#myCarousel4" data-slide-to="' + numElem + '" class="active"></li>';
-
-                                        itemsInstallationOP += '<div class="item">';
-                                        itemsInstallationOP += '<a class="example-image-link" href="' +  urlFinal + '" data-lightbox="example-caratula" >';
-                                        itemsInstallationOP += '<img src="' +  urlFinal + '" alt="caratula" height="256px" width="256px" style="" />';
-                                        itemsInstallationOP += '</a>';
-                                        itemsInstallationOP += '</div>';
-                                    }
-                                    numElem++;
                                 }
                             })
                         }

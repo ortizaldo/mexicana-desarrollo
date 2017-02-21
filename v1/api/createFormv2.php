@@ -1904,23 +1904,6 @@ function borrarImagenFormSell($idFormSellsGenerado, $idReport, $estatus)
 	        }
 	    }
     }
-    /*$result = $conn->query($stmtDeletePic);
-    if ($result->num_rows > 0) {
-    	while($row = $result->fetch_array()) {
-        	if (intval($row[0]) > 0) {
-        		error_log('message entre a borrar las imagenes');
-        		$delSQL = "DELETE FROM form_sells_multimedia WHERE idMultimedia = ?;";
-			    if ($smtDel = $conn->prepare($delSQL)) {
-			    	$idImagen = intval($row[0]);
-			    	$smtDel->bind_param("i", $row[0]);
-			    	if ($smtDel->execute()) {
-			    		error_log('message borramos la imagen '.$row[1]);
-			    	}
-			    }
-        	}
-        }
-    }*/
-    
     $conn->close(); 
 }
 

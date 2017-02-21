@@ -105,7 +105,7 @@ if (isset($_POST["idUsuario"])) {
     /***VIENEN LOS DOS PARAMETROS SIN PROBLEMA**/
     $idUsuario = $_POST["idUsuario"];
     $tipoAgencia = $_POST["tipoAgencia"];
-    $reportData = []; $returnData = [];
+    $reportData = []; $returnData = [];$reportData = [];
 
     /***UNA VEZ SETEADAS ENTONCES PROCEDEMOS A PASARLAS Y PREPARAR LA LLAMADA AL STOREPROCEDURE**/
     $stmtObtenerContratos = $conn->prepare("call spObtenerContratos(?);");
@@ -124,109 +124,242 @@ if (isset($_POST["idUsuario"])) {
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
             //if (intval($id) == 1708) {
-                $reportData["idClienteGenerado"] = $idClienteGenerado;
-                $reportData["Id"] = $id;
-                $reportData["Contrato"] = $agreementNumber;
-                $reportData["Tipo"] = $name;
-                $reportData['idStatus'] =$idStatus;
-                $reportData["Status"] = $description;
-                $reportData["Municipio"] = $idCity;
-                $reportData["Colonia"] = $colonia;
-                $reportData['Calle'] = $street;
-                $reportData['Numero'] = $innerNumber;
-                $reportData["Usuario"] = $nicknameEmpleado;
-                $reportData["Agencia"] = $nicknameAgencia;
-                $reportData["fechaInicioVenta"] = $fechaInicioVenta;
-                $reportData["fechaFinVenta"] = $fechaFinVenta;
-                $reportData["fechaInicioFinanciera"] = $fechaInicioFinanciera;
-                $reportData["fechaFinFinanciera"] = $fechaFinFinanciera;
-                $reportData["fechaInicioRechazo"] = $fechaInicioRechazo;
-                $reportData["fechaFinRechazo"] = $fechaFinRechazo;
-                $reportData["fechaPrimeraCaptura"] = $fechaPrimeraCaptura;
-                $reportData["fechaSegundaCaptura"] = $fechaSegundaCaptura;
-                $reportData["fechaInicioAsigPH"] = $fechaInicioAsigPH;
-                $reportData["fechaFinAsigPH"] = $fechaFinAsigPH;
-                $reportData["fechaInicioRealizoPH"] = $fechaInicioRealizoPH;
-                $reportData["fechaFinRealizoPH"] = $fechaFinRealizoPH;
-                $reportData["fechaInicioAnomPH"] = $fechaInicioAnomPH;
-                $reportData["fechaFinAnomPH"] = $fechaFinAnomPH;
-                $reportData["fechaInicioAsigInst"] = $fechaInicioAsigInst;
-                $reportData["fechaFinAsigInst"] = $fechaFinAsigInst;
-                $reportData["fechaInicioRealInst"] = $fechaInicioRealInst;
-                $reportData["fechaFinRealInst"] = $fechaFinRealInst;
-                $reportData["fechaInicioAnomInst"] = $fechaInicioAnomInst;
-                $reportData["fechaFinAnomInst"] = $fechaFinAnomInst;
-                /*$reportData["estatusTexto"]=validarEstatusDesdeLaTablaDeEstatusControl(
-                        $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
-                        $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
-                        $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
-                );*/
-                $fecha = $created_at;
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
                         $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
                         $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
                 );
-                switch ($name) {
-                    case 'Venta':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
-                            $fecha=$fechaInicioVenta;
-                        }elseif ($descriptionStatus == "RECHAZADO") {
-                            $fecha=$fechaFinRechazo;
-                        }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
-                            $fecha=$fechaInicioFinanciera;
-                        }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
-                            if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
-                                $fecha=$fechaFinFinanciera;
-                            }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
-                                $fecha=$fechaInicioFinanciera;
-                            }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
-                                $fecha=$fechaFinFinanciera;
-                            }
-                        }
-                    break;
-                    case 'Plomero':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                            $fecha = $fechaInicioAsigPH;
-                        }elseif ($descriptionStatus == "COMPLETO") {
-                            $fecha = $fechaFinRealizoPH;
-                        }
-                    break;
-                    case 'Instalacion':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                            $fecha = $fechaInicioAsigInst;
-                        }elseif ($descriptionStatus == "COMPLETO") {
-                            $fecha = $fechaFinAsigInst;
-                        }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
-                            $fecha = $fechaFinRealInst;
-                        }
-                    break;
-                    case 'Segunda Venta':
-                        if ($descriptionStatus == "EN PROCESO") {
-                            $fecha = $fechaPrimeraCaptura;
-                        }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
-                            $fecha = $fechaSegundaCaptura;
-                        }
-                    break;
-                    case 'Censo':
-                        $fecha = $created_at;
-                    break;
-                }
-                if ($fecha == null || $fecha == "") {
+                if (($_POST["tipoReportes"] == "pendientes") && (($descriptionStatus == "EN PROCESO" || 
+                                                    $descriptionStatus == "CAPTURA COMPLETADA" ||
+                                                    $descriptionStatus == "REVISION SEGUNDA CAPTURA" ||
+                                                    $descriptionStatus == "RECHAZADO" || 
+                                                    $descriptionStatus == "VALIDADO POR MEXICANA" || 
+                                                    $descriptionStatus == "RECHAZADO" ||
+                                                    $descriptionStatus == "REAGENDADA") ||
+                                                    ($descriptionStatus == "COMPLETO" && $name == "Instalacion"))) 
+                {
+                    $reportData["Id"] = $id;
+                    $reportData["idReportType"] = $idReportType;
+                    $reportData['idStatus'] =$idStatus;
+                    $reportData["primerTD"] = "";
+                    $reportData["segundoTD"] = "";
+                    $reportData["idClienteGenerado"] = $idClienteGenerado;
+                    $reportData["Contrato"] = $agreementNumber;
+                    $reportData["Tipo"] = $name;
+                    $reportData["Status"] = $description;
+                    $reportData["Municipio"] = $idCity;
+                    $reportData["Colonia"] = $colonia;
+                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
+                    $reportData["Usuario"] = $nicknameEmpleado;
+                    $reportData["Agencia"] = $nicknameAgencia;
                     $fecha = $created_at;
+                    switch ($name) {
+                        case 'Venta':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                                $fecha=$fechaInicioVenta;
+                            }elseif ($descriptionStatus == "RECHAZADO") {
+                                $fecha=$fechaFinRechazo;
+                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
+                                $fecha=$fechaInicioFinanciera;
+                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
+                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
+                                    $fecha=$fechaInicioFinanciera;
+                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }
+                            }
+                        break;
+                        case 'Plomero':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigPH;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinRealizoPH;
+                            }
+                        break;
+                        case 'Instalacion':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigInst;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinAsigInst;
+                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
+                                $fecha = $fechaFinRealInst;
+                            }
+                        break;
+                        case 'Segunda Venta':
+                            if ($descriptionStatus == "EN PROCESO") {
+                                $fecha = $fechaPrimeraCaptura;
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                                $fecha = $fechaSegundaCaptura;
+                            }
+                        break;
+                        case 'Censo':
+                            $fecha = $created_at;
+                        break;
+                    }
+                    if ($fecha == null || $fecha == "") {
+                        $fecha = $created_at;
+                    }
+                    $reportData["Fecha"] = $fecha;
+                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
+                                            $estatusReporte,$estatusCenso,$estatusVenta,
+                                                         $idEmpleadoParaVenta,$asignadoMexicana,
+                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
+                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
+                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
+                                                         $idAgenciaInstalacion, $idReportType);
+                    $returnData[] = $reportData;
+                }elseif (($_POST["tipoReportes"] == "completos") &&
+                         (($descriptionStatus == "COMPLETO" || 
+                           $descriptionStatus == "VALIDACIONES COMPLETAS") ||
+                           ($descriptionStatus == "INSTALACION ENVIADA" && $name == "Instalacion"))){
+                    $reportData["Id"] = $id;
+                    $reportData["idReportType"] = $idReportType;
+                    $reportData['idStatus'] =$idStatus;
+                    $reportData["primerTD"] = "";
+                    $reportData["segundoTD"] = "";
+                    $reportData["idClienteGenerado"] = $idClienteGenerado;
+                    $reportData["Contrato"] = $agreementNumber;
+                    $reportData["Tipo"] = $name;
+                    $reportData["Status"] = $description;
+                    $reportData["Municipio"] = $idCity;
+                    $reportData["Colonia"] = $colonia;
+                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
+                    $reportData["Usuario"] = $nicknameEmpleado;
+                    $reportData["Agencia"] = $nicknameAgencia;
+                    $fecha = $created_at;
+                    switch ($name) {
+                        case 'Venta':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                                $fecha=$fechaInicioVenta;
+                            }elseif ($descriptionStatus == "RECHAZADO") {
+                                $fecha=$fechaFinRechazo;
+                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
+                                $fecha=$fechaInicioFinanciera;
+                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
+                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
+                                    $fecha=$fechaInicioFinanciera;
+                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }
+                            }
+                        break;
+                        case 'Plomero':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigPH;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinRealizoPH;
+                            }
+                        break;
+                        case 'Instalacion':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigInst;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinAsigInst;
+                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
+                                $fecha = $fechaFinRealInst;
+                            }
+                        break;
+                        case 'Segunda Venta':
+                            if ($descriptionStatus == "EN PROCESO") {
+                                $fecha = $fechaPrimeraCaptura;
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                                $fecha = $fechaSegundaCaptura;
+                            }
+                        break;
+                        case 'Censo':
+                            $fecha = $created_at;
+                        break;
+                    }
+                    if ($fecha == null || $fecha == "") {
+                        $fecha = $created_at;
+                    }
+                    $reportData["Fecha"] = $fecha;
+                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
+                                            $estatusReporte,$estatusCenso,$estatusVenta,
+                                                         $idEmpleadoParaVenta,$asignadoMexicana,
+                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
+                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
+                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
+                                                         $idAgenciaInstalacion, $idReportType);
+                    $returnData[] = $reportData;
+                }elseif ($_POST["tipoReportes"] == "general"){
+                    $reportData["Id"] = $id;
+                    $reportData["idReportType"] = $idReportType;
+                    $reportData['idStatus'] =$idStatus;
+                    $reportData["primerTD"] = "";
+                    $reportData["segundoTD"] = "";
+                    $reportData["idClienteGenerado"] = $idClienteGenerado;
+                    $reportData["Contrato"] = $agreementNumber;
+                    $reportData["Tipo"] = $name;
+                    $reportData["Status"] = $description;
+                    $reportData["Municipio"] = $idCity;
+                    $reportData["Colonia"] = $colonia;
+                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
+                    $reportData["Usuario"] = $nicknameEmpleado;
+                    $reportData["Agencia"] = $nicknameAgencia;
+                    $fecha = $created_at;
+                    switch ($name) {
+                        case 'Venta':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                                $fecha=$fechaInicioVenta;
+                            }elseif ($descriptionStatus == "RECHAZADO") {
+                                $fecha=$fechaFinRechazo;
+                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
+                                $fecha=$fechaInicioFinanciera;
+                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
+                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
+                                    $fecha=$fechaInicioFinanciera;
+                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
+                                    $fecha=$fechaFinFinanciera;
+                                }
+                            }
+                        break;
+                        case 'Plomero':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigPH;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinRealizoPH;
+                            }
+                        break;
+                        case 'Instalacion':
+                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                                $fecha = $fechaInicioAsigInst;
+                            }elseif ($descriptionStatus == "COMPLETO") {
+                                $fecha = $fechaFinAsigInst;
+                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
+                                $fecha = $fechaFinRealInst;
+                            }
+                        break;
+                        case 'Segunda Venta':
+                            if ($descriptionStatus == "EN PROCESO") {
+                                $fecha = $fechaPrimeraCaptura;
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                                $fecha = $fechaSegundaCaptura;
+                            }
+                        break;
+                        case 'Censo':
+                            $fecha = $created_at;
+                        break;
+                    }
+                    if ($fecha == null || $fecha == "") {
+                        $fecha = $created_at;
+                    }
+                    $reportData["Fecha"] = $fecha;
+                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
+                                            $estatusReporte,$estatusCenso,$estatusVenta,
+                                                         $idEmpleadoParaVenta,$asignadoMexicana,
+                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
+                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
+                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
+                                                         $idAgenciaInstalacion, $idReportType);
+                    $returnData[] = $reportData;
                 }
-                $reportData["Fecha"] = $fecha;
-                $reportData["FechaOriginal"] = $created_at;
-                //$reportData["Fecha2"] = $created_at;
-                $reportData["idReportType"] = $idReportType;
-                $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
-                                        $estatusReporte,$estatusCenso,$estatusVenta,
-                                                     $idEmpleadoParaVenta,$asignadoMexicana,
-                                                     $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
-                                                     $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
-                                                     $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
-                                                     $idAgenciaInstalacion, $idReportType);
-                $returnData[] = $reportData;
             //}
             $contador++;
         }

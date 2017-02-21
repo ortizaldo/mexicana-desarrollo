@@ -10,10 +10,6 @@ $conn = $DB->getConnect();
 $userData = []; $returnData = [];
 
 if(isset($_POST["profile"]) && isset($_POST["agency"])) {
-    
-  
-    
-    
     $type = $_POST["profile"]; $type = intval($type);
     $agency = $_POST["agency"]; $agency = intval($agency);
     if ($type == 0) {
@@ -21,41 +17,42 @@ if(isset($_POST["profile"]) && isset($_POST["agency"])) {
         //Todos los empleados
         //$type = "All";
     } else if ($type == 1) {
-        $type = "Plomero"; $profile1 = 3; $profile2 = 6; $profile3 = 7; $profile4 = 8; $profile4 = 9;
-        /*var_dump($type);
-        var_dump($agency);
-        exit;*/
-        /*
-         * Busca empleados a cargo de la agencia de plomeria.
-         */
-        /***************************PLOMERIA************************************/
-        $searchEmployeesMexicana = $conn->prepare("SELECT EMP.id, USEMP.id, USEMP.nickname
-            FROM user AS USAG
-            INNER JOIN agency AS AG ON USAG.id = AG.idUser
-            INNER JOIN agency_employee AS AGEMP ON AG.id = AGEMP.idAgency
-            INNER JOIN employee AS EMP ON AGEMP.idemployee = EMP.id
-            INNER JOIN profile AS PRF ON EMP.idProfile = PRF.id
-            INNER JOIN user AS USEMP ON EMP.idUser = USEMP.id
-            WHERE
-            
-                (AG.id = ? AND PRF.id = ?) OR (AG.id = ? AND PRF.id = ?) OR (AG.id = ? AND PRF.id = ?) OR (AG.id = ? AND PRF.id = ?) 
-        ;");
-        $searchEmployeesMexicana->bind_param("iiiiiiii", $agency, $profile1, $agency, $profile2, $agency, $profile3, $agency, $profile4);
-        if ($searchEmployeesMexicana->execute()) {
-            $searchEmployeesMexicana->store_result();
-            $searchEmployeesMexicana->bind_result($employeeId, $employeeUserID, $nickname);
-            while ($searchEmployeesMexicana->fetch()) {
-                /*var_dump($employeeId);
-                var_dump($employeeUserID);
-                var_dump($nickname);*/
-                $userData['employeeId'] = $employeeId;
-                $userData['employeeUserID'] = $employeeUserID;
-                $userData['nickname'] = $nickname;
-                $returnData[] = $userData;
-                //print_r($returnData);
-            }
+        $type = "Plomero"; $profile1 = 3; $profile2 = 6; $profile3 = 7; $profile4 = 8; $profile5 = 9;
+        $agencyNickname=$_GET['agencia'];
+        $returnData = [];
+        $getReportStatus = "SELECT 
+                                a.id, a.nickname
+                            FROM
+                                user a,
+                                employee b,
+                                agency_employee c,
+                                agency d,
+                                profile e
+                            WHERE
+                            0 = 0 AND a.id = b.idUser
+                            AND b.id = c.idemployee
+                            AND c.idAgency = d.id
+                            AND b.idProfile = e.id
+                            AND e.name LIKE '%plomero%'
+                            AND d.id IN (SELECT 
+                                            a.id
+                                         FROM
+                                            agency a,
+                                            user b
+                                         WHERE
+                                         a.idUser = b.id
+                                         AND b.nickname LIKE '%".$nickName."%')
+                            AND (a.nickname NOT IN ('enruta_test') AND a.nickname NOT IN ('enruta_test2') AND a.nickname NOT IN ('Pendiente de Asignar'));";
+
+        $result = $conn->query($getReportStatus);
+        $cont=0;
+        while( $row = $result->fetch_array() ) {
+            $returnData[$cont]['employeeUserID'] = $row[0];
+            $returnData[$cont]['nickname'] = $row[1];
+            $cont++;
+            //$reports[] = $returnData;
         }
-        $searchEmployeesMexicana->free_result();
+        $result->free_result();
     } else if ($type == 2) {
         $type = "Venta";
         $profile1 = 2; $profile2 = 5; $profile3 = 6; $profile4 = 7; $profile5 = 8;

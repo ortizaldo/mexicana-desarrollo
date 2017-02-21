@@ -44,39 +44,78 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                value="<?= $_SESSION["id"]; ?>"/>
                         <input id="inputNickUserLogg" name="inputNickUserLogg" type="text" class="hidden"
                                value=""/>
-                        <label>Filtros</label>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                        <select class="form-control" id="txtType" name="txtType">
-                            <option value="0">Todos los tipos</option>
-                            <option value="1">Censo</option>
-                            <option value="2">Plomer&iacute;a</option>
-                            <option value="3">Venta</option>
-                            <option value="4">Instalacion</option>
-                            <option value="5">Segunda Venta</option>
-                        </select>
-                        <select class="form-control" id="txtStatus" name="txtStatus" onchange="buscarPorEstatus()">
-                            <option value="0">Todos los estatus</option>
-                        </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <label class="text-capitalize">Fecha de:</label>&nbsp;
-                        <input type='text' class="form-control" id="dateFrom" name="dateFrom"/>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label>Seleccionar Tipo de filtro</label>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="general">
+                                            <i class="fa fa-tasks btn btn-info" aria-hidden="true">
+                                                Todos los estatus
+                                            </i>
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" id="completos">
+                                            <i class="fa fa-check-circle btn btn-success" aria-hidden="true">
+                                                Completos
+                                            </i>
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" id="pendientes">
+                                            <i class="fa fa-check-circle btn btn-warning" aria-hidden="true">
+                                                Pendientes
+                                            </i>
+                                        </label>
+                                    </div>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <br>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Filtros</label>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <select class="form-control" id="txtType" name="txtType">
+                                        <option value="0">Todos los tipos</option>
+                                        <option value="1">Censo</option>
+                                        <option value="2">Plomer&iacute;a</option>
+                                        <option value="3">Venta</option>
+                                        <option value="4">Instalacion</option>
+                                        <option value="5">Segunda Venta</option>
+                                    </select>
+                                    <select class="form-control" id="txtStatus" name="txtStatus" onchange="buscarPorEstatus()">
+                                        <option value="0">Todos los estatus</option>
+                                    </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label class="text-capitalize">Fecha de:</label>&nbsp;
+                                    <input type='text' class="form-control" id="dateFrom" name="dateFrom"/>
 
-                        <label class="text-capitalize">hasta:</label>&nbsp;
-                        <input type='text' class="form-control" id="dateTo" name="dateTo"/>
+                                    <label class="text-capitalize">hasta:</label>&nbsp;
+                                    <input type='text' class="form-control" id="dateTo" name="dateTo"/>
 
-                        <button type="button" id="btnFiltrarPorFechas" name="btnFiltrarPorFechas"
-                                class="btn btn-success" onclick="filtrarPorFechas()">
-                            <i class="fa fa-search">&nbsp;Filtrar por fechas</i>
-                        </button>
-                        <button type="button" id="limpiarFiltros" class="btn btn-success">
-                            <span class="glyphicon glyphicon-refresh" style="color:#fff;"></span>
-                        </button>
+                                    <button type="button" id="btnFiltrarPorFechas" name="btnFiltrarPorFechas"
+                                            class="btn btn-success" onclick="filtrarPorFechas()">
+                                        <i class="fa fa-search">&nbsp;Filtrar por fechas</i>
+                                    </button>
+                                    <button type="button" id="limpiarFiltros" class="btn btn-success">
+                                        <span class="glyphicon glyphicon-refresh" style="color:#fff;"></span>
+                                    </button>
 
-                        <button type="submit" id="btn_download" class="btn btn-success">
-                            <span class="fa fa-file-excel-o" style="color:#fff;"></span>
-                        </button>
-                        <button type="submit" id="b_download" class="btn btn-success" style="display: none">
-                            <a href=""></a>
-                        </button>
+                                    <button type="submit" id="btn_download" class="btn btn-success">
+                                        <span class="fa fa-file-excel-o" style="color:#fff;"></span>
+                                    </button>
+                                    <button type="submit" id="b_download" class="btn btn-success" style="display: none">
+                                        <a href=""></a>
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                                    
                     </form>
                 </div>
             </header>
@@ -618,7 +657,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 <script type="text/javascript">
     var base_url= "http://siscomcmg.com/uploads/";
     var string_nickname = $("#nicknameZone").html();
-    
+    var arrExcel=[];
    
     ESTATUS_INSTALACION = <?php echo $estatus_instalacion; ?>;
     
@@ -659,7 +698,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             method: "POST",
             url: "dataLayer/callsWeb/loadForms.php",
             dataType: "JSON",
-            data: {idUsuario: idUser, tipoAgencia:tipoAgencia},
+            data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
             success: function (data) {
                 console.log('reportes', data);
                 $('#bodyReport').html('');
@@ -703,7 +742,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     MostrarToast(2, "Formulario aun no disponible", "No se puede visualizar el formulario hasta que se realice en movil");
                     return false;
                 }else if(existeKey === false){
-                    //ejecutamos la carga del formulario
                     loadSecondSellForm(id,type,idUser);
                 }
             }
@@ -1557,50 +1595,49 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             idReportType;
             procesosReporte = "";
         var arrObjDatos=[],myFailure;
-        console.log('dataLoadFormI', dataLoadFormI);
-        _.each(dataLoadFormI, function(data, idx) {
-            idClienteGenerado = data.idClienteGenerado;
-            idClienteGenerado=(idClienteGenerado === '' || typeof(idClienteGenerado) === 'undefined' || idClienteGenerado === null) ? '' : idClienteGenerado;
-            idReporte = data.Id;
-            tipoReporte = data.Tipo;
-            status = data.Status;
-            idReportType = data.idReportType;
-            body += '<tr data-id="'+idReporte+'" id="form' + idReporte + '">' +
-                    '<td class="permisos">' + data.html.permisosDelProceso + '</td>';
-            if (data.Status === "EN PROCESO" && data.Usuario === "Pendiente de Asignar" && 
-                (localStorage.getItem("id") !== "SuperAdmin" && localStorage.getItem("id") !== "AYOPSA" && localStorage.getItem("id") !== "CallCenter")) {
-                body += '<td>';
-                    body += '<div class="checkbox" data-id="'+idReporte+'" style="display:none"> ';
-                        body += '<label>';
-                            body += '<input type="checkbox" class="asignarUsuario" name="asignarUsuario" data-id="'+idReporte+'">';
-                            body += '<i class="fa fa-user" aria-hidden="true"></i>';
-                        body += '</label>';
+        var fecha;
+        var arr=[];
+        _.each(dataLoadFormI, function (row, idx) {
+            //if (idx === 0) {
+                if (row.Status === "EN PROCESO" && row.Usuario === "Pendiente de Asignar" && 
+                    (localStorage.getItem("id") !== "SuperAdmin" && localStorage.getItem("id") !== "AYOPSA" && localStorage.getItem("id") !== "CallCenter")) {
+                        body = '<div class="checkbox" data-id="'+row.Id+'" style="display:none"> ';
+                            body += '<label>';
+                                body += '<input type="checkbox" class="asignarUsuario" name="asignarUsuario" data-id="'+row.Id+'">';
+                                body += '<i class="fa fa-user" aria-hidden="true"></i>';
+                            body += '</label>';
+                        body += '</div>';
+                }else{
+                    body = '<div> ';
                     body += '</div>';
-                body += '</td>' ;
-            }else{
-                body += '<td>';
-                body += '</td>' ;
-            }
-            body += '<td class="idCliente">' + idClienteGenerado + '</td>';
-            body +='<td class="contrato">' + data.Contrato + '</td>';
-            body += '<td class="tipoReporte">' + data.Tipo + '</td>';
-            body += '<td class="status">' + data.html.estatusColores + '</td>';
-            body += '<td class="mun">' + data.Municipio + '</td>';
-            body += '<td class="col">' + data.Colonia + '</td>';
-            body += '<td class="calle">' + data.Calle+' - Num: '+data.Numero + '</td>';
-            body += '<td class="usuario">' + data.Usuario + '</td>';
-            body += '<td class="agencia">' + data.Agencia + '</td>';
-            body += '<td class="fecha">' + data.Fecha + '</td>' ;
-            if(tipoAgencia != "CallCenter"){
-                body += '<td>' + data.html.botonAsignarTarea + '</td></tr>';
-            }else{
-                body += '<td></td></tr>';
-            }
+                }
+                arr.push([
+                    row.html.permisosDelProceso,
+                    body,
+                    row.idClienteGenerado,
+                    row.Contrato,
+                    row.Tipo,
+                    row.html.estatusColores,
+                    row.Municipio,
+                    row.Colonia,
+                    row.Calle,
+                    row.Usuario,
+                    row.Agencia,
+                    row.Fecha,
+                    row.html.botonAsignarTarea
+                ]);
+            //}
         });
-        $("#tablaReporte tbody").append(body);
-        $('#tablaLoader').html('');
         $("#tablaReporte").DataTable().destroy();
-        $("#tablaReporte").DataTable({
+        $('#tablaLoader').html('');
+        $('#tablaReporte').DataTable( {
+            data:           arr,
+            deferRender:    true,
+            //scrollY:        800,
+            scrollCollapse: true,
+            scroller: {
+                loadingIndicator: true
+            },
             "order": [[11, 'desc']],
             "columnDefs": [
                 {"orderable": true, "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}
@@ -1618,23 +1655,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     "last": "Ultima"
                 }
             },
-            "deferRender": true
-        });
-        /*var checkboxes = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
-        console.log('checkboxes', checkboxes);
-        $(checkboxes).on("click", function() {
-            console.log('checkbox');
-            var checkedState = this.checked
-            var row="", idRPTr=0;
-            row=$(this).parents("tr");
-            idRPTr=row.data('id');
-            console.log('checkedState', checkedState);
-            if (checkedState) {
-                loadEmployeesInstallation(idRPTr)
-            }else{
-                $("#asignarUsuario-"+idRPTr).hide();
-            }
-        });*/
+        } );
+        $("#limpiarFiltros").notify("Informacion Actualizada", "success");
     }
 
     $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {
@@ -1648,6 +1670,148 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             }else{
                 $("#tablaReporte .checkbox").hide();
                 $(".select").hide();
+            }
+        }
+    });
+
+    $('#completos').on('click', function(e) {
+        console.log('completos');
+        var isChecked = $('#completos').is(':checked');
+        if (isChecked) {
+            var isCheckedGeneral = $('#general').is(':checked');
+            var isCheckedPendientes = $('#pendientes').is(':checked');
+            if (isCheckedGeneral || isCheckedPendientes) {
+                $('#general').prop('checked', false);
+                $('#pendientes').prop('checked', false);
+                //limpiamos la tabla y generamos un datatable nuevo
+                var idUser = $("#inputIdUser").val();
+                var tipoAgencia = $("#typeAgency").val();
+                $("#completos").notify("Cargando informacion..", "info");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"completos"},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
+                    }
+                });
+            }else{
+                var idUser = $("#inputIdUser").val();
+                var tipoAgencia = $("#typeAgency").val();
+                $("#completos").notify("Cargando informacion..", "info");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"completos"},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    $('#pendientes').on('click', function(e) {
+        var isChecked = $('#pendientes').is(':checked');
+        if (isChecked) {
+            var isCheckedGeneral = $('#general').is(':checked');
+            var isCheckedCompletos = $('#completos').is(':checked');
+            $("#pendientes").notify("Cargando informacion..", "info");
+            if (isCheckedGeneral) {
+                $('#general').prop('checked', false);
+            }
+            if (isCheckedCompletos) {
+                $('#completos').prop('checked', false);
+            }
+            $('#general').prop('checked', false);
+            //limpiamos la tabla y generamos un datatable nuevo
+            var idUser = $("#inputIdUser").val();
+            var tipoAgencia = $("#typeAgency").val();
+            $("#completos").notify("Cargando informacion..", "info");
+            $.ajax({
+                method: "POST",
+                url: "dataLayer/callsWeb/loadForms.php",
+                dataType: "JSON",
+                data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
+                success: function (data) {
+                    $('#bodyReport').html('');
+                    var sizeData = data.length;
+                    if (sizeData > 0) {
+                        var sizeReportes = data.length;
+                        construirProcesosReporte(0, sizeReportes, data);
+                    } else {
+                        $("#tablaLoader").html('');
+                    }
+                }
+            });
+        }
+    });
+
+    $('#general').on('click', function(e) {
+        console.log('general');
+        var isChecked = $('#general').is(':checked');
+        if (isChecked) {
+            var isCheckedCompletos = $('#completos').is(':checked');
+            var isCheckedPendientes = $('#pendientes').is(':checked');
+            if (isCheckedCompletos || isCheckedPendientes) {
+                $('#completos').prop('checked', false);
+                $('#pendientes').prop('checked', false);
+                //limpiamos la tabla y generamos un datatable nuevo
+                var idUser = $("#inputIdUser").val();
+                var tipoAgencia = $("#typeAgency").val();
+                $("#general").notify("Cargando informacion..", "info");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"general"},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
+                    }
+                });
+            }else{
+                var idUser = $("#inputIdUser").val();
+                var tipoAgencia = $("#typeAgency").val()
+                $("#general").notify("Cargando informacion..", "info");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"general"},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
+                    }
+                });
             }
         }
     });
@@ -1692,7 +1856,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         var row="", idRPTr=0, idEmployee = 0, arrInstalaciones=[];
         $checkboxes.each(function() {
             if (this.checked === true) {
-                row=$(this).parents("tr");
+                row=$(this).attr("data-id");
                 idRPTr=row.data('id');
                 idEmployee = $("#asignarUsuario").val();
                 if (parseInt(idEmployee) > 0) {
@@ -2703,12 +2867,12 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         MostrarToast(2, "Rango fechas erroneo", data.response);
                         $('#btn_download').prop('disabled', false);
                     }else{
+                        $('#btn_download').prop('disabled', false);
                         var tipoReporte;
-                        var arrObjDatos=[], myFailure;
+                        var arrObjDatos=[], myFailure, arrExcel=[], payload={}, reports=[];
                         _.each(data, function(dato, index) {
-                            //if(index === 0){
-                                //console.log('data',dato);
-                                switch(parseInt(data[index].idReportType)) {
+                            if(parseInt(dato.id) === 2071){
+                                switch(parseInt(dato.idReportType)) {
                                     case 1:
                                         tipoReporte='Censo';
                                         break;
@@ -2730,16 +2894,22 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     url: "dataLayer/callsWeb/loadFormExcel.php",
                                     data: {
                                         collection:dato,
-                                        form:data[index].id,
+                                        form:dato.id,
                                         type:tipoReporte,
-                                        idUsuario:data[index].idUserAssigned,
+                                        idUsuario:dato.idUserAssigned,
                                     },
-                                    async: false,
-                                    dataType: "JSON"
+                                    dataType: "JSON",
                                 }));
-                            //}
+                            }
                         });
-                        $.when(arrObjDatos).then(mySuccessFunction, myFailure);
+                        $.when.apply(undefined,arrObjDatos).then(function() {
+                            var objects=arguments;
+                            console.log('arguments', arguments);
+                            arrExcel.push(arguments);
+                        }).done(function() {
+                            console.log('Be Happy');
+                            mySuccessFunction(arrExcel)
+                        });
                     }
                         
                 },
@@ -2751,38 +2921,40 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         }
     }
     function mySuccessFunction(res){
-        var arrDatos=[], csv;
-        _.each(res, function(data, idx) {
-            arrDatos.push(data.responseJSON);
-        });
-        console.log('arrDatos', arrDatos);
-        //$('#btn_download').prop('disabled', false);
-        if(arrDatos.length > 0){
-            $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
-            $.ajax({
-                method: "POST",
-                url: "dataLayer/callsWeb/createExcel.php",
-                data: {
-                    collection:arrDatos,
-                },
-                //async: false,
-                dataType: "JSON",
-                success: function (data) {
-                    $('#b_download').show();
-                    var $a = $("<a>");
-                    $a.attr("href",data.file);
-                    $("#b_download").append($a);
-                    $a.attr("download","ReporteFormularios_.xls");
-                    $a[0].click();
-                    $('#b_download').hide();
-                    $('#b_download a').remove();
-                    $('#btn_download').prop('disabled', false);
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.log('textStatus', textStatus);
-                    $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
-                }
-            });
+        console.log('mySuccessFunction', res);
+        var rows=[];
+        if (res.length === 1) {
+            if (res[0].length > 0) {
+                console.log('res[0]', res[0]);
+                _.each(res[0], function (row, idx) {
+                    rows.push(row[0]);
+                });
+                $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/createExcel.php",
+                    data: {
+                        collection:rows,
+                    },
+                    //async: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        $('#b_download').show();
+                        var $a = $("<a>");
+                        $a.attr("href",data.file);
+                        $("#b_download").append($a);
+                        $a.attr("download","ReporteFormularios_.xls");
+                        $a[0].click();
+                        $('#b_download').hide();
+                        $('#b_download a').remove();
+                        $('#btn_download').prop('disabled', false);
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log('textStatus', textStatus);
+                        $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
+                    }
+                });
+            }
         }
     }
     $('#addSecondSell:not(:disabled)').click(function () {

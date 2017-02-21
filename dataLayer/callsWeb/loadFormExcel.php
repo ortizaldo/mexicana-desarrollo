@@ -7,9 +7,9 @@ if (isset($_POST['form']) && isset($_POST['type']) && isset($_POST['idUsuario'])
     $DB = new DAO();
     $conn = $DB->getConnect();
 
-    $idForm = $_POST['form'];
+    $idForm = intval($_POST['form']);
     $type = $_POST['type'];
-    $idUsuario = $_POST['idUsuario'];
+    $idUsuario = intval($_POST['idUsuario']);
     
     $reports = GetForm($conn, $type, $idForm, $idUsuario);
     $reports['datosGrales']=$_POST['collection'];
@@ -58,42 +58,94 @@ function GetForm($conn, $type, $idForm, $idUsuario)
     $NoSerie="";
     $niple="";
     $estatusAsignacionInstalacion = "";
-
     $stmtGetForm = $conn->prepare("call spGetform(?,?,?);");
+    //$stmtGetForm = $conn->prepare("call spGetform('Venta',2071,347);");
+    //call spGetform('Venta',2071,347);
     mysqli_stmt_bind_param($stmtGetForm, 'sii',
         $type, $idForm, $idUsuario
     );
     
-    $stmtGetForm->execute();
-    $stmtGetForm->store_result();
-
+    if ($stmtGetForm->execute()) {
+        $stmtGetForm->store_result();
         if ($type == "Venta") {
-
-            $stmtGetForm->bind_result($id, $prospect, $uninteresting, $motivosDesinteres, $comments, $owner, $id, $name, $lastName, $lastNameOp, $payment, $financialService, $requestNumber, $meeting, $content, $imageName, $estatus, $puedeValidar,$created_at,$agenciaVendedor, $estatusAsignacionInstalacion, $idClienteGenerado);
-
-            while ($stmtGetForm->fetch()) {
-                $responseArray["id"] = $id;
-                $responseArray["prospect"] = $prospect;
-                $responseArray["uninteresting"] = $uninteresting;
-                $responseArray["motivosDesinteres"] = $motivosDesinteres;
-                $responseArray["comments"] = $comments;
-                $responseArray["owner"] = $owner;
-                $responseArray["name"] = $name;
-                $responseArray["lastName"] = $lastName;
-                $responseArray["lastNameOp"] = $lastNameOp;
-                $responseArray["payment"] = $payment;
-                $responseArray["financialService"] = $financialService;
-                $responseArray["requestNumber"] = $requestNumber;
-                $responseArray["meeting"] = $meeting;
-                $responseArray["content"] = $content;
-                $responseArray["imageName"] = $imageName;
-                $responseArray["estatus"] = $estatus;
-                $responseArray["puedeValidar"] = $puedeValidar;
-                $responseArray["created_at"] = $created_at;
-                $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
-                $responseArray["idClienteGenerado"] = $idClienteGenerado;
-                $responseArrayGetForm['venta'] = $responseArray;
+            $DB = new DAO();
+            $conn = $DB->getConnect();
+            $querySmtFrmVenta = "SELECT 
+                                    FS.id,
+                                    FS.prospect,
+                                    FS.uninteresting,
+                                    FS.motivosDesinteres,
+                                    FS.comments,
+                                    FS.owner,
+                                    FS.name,
+                                    FS.lastName,
+                                    FS.lastNameOp,
+                                    FS.payment,
+                                    FS.financialService,
+                                    FS.requestNumber,
+                                    FS.meeting,
+                                    tec.estatusVenta AS estatus,
+                                    tec.fechaAlta AS created_at,
+                                    (SELECT tu.nickname
+                                    FROM user AS tu
+                                    INNER JOIN agency AS ta ON ta.idUser=tu.id
+                                    INNER JOIN agency_employee AS trae ON trae.idAgency=ta.id
+                                    INNER JOIN report AS tr ON tr.idEmployee=trae.idEmployee
+                                    WHERE tr.id=?) as agenciaVendedor,
+                                    tec.estatusAsignacionInstalacion
+                                FROM
+                                    reportHistory AS REF
+                                        LEFT JOIN
+                                    form_sells AS FS ON FS.id = REF.idFormSell
+                                        LEFT JOIN
+                                    tEstatusContrato AS tec ON tec.idReporte = REF.idReport
+                                WHERE
+                                    REF.idReport = ?
+                                    AND REF.idReportType=2;";
+            if ($stmtFrmVenta = $conn->prepare($querySmtFrmVenta)) {
+                $stmtFrmVenta->bind_param("ii", $idForm,$idForm);
+                if($stmtFrmVenta->execute()){
+                    $stmtFrmVenta->store_result();
+                    $stmtFrmVenta->bind_result($id, $prospect, $uninteresting, $motivosDesinteres, $comments, $owner,$name, $lastName, $lastNameOp, $payment, $financialService, $requestNumber, $meeting, $estatus, $created_at,$agenciaVendedor, $estatusAsignacionInstalacion);
+                    if ($stmtFrmVenta->num_rows > 0) {
+                        if($stmtFrmVenta->fetch()){
+                            $responseArray["id"] = $id;
+                            $responseArray["prospect"] = $prospect;
+                            $responseArray["uninteresting"] = $uninteresting;
+                            $responseArray["motivosDesinteres"] = $motivosDesinteres;
+                            $responseArray["comments"] = $comments;
+                            $responseArray["owner"] = $owner;
+                            $responseArray["name"] = $name;
+                            $responseArray["lastName"] = $lastName;
+                            $responseArray["lastNameOp"] = $lastNameOp;
+                            $responseArray["payment"] = $payment;
+                            $responseArray["financialService"] = $financialService;
+                            $responseArray["requestNumber"] = $requestNumber;
+                            $responseArray["meeting"] = $meeting;
+                            $responseArray["estatus"] = $estatus;
+                            $responseArray["puedeValidar"] = $puedeValidar;
+                            $responseArray["created_at"] = $created_at;
+                            $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
+                        }
+                    }else{
+                        $responseArray["status"] = "BAD";
+                        $responseArray["code"] = "500";
+                        $responseArray["result"] = "Formulario aun no disponible, todavia no se puede visualizar este formulario hasta completar los procesos anteriores.";
+                    }
+                    $responseArrayGetForm['venta'] = $responseArray;
+                }else{
+                    $result["status"] = "BAD";
+                    $result["code"] = "500";
+                    $result["result"] = $conn->error;
+                    $responseArrayGetForm[]=$result;
+                }
+            }else{
+                $result["status"] = "BAD";
+                $result["code"] = "500";
+                $result["result"] = $conn->error;
+                $responseArrayGetForm[]=$result;
             }
+
         } elseif ($type == "Censo") {
             $stmtGetForm->bind_result($id, $lote, $houseStatus, $nivel, $content, $name, $giro, $acometida, $observacion, $tapon, $medidor, $marca, $tipo, $NoSerie, $niple, $created_at);
 
@@ -516,6 +568,9 @@ function GetForm($conn, $type, $idForm, $idUsuario)
             }
             //$conn->close();
         }
+    }else{
+        echo "error ".$conn->error;
+    }
     //print_r($stmtGetForm);
     $stmtGetForm->free_result();
     /**CERRAMOS EL RESULT DE CompararUsuarioToken***/

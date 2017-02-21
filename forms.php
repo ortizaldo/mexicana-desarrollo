@@ -1558,7 +1558,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
         var table = $('#tablaReporte').DataTable();
         var buscar= $("#txtType option:selected").text();
-        console.log('this.value', this.value);
         if (parseInt(this.value) > 0) {
             console.log('tds');
             if (parseInt(this.value) === 2) {
@@ -1657,6 +1656,26 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             },
         } );
         $("#limpiarFiltros").notify("Informacion Actualizada", "success");
+        var txtType = $("#txtType option:selected").text();
+        var txtTypeVal = $("#txtType option:selected").val();
+        var txtStatus = $("#txtStatus option:selected").text();
+        if (!_.isEmpty(txtType) && !_.isEmpty(txtStatus)) {
+            if (parseInt(txtTypeVal) > 0) {
+                var table = $("#tablaReporte").DataTable();
+                if (parseInt(txtTypeVal) === 2) {
+                    txtType = 'Plomero';
+                } 
+                table.columns(4).search('^'+txtType+'$', true).draw();
+                if (txtStatus != 'Todos los estatus') {
+                    table
+                        .columns(5)
+                        .search('^'+txtStatus+'$', true)
+                        .draw();
+                } else {
+                    table.search( '' ).columns(4).search( '' ).draw();
+                }
+            }
+        }
     }
 
     $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {

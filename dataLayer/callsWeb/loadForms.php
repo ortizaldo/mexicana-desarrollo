@@ -123,21 +123,23 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($id) == 1708) {
+            //if (intval($agreementNumber) == 32220) {
+
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
                         $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
                         $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
                 );
+                //echo "agreementNumber ".$descriptionStatus;
                 if (($_POST["tipoReportes"] == "pendientes") && (($descriptionStatus == "EN PROCESO" || 
                                                     $descriptionStatus == "CAPTURA COMPLETADA" ||
-                                                    $descriptionStatus == "REVISION SEGUNDA CAPTURA" ||
+                                                    $descriptionStatus == "REVISION_SEGUNDA_CAPTURA" ||
                                                     $descriptionStatus == "RECHAZADO" || 
                                                     $descriptionStatus == "VALIDADO POR MEXICANA" || 
-                                                    $descriptionStatus == "RECHAZADO" ||
                                                     $descriptionStatus == "REAGENDADA") ||
                                                     ($descriptionStatus == "COMPLETO" && $name == "Instalacion"))) 
                 {
+
                     $reportData["Id"] = $id;
                     $reportData["idReportType"] = $idReportType;
                     $reportData['idStatus'] =$idStatus;
@@ -190,7 +192,7 @@ if (isset($_POST["idUsuario"])) {
                         case 'Segunda Venta':
                             if ($descriptionStatus == "EN PROCESO") {
                                 $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
                                 $fecha = $fechaSegundaCaptura;
                             }
                         break;
@@ -266,7 +268,7 @@ if (isset($_POST["idUsuario"])) {
                         case 'Segunda Venta':
                             if ($descriptionStatus == "EN PROCESO") {
                                 $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
                                 $fecha = $fechaSegundaCaptura;
                             }
                         break;
@@ -339,7 +341,7 @@ if (isset($_POST["idUsuario"])) {
                         case 'Segunda Venta':
                             if ($descriptionStatus == "EN PROCESO") {
                                 $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION SEGUNDA CAPTURA") {
+                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
                                 $fecha = $fechaSegundaCaptura;
                             }
                         break;
@@ -940,7 +942,7 @@ function generarSpanDeEstatusPorColor($estatus)
     } elseif ($estatus == $GLOBALS['ESTATUS_TEXTO_INSTALACION_RECHAZADA']) {
         $estatusColores = '<span class="label label-danger">' . $GLOBALS['ESTATUS_TEXTO_INSTALACION_RECHAZADA'] . '</span>';
     } elseif ($estatus == "REVISION_SEGUNDA_CAPTURA") {
-        $estatusColores = '<span class="label label-warning">REVISION SEGUNDA CAPTURA</span>';
+        $estatusColores = '<span class="label label-warning">REVISION_SEGUNDA_CAPTURA</span>';
     } elseif ($estatus == $GLOBALS['ESTATUS_TEXTO_ENVIADO']) {
         $estatusColores = '<span class="label label-success">'.$GLOBALS['ESTATUS_TEXTO_ENVIADO'].'</span>';
     }
@@ -1103,7 +1105,7 @@ function getDateStatus($tipoReporte, $id, $statusReporte, $created_at)
                         case 'Segunda Venta':
                             if ($statusReporte == "EN PROCESO") {
                                 $fecha = $row[8];
-                            }elseif ($statusReporte == "COMPLETO" || $statusReporte == "REVISION SEGUNDA CAPTURA") {
+                            }elseif ($statusReporte == "COMPLETO" || $statusReporte == "REVISION_SEGUNDA_CAPTURA") {
                                 $fecha = $row[9];
                             }
                         break;

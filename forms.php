@@ -1758,10 +1758,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 $('#completos').prop('checked', false);
             }
             $('#general').prop('checked', false);
-            //limpiamos la tabla y generamos un datatable nuevo
             var idUser = $("#inputIdUser").val();
             var tipoAgencia = $("#typeAgency").val();
-            $("#completos").notify("Cargando informacion..", "info");
             $.ajax({
                 method: "POST",
                 url: "dataLayer/callsWeb/loadForms.php",

@@ -13,6 +13,14 @@ $conn = $DB->getConnect();
 $dateFrom = $_POST["dateFrom"];
 $dateTo = $_POST["dateTo"];
 $idUsuario = $_POST["inputIdUser"];
+$isCheckedCompletos = $_POST["isCheckedCompletos"];
+$isCheckedPendientes = $_POST["isCheckedPendientes"];
+$isCheckedGeneral = $_POST["isCheckedGeneral"];
+$txtType = $_POST["txtType"];
+$txtStatus = $_POST["txtStatus"];
+$search = $_POST["search"];
+$txtTypeVal = $_POST["txtTypeVal"];
+$txtStatusVal = $_POST["txtStatusVal"];
 /**TIPOS DE REPORTE**/
 $TIPOS_DE_REPORTE_CENSO = "Censo";
 $TIPOS_DE_REPORTE_VENTA = "Venta";
@@ -115,7 +123,7 @@ $ROL_AGENCIA=3;
 $tipoAgencia=getTipoAgencia($idUsuario);
 $rolDelUsuarioQueConsulta=getTipoRol($idUsuario);
 $idAgenciaABuscar=getIdAgenciaABuscar($idUsuario);
-$nombreAgenciaABuscar=getnombreAgenciaABuscar($tipoAgencia);
+$nombreAgenciaABuscar=getnombreAgenciaABuscar($idUsuario);
 //echo 'message rol agencia '.$tipoAgencia;
 //mysqli_stmt_bind_param($stmtObtenerReporteContratos, 'ssi', $dateFrom, $dateTo,$idUsuario);
 $queryReporte ='SELECT ';
@@ -156,11 +164,32 @@ $queryReporte .='te.idAgenciaInstalacion,';
 $queryReporte .='te.validacionInstalacion,';
 $queryReporte .='trh.idReportType,';
 $queryReporte .='trh.idUserAssigned,';
-$queryReporte .='tr.created_at ';
+$queryReporte .='tr.created_at, ';
+$queryReporte .='rptv.fechaInicioVenta, ';
+$queryReporte .='rptv.fechaFinVenta, ';
+$queryReporte .='rptv.fechaInicioFinanciera, ';
+$queryReporte .='rptv.fechaFinFinanciera, ';
+$queryReporte .='rptv.fechaInicioRechazo, ';
+$queryReporte .='rptv.fechaFinRechazo, ';
+$queryReporte .='rptv.fechaPrimeraCaptura, ';
+$queryReporte .='rptv.fechaSegundaCaptura, ';
+$queryReporte .='rptv.fechaInicioAsigPH, ';
+$queryReporte .='rptv.fechaFinAsigPH, ';
+$queryReporte .='rptv.fechaInicioRealizoPH, ';
+$queryReporte .='rptv.fechaFinRealizoPH, ';
+$queryReporte .='rptv.fechaInicioAnomPH, ';
+$queryReporte .='rptv.fechaFinAnomPH, ';
+$queryReporte .='rptv.fechaInicioAsigInst, ';
+$queryReporte .='rptv.fechaFinAsigInst, ';
+$queryReporte .='rptv.fechaInicioRealInst, ';
+$queryReporte .='rptv.fechaFinRealInst, ';
+$queryReporte .='rptv.fechaInicioAnomInst, ';
+$queryReporte .='rptv.fechaFinAnomInst ';
 $queryReporte .='FROM report AS tr ';
 $queryReporte .='INNER JOIN tEstatusContrato AS te ON te.idReporte=tr.id ';
 $queryReporte .='INNER JOIN reportHistory AS trh ON trh.idReport=tr.id ';
 $queryReporte .='INNER JOIN reportType AS trt ON trt.id=trh.idReportType ';
+$queryReporte .='LEFT JOIN reportTiempoVentas AS rptv ON trh.idReport = rptv.idReporte ';
 if (($rolDelUsuarioQueConsulta == $ROL_AGENCIA && $tipoAgencia == 'Instalacion') || $rolDelUsuarioQueConsulta == $ROL_AGENCIA) {
     if ($nombreAgenciaABuscar != 'AYOPSA') {
         $queryReporte .='INNER JOIN employee AS tae ON tae.id=tr.idEmployee ';
@@ -188,81 +217,782 @@ if ($rolDelUsuarioQueConsulta == $ROL_AGENCIA && $tipoAgencia == 'Instalacion') 
     }
         
 }
-////echo 'dateFrom '.$dateFrom;
-////echo 'dateTo '.$dateTo;
-if ($dateFrom != '' && $dateTo != '') {
-    $queryReporte .="AND tr.created_at BETWEEN str_to_date('".$dateFrom."', '%Y-%m-%d') AND str_to_date('".$dateTo."', '%Y-%m-%d') ";
-}elseif($dateFrom != '' && $dateTo == ''){
-    $queryReporte .="AND tr.created_at >= '".$dateFrom."' ";
-}elseif ($dateFrom == '' && $dateTo != '') {
-    $queryReporte .="AND tr.created_at >= '".$dateTo."' ";
+if ($search != "") {
+    $queryReporte .='AND (tr.agreementNumber like "%'.$search.'%"
+                          OR trt.name like "%'.$search.'%"
+                          OR tr.idCity like "%'.$search.'%"
+                          OR tr.colonia like "%'.$search.'%"
+                          OR tr.street like "%'.$search.'%") ';
 }
 $queryReporte .=' order by tr.agreementNumber, tr.created_at desc';
-
-//echo "query ".$queryReporte;
-//$getIdReportHistSQL = "SELECT idReportHistory FROM reportHistory WHERE idReport = $idReport AND idReportType=5;";
 $result = $conn->query($queryReporte);
 $res="";
 $cont=0;
+$isCheckedCompletos = $isCheckedCompletos === 'true'? true: false;
+$isCheckedPendientes = $isCheckedPendientes === 'true'? true: false;
+$isCheckedGeneral = $isCheckedGeneral === 'true'? true: false;
+if ($isCheckedCompletos === true) {
+    $tipoReporte="completos";
+}elseif ($isCheckedPendientes === true) {
+    $tipoReporte="pendientes";
+}elseif ($isCheckedGeneral === true) {
+    $tipoReporte="general";
+}else{
+    $tipoReporte="pendientes";
+}
+//echo "tipoReporte ".$tipoReporte;
 if ($result->num_rows > 0) {
     while($row = $result->fetch_array()) {
-        $idReporte=$row["id"];
-        $estatusCenso=$row["estatusCenso"];
-        $estatusReporte=$row["estatusReporte"];
-        $estatusVenta=$row["estatusVenta"];
-        $validadoMexicana=$row["validadoMexicana"];
-        $validadoAyopsa=$row["validadoAyopsa"];
-        $phEstatus=$row["phEstatus"];
-        $estatusSegundaVenta=$row["asignacionSegundaVenta"];
-        $validacionSegundaVenta=$row["validacionSegundaVenta"];
-        $validacionInstalacion=$row["validacionInstalacion"];
-        $estatusAsignacionInstalacion=$row["estatusAsignacionInstalacion"];
-        $idReportType=$row["idReportType"];
+        //if (intval($row["agreementNumber"]) == 23493) {
+            $idReporte=$row["id"];
+            $estatusCenso=$row["estatusCenso"];
+            $estatusReporte=$row["estatusReporte"];
+            $estatusVenta=$row["estatusVenta"];
+            $validadoMexicana=$row["validadoMexicana"];
+            $validadoAyopsa=$row["validadoAyopsa"];
+            $phEstatus=$row["phEstatus"];
+            $estatusSegundaVenta=$row["asignacionSegundaVenta"];
+            $validacionSegundaVenta=$row["validacionSegundaVenta"];
+            $validacionInstalacion=$row["validacionInstalacion"];
+            $estatusAsignacionInstalacion=$row["estatusAsignacionInstalacion"];
+            $idReportType=$row["idReportType"];
 
-        $estatusTexto = validarEstatusDesdeLaTablaDeEstatusControl(
-                $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
-                $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
-                $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
-        );
+            $estatusTexto = validarEstatusDesdeLaTablaDeEstatusControl(
+                    $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
+                    $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
+                    $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
+            );
 
-        $res[$cont]["id"]=$row["id"];
-        $res[$cont]["idCliente"]=$row["idCliente"];
-        $res[$cont]["agreementNumber"]=$row["agreementNumber"];
-        $res[$cont]["name"]=$row["name"];
-        $res[$cont]["idCity"]=$row["idCity"];
-        $res[$cont]["colonia"]=$row["colonia"];
-        $res[$cont]["street"]=$row["street"];
-        $res[$cont]["innerNumber"]=$row["innerNumber"];
-        $res[$cont]["outterNumber"]=$row["outterNumber"];
-        $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
-        $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
-        $res[$cont]["idFormSell"]=$row["idFormSell"];
-        $res[$cont]["idFormulario"]=$row["idFormulario"];
-        $res[$cont]["estatusReporte"]=$row["estatusReporte"];
-        $res[$cont]["estatusCenso"]=$row["estatusCenso"];
-        $res[$cont]["estatusVenta"]=$row["estatusVenta"];
-        $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
-        $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
-        $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
-        $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
-        $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
-        $res[$cont]["phEstatus"]=$row["phEstatus"];
-        $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
-        $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
-        $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
-        $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
-        $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
-        $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
-        $res[$cont]["idReportType"]=$row["idReportType"];
-        $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
-        $res[$cont]["created_at"]=$row["created_at"];
-        $res[$cont]['estatusReporte']=$estatusTexto;
-
-        //se obtienen los datos del formulario de venta
-        $cont++;
+            switch ($row["name"]) {
+                case 'Venta':
+                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "CAPTURA COMPLETADA" || $estatusTexto == "REAGENDADA") {
+                        $fecha=$row['fechaInicioVenta'];
+                    }elseif ($estatusTexto == "RECHAZADO") {
+                        if ($row['fechaInicioRechazo'] != "" && $row['fechaFinRechazo'] != "") {
+                            $fecha=$row['fechaFinRechazo'];
+                        }elseif ($row['fechaInicioRechazo'] != "" && $row['fechaFinRechazo'] == "") {
+                            $fecha=$row['fechaInicioRechazo'];
+                        }elseif ($row['fechaInicioRechazo'] == "" && $row['fechaFinRechazo'] != "") {
+                            $fecha=$row['fechaFinRechazo'];
+                        }
+                    }elseif ($estatusTexto == "VALIDADO POR MEXICANA") {
+                        $fecha=$row['fechaInicioFinanciera'];
+                    }elseif ($estatusTexto == "VALIDACIONES COMPLETAS") {
+                        if ($row['fechaInicioFinanciera'] != "" && $row['fechaFinFinanciera'] != "") {
+                            $fecha=$row['fechaFinFinanciera'];
+                        }elseif ($row['fechaInicioFinanciera'] != "" && $row['fechaFinFinanciera'] == "") {
+                            $fecha=$row['fechaInicioFinanciera'];
+                        }elseif ($row['fechaInicioFinanciera'] == "" && $row['fechaFinFinanciera'] != "") {
+                            $fecha=$row['fechaFinFinanciera'];
+                        }
+                    }
+                break;
+                case 'Plomero':
+                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "REAGENDADA") {
+                        $fecha = $row['fechaInicioAsigPH'];
+                    }elseif ($estatusTexto == "COMPLETO") {
+                        $fecha = $row['fechaFinRealizoPH'];
+                    }
+                break;
+                case 'Instalacion':
+                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "REAGENDADA") {
+                        $fecha = $row['fechaInicioAsigInst'];
+                    }elseif ($estatusTexto == "COMPLETO") {
+                        $fecha = $row['fechaFinAsigInst'];
+                    }elseif ($estatusTexto == "INSTALACION ENVIADA") {
+                        $fecha = $row['fechaFinRealInst'];
+                    }
+                break;
+                case 'Segunda Venta':
+                    if ($estatusTexto == "EN PROCESO") {
+                        $fecha = $row['fechaPrimeraCaptura'];
+                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "REVISION_SEGUNDA_CAPTURA") {
+                        $fecha = $row['fechaSegundaCaptura'];
+                    }
+                break;
+                case 'Censo':
+                    $fecha = $row["created_at"];
+                break;
+            }
+            /*echo "txtTypeVal ".$txtTypeVal."\n";
+            echo "txtStatusVal ".$txtStatusVal."\n";*/
+            if (($txtTypeVal != "" && intval($txtTypeVal) > 0) &&
+                ($txtStatusVal != "" && $txtStatusVal == "Todos los estatus")) {
+                if ($txtType == $row["name"]) {
+                    if ($dateFrom != "" && $dateTo != "") {
+                        $reportDate = date('Y-m-d');
+                        $reportDate=date('Y-m-d', strtotime($fecha));;
+                        $dateFrom = date('Y-m-d', strtotime($dateFrom));
+                        $dateTo = date('Y-m-d', strtotime($dateTo));
+                        /*echo "reportDate ".$reportDate."\n";
+                        echo "dateFrom ".$dateFrom."\n";
+                        echo "dateTo ".$dateTo."\n";*/
+                        if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                            if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }elseif ($tipoReporte == "general"){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }
+                        }else{
+                            //echo $cont." no esta entre el rango";
+                        }
+                    }else{
+                        if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif ($tipoReporte == "general"){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }
+                    }
+                }
+            }elseif (($txtTypeVal != "" && intval($txtTypeVal) > 0) &&
+                     ($txtStatusVal != "" && $txtStatusVal != "Todos los estatus")) {
+                if ($txtType == $row["name"] && $txtStatus == $estatusTexto) {
+                    if ($dateFrom != "" && $dateTo != "") {
+                        $reportDate = date('Y-m-d');
+                        $reportDate=date('Y-m-d', strtotime($fecha));;
+                        $dateFrom = date('Y-m-d', strtotime($dateFrom));
+                        $dateTo = date('Y-m-d', strtotime($dateTo));
+                        /*echo "reportDate ".$reportDate."\n";
+                        echo "dateFrom ".$dateFrom."\n";
+                        echo "dateTo ".$dateTo."\n";*/
+                        if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                            if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }elseif ($tipoReporte == "general"){
+                                $res[$cont]["id"]=$row["id"];
+                                $res[$cont]["idCliente"]=$row["idCliente"];
+                                $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                                $res[$cont]["name"]=$row["name"];
+                                $res[$cont]["idCity"]=$row["idCity"];
+                                $res[$cont]["colonia"]=$row["colonia"];
+                                $res[$cont]["street"]=$row["street"];
+                                $res[$cont]["innerNumber"]=$row["innerNumber"];
+                                $res[$cont]["outterNumber"]=$row["outterNumber"];
+                                $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                                $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                                $res[$cont]["idFormSell"]=$row["idFormSell"];
+                                $res[$cont]["idFormulario"]=$row["idFormulario"];
+                                $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                                $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                                $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                                $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                                $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                                $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                                $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                                $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                                $res[$cont]["phEstatus"]=$row["phEstatus"];
+                                $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                                $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                                $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                                $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                                $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                                $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                                $res[$cont]["idReportType"]=$row["idReportType"];
+                                $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                                $res[$cont]["created_at"]=$fecha;
+                                $res[$cont]["created_at_orig"]=$row["created_at"];
+                                $res[$cont]['estatusReporte']=$estatusTexto;
+                            }
+                        }else{
+                            //echo $cont." no esta entre el rango";
+                        }
+                    }else{
+                        if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif ($tipoReporte == "general"){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }
+                    }
+                }
+            }elseif(($txtTypeVal != "" && intval($txtTypeVal) == 0) &&
+                    ($txtStatusVal != "" && intval($txtStatusVal) == 0)){
+                if ($dateFrom != "" && $dateTo != "") {
+                    $reportDate = date('Y-m-d');
+                    $reportDate=date('Y-m-d', strtotime($fecha));;
+                    $dateFrom = date('Y-m-d', strtotime($dateFrom));
+                    $dateTo = date('Y-m-d', strtotime($dateTo));
+                    /*echo "reportDate ".$reportDate."\n";
+                    echo "dateFrom ".$dateFrom."\n";
+                    echo "dateTo ".$dateTo."\n";*/
+                    if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                        if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54) ){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }elseif ($tipoReporte == "general"){
+                            $res[$cont]["id"]=$row["id"];
+                            $res[$cont]["idCliente"]=$row["idCliente"];
+                            $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                            $res[$cont]["name"]=$row["name"];
+                            $res[$cont]["idCity"]=$row["idCity"];
+                            $res[$cont]["colonia"]=$row["colonia"];
+                            $res[$cont]["street"]=$row["street"];
+                            $res[$cont]["innerNumber"]=$row["innerNumber"];
+                            $res[$cont]["outterNumber"]=$row["outterNumber"];
+                            $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                            $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                            $res[$cont]["idFormSell"]=$row["idFormSell"];
+                            $res[$cont]["idFormulario"]=$row["idFormulario"];
+                            $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                            $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                            $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                            $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                            $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                            $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                            $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                            $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                            $res[$cont]["phEstatus"]=$row["phEstatus"];
+                            $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                            $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                            $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                            $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                            $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                            $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                            $res[$cont]["idReportType"]=$row["idReportType"];
+                            $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                            $res[$cont]["created_at"]=$fecha;
+                            $res[$cont]["created_at_orig"]=$row["created_at"];
+                            $res[$cont]['estatusReporte']=$estatusTexto;
+                        }
+                    }
+                }else{
+                    if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
+                        $res[$cont]["id"]=$row["id"];
+                        $res[$cont]["idCliente"]=$row["idCliente"];
+                        $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                        $res[$cont]["name"]=$row["name"];
+                        $res[$cont]["idCity"]=$row["idCity"];
+                        $res[$cont]["colonia"]=$row["colonia"];
+                        $res[$cont]["street"]=$row["street"];
+                        $res[$cont]["innerNumber"]=$row["innerNumber"];
+                        $res[$cont]["outterNumber"]=$row["outterNumber"];
+                        $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                        $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                        $res[$cont]["idFormSell"]=$row["idFormSell"];
+                        $res[$cont]["idFormulario"]=$row["idFormulario"];
+                        $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                        $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                        $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                        $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                        $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                        $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                        $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                        $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                        $res[$cont]["phEstatus"]=$row["phEstatus"];
+                        $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                        $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                        $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                        $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                        $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                        $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                        $res[$cont]["idReportType"]=$row["idReportType"];
+                        $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                        $res[$cont]["created_at"]=$fecha;
+                        $res[$cont]["created_at_orig"]=$row["created_at"];
+                        $res[$cont]['estatusReporte']=$estatusTexto;
+                    }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                        $res[$cont]["id"]=$row["id"];
+                        $res[$cont]["idCliente"]=$row["idCliente"];
+                        $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                        $res[$cont]["name"]=$row["name"];
+                        $res[$cont]["idCity"]=$row["idCity"];
+                        $res[$cont]["colonia"]=$row["colonia"];
+                        $res[$cont]["street"]=$row["street"];
+                        $res[$cont]["innerNumber"]=$row["innerNumber"];
+                        $res[$cont]["outterNumber"]=$row["outterNumber"];
+                        $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                        $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                        $res[$cont]["idFormSell"]=$row["idFormSell"];
+                        $res[$cont]["idFormulario"]=$row["idFormulario"];
+                        $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                        $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                        $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                        $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                        $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                        $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                        $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                        $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                        $res[$cont]["phEstatus"]=$row["phEstatus"];
+                        $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                        $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                        $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                        $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                        $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                        $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                        $res[$cont]["idReportType"]=$row["idReportType"];
+                        $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                        $res[$cont]["created_at"]=$fecha;
+                        $res[$cont]["created_at_orig"]=$row["created_at"];
+                        $res[$cont]['estatusReporte']=$estatusTexto;
+                    }elseif ($tipoReporte == "general"){
+                        $res[$cont]["id"]=$row["id"];
+                        $res[$cont]["idCliente"]=$row["idCliente"];
+                        $res[$cont]["agreementNumber"]=$row["agreementNumber"];
+                        $res[$cont]["name"]=$row["name"];
+                        $res[$cont]["idCity"]=$row["idCity"];
+                        $res[$cont]["colonia"]=$row["colonia"];
+                        $res[$cont]["street"]=$row["street"];
+                        $res[$cont]["innerNumber"]=$row["innerNumber"];
+                        $res[$cont]["outterNumber"]=$row["outterNumber"];
+                        $res[$cont]["nicknameEmpleado"]=$row["nicknameEmpleado"];
+                        $res[$cont]["nicknameAgencia"]=$row["nicknameAgencia"];
+                        $res[$cont]["idFormSell"]=$row["idFormSell"];
+                        $res[$cont]["idFormulario"]=$row["idFormulario"];
+                        $res[$cont]["estatusReporte"]=$row["estatusReporte"];
+                        $res[$cont]["estatusCenso"]=$row["estatusCenso"];
+                        $res[$cont]["estatusVenta"]=$row["estatusVenta"];
+                        $res[$cont]["idEmpleadoParaVenta"]=$row["idEmpleadoParaVenta"];
+                        $res[$cont]["asignadoMexicana"]=$row["asignadoMexicana"];
+                        $res[$cont]["asignadoAyopsa"]=$row["asignadoAyopsa"];
+                        $res[$cont]["validadoMexicana"]=$row["validadoMexicana"];
+                        $res[$cont]["validadoAyopsa"]=$row["validadoAyopsa"];
+                        $res[$cont]["phEstatus"]=$row["phEstatus"];
+                        $res[$cont]["asignacionSegundaVenta"]=$row["asignacionSegundaVenta"];
+                        $res[$cont]["validacionSegundaVenta"]=$row["validacionSegundaVenta"];
+                        $res[$cont]["estatusAsignacionInstalacion"]=$row["estatusAsignacionInstalacion"];
+                        $res[$cont]["idEmpleadoInstalacion"]=$row["idEmpleadoInstalacion"];
+                        $res[$cont]["idAgenciaInstalacion"]=$row["idAgenciaInstalacion"];
+                        $res[$cont]["validacionInstalacion"]=$row["validacionInstalacion"];
+                        $res[$cont]["idReportType"]=$row["idReportType"];
+                        $res[$cont]["idUserAssigned"]=$row["idUserAssigned"];
+                        $res[$cont]["created_at"]=$fecha;
+                        $res[$cont]["created_at_orig"]=$row["created_at"];
+                        $res[$cont]['estatusReporte']=$estatusTexto;
+                    }
+                }
+            }
+                
+            //se obtienen los datos del formulario de venta
+            $cont++;
+        //}
     }
     echo json_encode($res);
 }else{
+    echo "tipoReporte ".$queryReporte;
     $response["status"] = "ERROR";
     $response["code"] = "500";
     $response["response"] = "No se encontraron datos";
@@ -588,6 +1318,7 @@ function getnombreAgenciaABuscar($idUser)
 {
     //generamos una consulta para obtener la descripcion del contrato
     if ($idUser != '') {
+
         $DB = new DAO();
         $conn = $DB->getConnect();
         $getNameSQL = "SELECT tu.nickname

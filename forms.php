@@ -2872,6 +2872,14 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     });
     function generarExcel(dateFrom,dateTo,inputIdUser){
         if(inputIdUser !== '' && inputIdUser !== null && typeof(inputIdUser) !== 'undefined'){
+            var isCheckedCompletos = $('#completos').is(':checked');
+            var isCheckedPendientes = $('#pendientes').is(':checked');
+            var isCheckedGeneral = $('#general').is(':checked');
+            var txtType = $("#txtType option:selected").text();
+            var txtTypeVal = $("#txtType option:selected").val();
+            var txtStatus = $("#txtStatus option:selected").text();
+            var txtStatusVal = $("#txtStatus option:selected").val();
+            var search = $("#tablaReporte_wrapper input[type=search]").val();
             $.ajax({
                 method: "POST",
                 url: "dataLayer/callsWeb/downloadExcelForms.php",
@@ -2879,10 +2887,19 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     dateFrom:dateFrom,
                     dateTo:dateTo,
                     inputIdUser:inputIdUser,
+                    isCheckedCompletos:isCheckedCompletos,
+                    isCheckedPendientes:isCheckedPendientes,
+                    isCheckedGeneral:isCheckedGeneral,
+                    txtType:txtType,
+                    txtStatus:txtStatus,
+                    search:search,
+                    txtTypeVal:txtTypeVal,
+                    txtStatusVal:txtStatusVal,
                 },
                 dataType: "JSON",
                 success: function (data) {
-                    console.log('data', data);
+                    console.log('data excel', data);
+                    /*$('#btn_download').prop('disabled', false);*/
                     if (data.code === '500') {
                         MostrarToast(2, "Rango fechas erroneo", data.response);
                         $('#btn_download').prop('disabled', false);
@@ -2891,7 +2908,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         var tipoReporte;
                         var arrObjDatos=[], myFailure, arrExcel=[], payload={}, reports=[];
                         _.each(data, function(dato, index) {
-                            if(parseInt(dato.id) === 2071){
+                            //if(parseInt(dato.id) === 2071){
                                 switch(parseInt(dato.idReportType)) {
                                     case 1:
                                         tipoReporte='Censo';
@@ -2920,32 +2937,28 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     },
                                     dataType: "JSON",
                                 }));
-                            }
+                            //}
                         });
                         $.when.apply(undefined,arrObjDatos).then(function() {
                             var objects=arguments;
-                            console.log('arguments', arguments);
                             arrExcel.push(arguments);
                         }).done(function() {
-                            console.log('Be Happy');
                             mySuccessFunction(arrExcel)
                         });
-                    }
-                        
+                    } 
                 },
                 error: function (xhr, textStatus, errorThrown) {
-                    console.log(textStatus);
+                    console.log('textStatus', textStatus);
+                    $('#btn_download').prop('disabled', false);
                     $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
                 }
             });
         }
     }
     function mySuccessFunction(res){
-        console.log('mySuccessFunction', res);
         var rows=[];
         if (res.length === 1) {
             if (res[0].length > 0) {
-                console.log('res[0]', res[0]);
                 _.each(res[0], function (row, idx) {
                     rows.push(row[0]);
                 });
@@ -2956,7 +2969,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     data: {
                         collection:rows,
                     },
-                    //async: false,
                     dataType: "JSON",
                     success: function (data) {
                         $('#b_download').show();

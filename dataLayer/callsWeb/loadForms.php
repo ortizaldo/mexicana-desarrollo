@@ -123,7 +123,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 32220) {
+            //if (intval($agreementNumber) == 35619) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
@@ -131,13 +131,8 @@ if (isset($_POST["idUsuario"])) {
                         $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
                 );
                 //echo "agreementNumber ".$descriptionStatus;
-                if (($_POST["tipoReportes"] == "pendientes") && (($descriptionStatus == "EN PROCESO" || 
-                                                    $descriptionStatus == "CAPTURA COMPLETADA" ||
-                                                    $descriptionStatus == "REVISION_SEGUNDA_CAPTURA" ||
-                                                    $descriptionStatus == "RECHAZADO" || 
-                                                    $descriptionStatus == "VALIDADO POR MEXICANA" || 
-                                                    $descriptionStatus == "REAGENDADA") ||
-                                                    ($descriptionStatus == "COMPLETO" && $name == "Instalacion"))) 
+                if (($_POST["tipoReportes"] == "pendientes") && 
+                    (intval($estatusAsignacionInstalacion) != 54)) 
                 {
 
                     $reportData["Id"] = $id;
@@ -154,13 +149,20 @@ if (isset($_POST["idUsuario"])) {
                     $reportData['Calle'] = $street.' - Num: '.$innerNumber;
                     $reportData["Usuario"] = $nicknameEmpleado;
                     $reportData["Agencia"] = $nicknameAgencia;
+                    $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                     $fecha = $created_at;
                     switch ($name) {
                         case 'Venta':
                             if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
                                 $fecha=$fechaInicioVenta;
                             }elseif ($descriptionStatus == "RECHAZADO") {
-                                $fecha=$fechaFinRechazo;
+                                if ($fechaInicioRechazo != "" && $fechaFinRechazo != "") {
+                                    $fecha=$fechaFinRechazo;
+                                }elseif ($fechaInicioRechazo != "" && $fechaFinRechazo == "") {
+                                    $fecha=$fechaInicioRechazo;
+                                }elseif ($fechaInicioRechazo == "" && $fechaFinRechazo != "") {
+                                    $fecha=$fechaFinRechazo;
+                                }
                             }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
                                 $fecha=$fechaInicioFinanciera;
                             }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
@@ -213,9 +215,7 @@ if (isset($_POST["idUsuario"])) {
                                                          $idAgenciaInstalacion, $idReportType);
                     $returnData[] = $reportData;
                 }elseif (($_POST["tipoReportes"] == "completos") &&
-                         (($descriptionStatus == "COMPLETO" || 
-                           $descriptionStatus == "VALIDACIONES COMPLETAS") ||
-                           ($descriptionStatus == "INSTALACION ENVIADA" && $name == "Instalacion"))){
+                         (intval($estatusAsignacionInstalacion) == 54)){
                     $reportData["Id"] = $id;
                     $reportData["idReportType"] = $idReportType;
                     $reportData['idStatus'] =$idStatus;
@@ -230,6 +230,7 @@ if (isset($_POST["idUsuario"])) {
                     $reportData['Calle'] = $street.' - Num: '.$innerNumber;
                     $reportData["Usuario"] = $nicknameEmpleado;
                     $reportData["Agencia"] = $nicknameAgencia;
+                    $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                     $fecha = $created_at;
                     switch ($name) {
                         case 'Venta':

@@ -37,12 +37,14 @@ $ESTATUS_TEXTO_SEGUNDA_VENTA_COMPLETA = "SEGUNDA VENTA COMPLETA";
 $ESTATUS_TEXTO_INSTALACION_EN_PROCESO = "INSTALACION EN PROCESO";
 $ESTATUS_TEXTO_INSTALACION_COMPLETADA = "INSTALACION COMPLETADA";
 $ESTATUS_TEXTO_INSTALACION_RECHAZADA = "INSTALACION RECHAZADA";
+$ESTATUS_TEXTO_INSTALACION_ANOMALIA = "ANOMALIA";
 $ESTATUS_TEXTO_REPORTE_EN_PROCESO = "REPORTE EN PROCESO";
 $ESTATUS_TEXTO_REPORTE_COMPLETO = "REPORTE COMPLETO";
 $ESTATUS_TEXTO_REPORTE_RECHAZADO = "REPORTE RECHAZADO";
 $ESTATUS_TEXTO_RECHAZADA = "RECHAZADA";
 $ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION="REVISION";
 $ESTATUS_TEXTO_ENVIADO="INSTALACION ENVIADA";
+$ESTATUS_TEXTO_DEPURADO="ELIMINADO";
 
 /**ESTATUS DE VENTA**/
 $ESTATUS_VENTA_POR_ASIGNAR = 1;
@@ -56,6 +58,7 @@ $ESTATUS_VENTA_REAGENDADO = 7;
 $ESTATUS_VENTA_CANCELADA = 8;
 $ESTATUS_VENTA_RECHAZADO = 9;
 $ESTATUS_VENTA_VALIDACIONES_COMPLETAS = 10;
+$ESTATUS_VENTA_DEPURADO = 11;
 
 
 /**ESTATUS DE VALIDACION AYOPSA Y MEXICANA**/
@@ -72,6 +75,7 @@ $ESTATUS_PH_COMPLETO = 31;
 $ESTATUS_PH_REAGENDADO = 32;
 $ESTATUS_PH_RECHAZADO = 33;
 $ESTATUS_PH_CANCELADO = 34;
+$ESTATUS_PH_DEPURADO = 35;
 
 /**ESTATUS DE SEGUNDA VENTA**/
 $ESTATUS_SEGUNDA_VENTA_EN_PROCESO = 40;
@@ -79,6 +83,7 @@ $ESTATUS_SEGUNDA_VENTA_COMPLETA = 41;
 $ESTATUS_SEGUNDA_VENTA_VALIDADA = 42;
 $ESTATUS_SEGUNDA_VENTA_REVISION = 43;
 $ESTATUS_SEGUNDA_VENTA_CANCELADA = 44;
+$ESTATUS_SEGUNDA_VENTA_DEPURADO = 45;
 
 /**ESTATUS DE INSTALACION**/
 $ESTATUS_INSTALACION_EN_PROCESO = 50;
@@ -86,6 +91,8 @@ $ESTATUS_INSTALACION_COMPLETA = 51;
 $ESTATUS_INSTALACION_REAGENDADA = 52;
 $ESTATUS_INSTALACION_CANCELADA = 53;
 $ESTATUS_INSTALACION_ENVIADA = 54;
+$ESTATUS_INSTALACION_DEPURADO = 55;
+$ESTATUS_INSTALACION_ANOMALIA = 56;
 
 /**ESTATUS DE REPORTE***/
 $ESTATUS_REPORTE_EN_PROCESO = 60;
@@ -93,6 +100,7 @@ $ESTATUS_REPORTE_COMPLETO = 61;
 $ESTATUS_REPORTE_RECHAZADO = 62;
 $ESTATUS_REPORTE_REAGENDADO = 63;
 $ESTATUS_REPORTE_CANCELADO = 64;
+$ESTATUS_REPORTE_DEPURADO = 65;
 
 /**ESTATUS DE CENSO**/
 $ESTATUS_CENSO_NO_APLICA = 0;
@@ -123,7 +131,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 35619) {
+            if (intval($agreementNumber) == 35547) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
@@ -132,7 +140,7 @@ if (isset($_POST["idUsuario"])) {
                 );
                 //echo "agreementNumber ".$descriptionStatus;
                 if (($_POST["tipoReportes"] == "pendientes") && 
-                    (intval($estatusAsignacionInstalacion) != 54)) 
+                    (intval($estatusAsignacionInstalacion) != 54 && intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) 
                 {
 
                     $reportData["Id"] = $id;
@@ -140,14 +148,28 @@ if (isset($_POST["idUsuario"])) {
                     $reportData['idStatus'] =$idStatus;
                     $reportData["primerTD"] = "";
                     $reportData["segundoTD"] = "";
-                    $reportData["idClienteGenerado"] = $idClienteGenerado;
-                    $reportData["Contrato"] = $agreementNumber;
-                    $reportData["Tipo"] = $name;
+                    $reportData["estatusVenta"] = $estatusVenta;
+                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
+                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
+                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
                     $reportData["Status"] = $description;
                     $reportData["Municipio"] = $idCity;
                     $reportData["Colonia"] = $colonia;
                     $reportData['Calle'] = $street.' - Num: '.$innerNumber;
-                    $reportData["Usuario"] = $nicknameEmpleado;
+                    if (($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") &&
+                        ($nicknameEmpleado != "Pendiente de Asignar" && 
+                        ($_SESSION["nickname"] != "SuperAdmin" && 
+                         $_SESSION["nickname"] != "AYOPSA" &&
+                         $_SESSION["nickname"] != "CallCenter"))) {
+                        $button  = '<div class="idUsuario" data-id="'.$id.'">';
+                            $button .= '<button class="btn btn-warning openReasignForm" type="button" data-id="'.$id.'">';
+                            $button .= '<i class="fa fa-chain-broken" aria-hidden="true">&nbsp;</i>'.$nicknameEmpleado;
+                            $button .= '</button>';
+                        $button .= '</div>';
+                        $reportData["Usuario"] = $button;
+                    }else{
+                        $reportData["Usuario"] = $nicknameEmpleado;
+                    }
                     $reportData["Agencia"] = $nicknameAgencia;
                     $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                     $fecha = $created_at;
@@ -215,12 +237,13 @@ if (isset($_POST["idUsuario"])) {
                                                          $idAgenciaInstalacion, $idReportType);
                     $returnData[] = $reportData;
                 }elseif (($_POST["tipoReportes"] == "completos") &&
-                         (intval($estatusAsignacionInstalacion) == 54)){
+                         (intval($estatusAsignacionInstalacion) == 54 || intval($estatusAsignacionInstalacion) == 53 || intval($estatusAsignacionInstalacion) == 55)){
                     $reportData["Id"] = $id;
                     $reportData["idReportType"] = $idReportType;
                     $reportData['idStatus'] =$idStatus;
                     $reportData["primerTD"] = "";
                     $reportData["segundoTD"] = "";
+                    $reportData["estatusVenta"] = $estatusVenta;
                     $reportData["idClienteGenerado"] = $idClienteGenerado;
                     $reportData["Contrato"] = $agreementNumber;
                     $reportData["Tipo"] = $name;
@@ -363,7 +386,7 @@ if (isset($_POST["idUsuario"])) {
                                                          $idAgenciaInstalacion, $idReportType);
                     $returnData[] = $reportData;
                 }
-            //}
+            }
             $contador++;
         }
         $conn->close();
@@ -393,7 +416,7 @@ function getHTMLButtons($idReporte,$tipoAgencia,$tipoReporte,$estatus,
         );
         
         $estatusColores = generarSpanDeEstatusPorColor($estatusTexto);
-        $botonAsignarTarea = generarBotonAsignarTarea($estatusCenso, $estatus, $idReporte, $estatusVenta);
+        $botonAsignarTarea = generarBotonAsignarTarea($estatusCenso, $estatus, $idReporte, $estatusVenta, $idClienteGenerado, $tipoReporte, $estatusAsignacionInstalacion);
 
         $arrayProcesosReporte = array(
             'permisosDelProceso' => $permisosDelProceso,
@@ -475,7 +498,13 @@ function getBotonVenta($idReporte, $idUsuario, $NicknameUsuarioLogeado,  $estatu
     $permisosDelProceso = "";
     //error_log('message estatusVenta '.$estatusVenta);
     if(intval($estatusVenta) == $GLOBALS['ESTATUS_VENTA_EN_PROCESO']){
-        $permisosDelProceso = '<button id="" name="" data-toggle="warning" style="width:144px"  class="btn btn-default" onclick="mensajeCallejeroNoLlenado();"><i class="fa fa-money"></i>&nbsp;&nbsp;Primera Venta</button>';
+        $permisosDelProceso .= '<div class="btn-group">';
+            $permisosDelProceso .= '<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><i class="fa fa-money"></i>&nbsp;Primera Venta<span class="caret"></span></button>';
+            $permisosDelProceso .= '<ul role="menu" class="dropdown-menu">';
+                $permisosDelProceso .= '<li style="background-color: lightyellow;" >';
+                $permisosDelProceso .= '<a class="firstSell" data-id="' . $idReporte . '" tabindex="1" href="javascript:mensajeCallejeroNoLlenado();"><i class="fa fa-money"></i>&nbsp;&nbsp;Primera Venta</a></li>';
+            $permisosDelProceso .= '</ul>';
+        $permisosDelProceso .='</div>';
     }else if(intval($estatusVenta) == $GLOBALS['ESTATUS_VENTA_CANCELADA']){
         $permisosDelProceso = '<button id="" name="" data-toggle="warning" style="width:144px"  class="btn btn-default" onclick="mensajeVentaCancelada();"><i class="fa fa-money"></i>&nbsp;&nbsp;Primera Venta</button>';
     }else{
@@ -533,16 +562,30 @@ function getBotonPlomero($idReporte,$idUsuario,$NicknameUsuarioLogeado, $phEstat
     
     if($NicknameUsuarioLogeado != "AYOPSA")
     {
-        switch($phEstatus)
+        //echo "phEstatus ".$phEstatus;
+        switch(intval($phEstatus))
         {
-            case $GLOBALS['ESTATUS_PH_EN_PROCESO']:
             case $GLOBALS['ESTATUS_PH_COMPLETO']:
             case $GLOBALS['ESTATUS_PH_REAGENDADO']:
             case $GLOBALS['ESTATUS_PH_RECHAZADO']:
                 $permisosDelProceso = '<button id="" name="" data-toggle="button" style="width:144px" class="btn btn-default" onclick="loadForm(' . $idReporte . ',' . chr(39) . $GLOBALS['TIPOS_DE_REPORTE_PLOMERO'] . chr(39) . ',' . $idUsuario . ');"><i class="fa fa-road"></i> Plomeria</button>';
                 break;
+            case $GLOBALS['ESTATUS_PH_EN_PROCESO']:
+                $permisosDelProceso .= '<div class="btn-group">';
+                    $permisosDelProceso .= '<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><i class="fa fa-road"></i>&nbsp;Plomeria<span class="caret"></span></button>';
+                    $permisosDelProceso .= '<ul role="menu" class="dropdown-menu">';
+                        $permisosDelProceso .= '<li style="background-color: lightyellow;" >';
+                        $permisosDelProceso .= '<a class="plumberForm" data-id="' . $idReporte . '" tabindex="1" href="javascript:mensajeCallejeroNoLlenado();"><i class="fa fa-road"></i>&nbsp;&nbsp;Plomeria</a></li>';
+                $permisosDelProceso .='</div>';
+                break;
             default:
-                $permisosDelProceso = '<button id="" name="" data-toggle="button" style="width:144px" class="btn btn-default" onclick="mensajeToastFormularioAunNoDisponible();"><i class="fa fa-road"></i> Plomeria</button>';
+                $permisosDelProceso .= '<div class="btn-group">';
+                    $permisosDelProceso .= '<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><i class="fa fa-road"></i>&nbsp;Plomeria<span class="caret"></span></button>';
+                    $permisosDelProceso .= '<ul role="menu" class="dropdown-menu">';
+                        $permisosDelProceso .= '<li style="background-color: lightyellow;" >';
+                        $permisosDelProceso .= '<a class="plumberForm" data-id="' . $idReporte . '" tabindex="1" href="javascript:mensajeCallejeroNoLlenado();"><i class="fa fa-road"></i>&nbsp;&nbsp;Plomeria</a></li>';
+                    $permisosDelProceso .= '</ul>';
+                $permisosDelProceso .='</div>';
                 break;
         }
     }
@@ -612,7 +655,7 @@ function getBotonInstalacion($idReporte,$idUsuario,$NicknameUsuarioLogeado, $est
     {
         if(($estatusReporte == $GLOBALS['ESTATUS_REPORTE_COMPLETO']) && 
            ($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_COMPLETA'] ||
-            $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA'] ||
+            $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA'] ||
             $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA'])){
             $permisosDelProceso = '<button id="" name="" data-toggle="button" style="width:144px" class="btn btn-default" onclick="loadForm(' . $idReporte . ',' . chr(39) . $GLOBALS['TIPOS_DE_REPORTE_INSTALACION'] . chr(39) . ',' . $idUsuario . ')"><i class="fa fa-wrench"></i> Instalación</button>';
         }else{
@@ -794,6 +837,8 @@ function getEstatusVenta($idReporte,$estatusReporte,$estatusVenta, $validadoMexi
         }
     } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS']) {
         $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDACIONES_COMPLETAS'];
+    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_DEPURADO']) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }
     
     return $estatus;
@@ -819,6 +864,8 @@ function getEstatusPlomero($idReporte,$phEstatus)
         $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
     }elseif($phEstatus == $GLOBALS['ESTATUS_PH_CANCELADO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }
     
     return $estatus;
@@ -842,7 +889,12 @@ function getEstatusInstalacion($estatusAsignacionInstalacion)
         $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
     }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_ENVIADO"];
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+    }elseif (intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA']) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'];
     }
+    //echo "estatus ".$estatus;
     return $estatus;
 }
 
@@ -870,18 +922,20 @@ function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, 
                 //error_log('maldito error '.$conn->error);
             }
             $conn->close();
-            $estatus = "REVISION_SEGUNDA_CAPTURA";
+            $estatus = "REVISION SEGUNDA CAPTURA";
         }else{
             $estatus = $GLOBALS["ESTATUS_TEXTO_CAPTURA_COMPLETA"];
 
         }
     }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION']){
         //echo "string ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION ".$GLOBALS["ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION"];
-        $estatus = "REVISION_SEGUNDA_CAPTURA";
+        $estatus = "REVISION SEGUNDA CAPTURA";
     }elseif ($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_VALIDADA']) {
         $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
     }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_CANCELADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
+    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }else{
         $estatus = $GLOBALS["ESTATUS_TEXTO_PENDIENTE"];
     }
@@ -943,18 +997,23 @@ function generarSpanDeEstatusPorColor($estatus)
     } elseif ($estatus == $GLOBALS['ESTATUS_TEXTO_INSTALACION_RECHAZADA']) {
         $estatusColores = '<span class="label label-danger">' . $GLOBALS['ESTATUS_TEXTO_INSTALACION_RECHAZADA'] . '</span>';
     } elseif ($estatus == "REVISION_SEGUNDA_CAPTURA") {
-        $estatusColores = '<span class="label label-warning">REVISION_SEGUNDA_CAPTURA</span>';
+        $estatusColores = '<span class="label label-warning">REVISION SEGUNDA CAPTURA</span>';
     } elseif ($estatus == $GLOBALS['ESTATUS_TEXTO_ENVIADO']) {
         $estatusColores = '<span class="label label-success">'.$GLOBALS['ESTATUS_TEXTO_ENVIADO'].'</span>';
+    }elseif($estatus == $GLOBALS['ESTATUS_TEXTO_DEPURADO']){
+        $estatusColores = '<span class="label label-danger">'.$GLOBALS['ESTATUS_TEXTO_DEPURADO'].'</span>';
+    }elseif($estatus == $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA']){
+        $estatusColores = '<span class="label label-danger">'.$GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'].'</span>';
     }
     return $estatusColores;
 }
 
-function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusVenta)
+function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusVenta, $idClienteGenerado, $tipoReporte, $estatusAsignacionInstalacion)
 {
     $NicknameUsuarioLogeado = $_SESSION["nickname"];
-    if ($NicknameUsuarioLogeado != "AYOPSA" && 
-        $NicknameUsuarioLogeado != "SuperAdmin") {
+    //echo "estatusAsignacionInstalacion ".$estatusAsignacionInstalacion;
+    if (($NicknameUsuarioLogeado != "AYOPSA" && $NicknameUsuarioLogeado != "SuperAdmin") &&
+        (intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) {
         if ($estatusCenso != $GLOBALS['ESTATUS_CENSO_NO_APLICA']) {
             if ($estatusCenso == $GLOBALS['ESTATUS_CENSO_COMPLETO']) {
                 $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-default " onclick="mensajeToastBotonTareaAsignarNoDisponible()"><i class="fa fa-calendar-o"></i></button>';
@@ -962,16 +1021,35 @@ function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusV
                 $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-default " onclick="mensajeToastBotonTareaAsignarNoDisponible()"><i class="fa fa-calendar-o"></i></button>';
             } else if ($estatusCenso == $GLOBALS['ESTATUS_CENSO_REAGENDADO']) {
                 $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-default " onclick="mensajeToastBotonTareaAsignarNoDisponible()"><i class="fa fa-calendar-o"></i></button>';
-
             } else {
-                $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>';
+                $botonAsignarTarea = '<table>';
+                    $botonAsignarTarea .= '<tr>';
+                        $botonAsignarTarea .= '<td>';
+                            $botonAsignarTarea .= '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>';
+                        $botonAsignarTarea .= '</td>';
+                    $botonAsignarTarea .= '</tr>';
+                $botonAsignarTarea .= '</table>';
             }
         }else if ($estatusVenta != 8) {
-            $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>';
+            $botonAsignarTarea = '<table>';
+                $botonAsignarTarea .= '<tr>';
+                    $botonAsignarTarea .= '<td>';
+                        $botonAsignarTarea .= '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>&nbsp;';
+                    $botonAsignarTarea .= '</td>';
+                    if ($idClienteGenerado == "" && $tipoReporte == "Venta") {
+                        $botonAsignarTarea .= '<td>';
+                            $botonAsignarTarea .= '<button id="btnDepurarAdmin" name="btnDepurarAdmin" data-toggle="button" style="width: 50px;" class="btn btn-danger btnDepurarAdmin" data-id="'.$id.'"><i class="fa fa-trash" aria-hidden="true"></i>';
+                        $botonAsignarTarea .= '</td>';
+                    }
+                $botonAsignarTarea .= '</tr>';
+            $botonAsignarTarea .= '</table>';
         }else if ($estatusVenta == 8) {
             $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-default " onclick="mensajeToastBotonTareaAsignarNoDisponible()"><i class="fa fa-calendar-o"></i></button>';
         }
-    } else {
+    }elseif (($NicknameUsuarioLogeado == "SuperAdmin" && $tipoReporte == "Venta") &&
+             (intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) {
+        $botonAsignarTarea = '<button id="btnDepurarAdmin" name="btnDepurarAdmin" data-toggle="button" style="width: 50px;" class="btn btn-danger btnDepurarAdmin" data-id="'.$id.'"><i class="fa fa-trash" aria-hidden="true"></i>';
+    }else {
         $botonAsignarTarea = '';
     }
     return $botonAsignarTarea;

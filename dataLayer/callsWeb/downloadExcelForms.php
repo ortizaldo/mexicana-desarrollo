@@ -55,12 +55,14 @@ $ESTATUS_TEXTO_SEGUNDA_VENTA_COMPLETA = "SEGUNDA VENTA COMPLETA";
 $ESTATUS_TEXTO_INSTALACION_EN_PROCESO = "INSTALACION EN PROCESO";
 $ESTATUS_TEXTO_INSTALACION_COMPLETADA = "INSTALACION COMPLETADA";
 $ESTATUS_TEXTO_INSTALACION_RECHAZADA = "INSTALACION RECHAZADA";
+$ESTATUS_TEXTO_INSTALACION_ANOMALIA = "ANOMALIA";
 $ESTATUS_TEXTO_REPORTE_EN_PROCESO = "REPORTE EN PROCESO";
 $ESTATUS_TEXTO_REPORTE_COMPLETO = "REPORTE COMPLETO";
 $ESTATUS_TEXTO_REPORTE_RECHAZADO = "REPORTE RECHAZADO";
 $ESTATUS_TEXTO_RECHAZADA = "RECHAZADA";
 $ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION="REVISION";
 $ESTATUS_TEXTO_ENVIADO="INSTALACION ENVIADA";
+$ESTATUS_TEXTO_DEPURADO="ELIMINADO";
 
 /**ESTATUS DE VENTA**/
 $ESTATUS_VENTA_POR_ASIGNAR = 1;
@@ -74,6 +76,7 @@ $ESTATUS_VENTA_REAGENDADO = 7;
 $ESTATUS_VENTA_CANCELADA = 8;
 $ESTATUS_VENTA_RECHAZADO = 9;
 $ESTATUS_VENTA_VALIDACIONES_COMPLETAS = 10;
+$ESTATUS_VENTA_DEPURADO = 11;
 
 
 /**ESTATUS DE VALIDACION AYOPSA Y MEXICANA**/
@@ -90,6 +93,7 @@ $ESTATUS_PH_COMPLETO = 31;
 $ESTATUS_PH_REAGENDADO = 32;
 $ESTATUS_PH_RECHAZADO = 33;
 $ESTATUS_PH_CANCELADO = 34;
+$ESTATUS_PH_DEPURADO = 35;
 
 /**ESTATUS DE SEGUNDA VENTA**/
 $ESTATUS_SEGUNDA_VENTA_EN_PROCESO = 40;
@@ -97,6 +101,7 @@ $ESTATUS_SEGUNDA_VENTA_COMPLETA = 41;
 $ESTATUS_SEGUNDA_VENTA_VALIDADA = 42;
 $ESTATUS_SEGUNDA_VENTA_REVISION = 43;
 $ESTATUS_SEGUNDA_VENTA_CANCELADA = 44;
+$ESTATUS_SEGUNDA_VENTA_DEPURADO = 45;
 
 /**ESTATUS DE INSTALACION**/
 $ESTATUS_INSTALACION_EN_PROCESO = 50;
@@ -104,6 +109,8 @@ $ESTATUS_INSTALACION_COMPLETA = 51;
 $ESTATUS_INSTALACION_REAGENDADA = 52;
 $ESTATUS_INSTALACION_CANCELADA = 53;
 $ESTATUS_INSTALACION_ENVIADA = 54;
+$ESTATUS_INSTALACION_DEPURADO = 55;
+$ESTATUS_INSTALACION_ANOMALIA = 56;
 
 /**ESTATUS DE REPORTE***/
 $ESTATUS_REPORTE_EN_PROCESO = 60;
@@ -111,12 +118,14 @@ $ESTATUS_REPORTE_COMPLETO = 61;
 $ESTATUS_REPORTE_RECHAZADO = 62;
 $ESTATUS_REPORTE_REAGENDADO = 63;
 $ESTATUS_REPORTE_CANCELADO = 64;
+$ESTATUS_REPORTE_DEPURADO = 65;
 
 /**ESTATUS DE CENSO**/
 $ESTATUS_CENSO_NO_APLICA = 0;
 $ESTATUS_CENSO_EN_PROCESO = 70;
 $ESTATUS_CENSO_COMPLETO = 71;
 $ESTATUS_CENSO_REAGENDADO = 72;
+
 $ROL_SUPERADMINISTRADOR=1;
 $ROL_ADMINISTRADOR=2;
 $ROL_AGENCIA=3;
@@ -362,7 +371,10 @@ if ($result->num_rows > 0) {
                                 $res[$cont]["created_at"]=$fecha;
                                 $res[$cont]["created_at_orig"]=$row["created_at"];
                                 $res[$cont]['estatusReporte']=$estatusTexto;
-                            }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                            }elseif (($_POST["tipoReportes"] == "completos") &&
+                                     (intval($estatusAsignacionInstalacion) == 54 || 
+                                      intval($estatusAsignacionInstalacion) == 53 || 
+                                      intval($estatusAsignacionInstalacion) == 55)){
                                 $res[$cont]["id"]=$row["id"];
                                 $res[$cont]["idCliente"]=$row["idCliente"];
                                 $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -1094,7 +1106,7 @@ function getEstatusCenso($estatusCenso)
  * @param type $validadoAyopsa
  * @return type
  */
-function getEstatusVenta($idReporte,$estatusVenta, $validadoMexicana,$validadoAyopsa)
+function getEstatusVenta($idReporte,$estatusReporte,$estatusVenta, $validadoMexicana,$validadoAyopsa)
 {
     $estatus = ""; 
     
@@ -1146,6 +1158,8 @@ function getEstatusVenta($idReporte,$estatusVenta, $validadoMexicana,$validadoAy
         }
     } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS']) {
         $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDACIONES_COMPLETAS'];
+    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_DEPURADO']) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }
     
     return $estatus;
@@ -1161,27 +1175,19 @@ function getEstatusPlomero($idReporte,$phEstatus)
 {
     
     $estatus = "";
-    if($phEstatus == $GLOBALS['ESTATUS_PH_EN_PROCESO'])
-    {
+    if($phEstatus == $GLOBALS['ESTATUS_PH_EN_PROCESO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_EN_PROCESO'];
-    }
-    elseif($phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO'])
-    {
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_COMPLETO'];
-    }
-    elseif($phEstatus == $GLOBALS['ESTATUS_PH_REAGENDADO'])
-    {
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_REAGENDADO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_REAGENDADA'];
-    }
-    elseif($phEstatus == $GLOBALS['ESTATUS_PH_RECHAZADO'])
-    {
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_RECHAZADO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
-    }
-    elseif($phEstatus == $GLOBALS['ESTATUS_PH_CANCELADO'])
-    {
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_CANCELADO']){
         $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
+    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }
-    
     
     return $estatus;
 }
@@ -1194,18 +1200,20 @@ function getEstatusPlomero($idReporte,$phEstatus)
 function getEstatusInstalacion($estatusAsignacionInstalacion)
 {
     $estatus = "";
-    //error_log('message estatus', $estatusAsignacionInstalacion);
-    if(intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_EN_PROCESO']){
+    if($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_EN_PROCESO']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_EN_PROCESO"];
-    }elseif(intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_COMPLETA']){
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_COMPLETA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
-    }elseif(intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA']){
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_REAGENDADA"];
-    }elseif(intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_CANCELADA']){
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_CANCELADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
-    }elseif(intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_ENVIADA']){
-        //error_log('message estatus entre');
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_ENVIADO"];
+    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+    }elseif (intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA']) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'];
     }
     return $estatus;
 }
@@ -1246,11 +1254,14 @@ function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, 
         $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
     }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_CANCELADA']){
         $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
+    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_DEPURADO']){
+        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
     }else{
         $estatus = $GLOBALS["ESTATUS_TEXTO_PENDIENTE"];
     }
     return $estatus;
 }
+
 function getTipoAgencia($idUser)
 {
     //generamos una consulta para obtener la descripcion del contrato

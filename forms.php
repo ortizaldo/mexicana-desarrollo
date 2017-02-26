@@ -578,42 +578,146 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 <h4 class="modal-title" id="titleCompanyTask"></h4>
             </div>
             <div class="modal-body">
-                <form class="cmxInstallationform" role="form" id="formInstallationSale">
-                    <input type="text" id="txtTaskid" hidden/>
+                <div class="form-group">
+                    <form class="cmxInstallationform" role="form" id="formInstallationSale">
+                        <input type="text" id="txtTaskid" hidden/>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Asignación a Perfil</label>
+                                <select class="form-control" id="txtUserProfile"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Agencia</label>
+                                <select class="form-control" id="txtTaskAgency"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Empleado</label>
+                                <select class="form-control" id="txtTaskEmployee"></select>
+                            </div>
+                        </div>
+                        <br/>
 
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="col-xs-7">&nbsp;</div>
+                                <div class="col-xs-5">
+                                    <input type="hidden" id="inpIDRep">
+                                    &nbsp;&nbsp;
+                                    <button type="button" class="btn btn-danger" id="btnCancelTaskAssign">CANCELAR</button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="button" class="btn btn-success" id="btnAssign">CREAR</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade disable-scroll" id="cancelForm" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnModalFormCancelClose" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="titleCancelForm"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="cmxInstallationform" role="form" id="formCancelAgreement">
+                    <input type="text" id="txtAgreementId" hidden/>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label>Asignación a Perfil</label>
-                            <select class="form-control" id="txtUserProfile"></select>
+                            <label id="numeroContrato"></label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label>Agencia</label>
-                            <select class="form-control" id="txtTaskAgency"></select>
+                            <label id="opcionDep">Opcion de Cancelacion</label>
+                            <select class="form-control" id="opcionDepSelect">
+                                <option value="0">Seleccionar una opcion</option>
+                                <option value="1">Depurar registros asociados al contrato</option>
+                                <option value="2" style="display: none" id="opcionCancelar">Cancelar Contrato</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label>Empleado</label>
-                            <select class="form-control" id="txtTaskEmployee"></select>
+                            <label id="motivoContratoTitulo">Motivo para eliminar el contrato</label>
+                            <textarea class="form-control" rows="3" placeholder="Escribe un motivo" id="motivoCancel"></textarea>
                         </div>
                     </div>
                     <br/>
-
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="col-xs-7">&nbsp;</div>
-                            <div class="col-xs-5">
+                            <div class="col-xs-8">
                                 <input type="hidden" id="inpIDRep">
                                 &nbsp;&nbsp;
-                                <button type="button" class="btn btn-danger" id="btnCancelTaskAssign">CANCELAR</button>
+                                <button type="button" class="btn btn-danger" id="btnCancelForm">CANCELAR</button>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
-                                <button type="button" class="btn btn-success" id="btnAssign">CREAR</button>
+                                <button type="button" class="btn btn-default" id="btnAddCancel">CANCELAR CONTRATO</button>
                             </div>
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade disable-scroll" id="reasignForm" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnModalFormRTaskClose" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titleCompanyRTask"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <form class="cmxInstallationform" role="form" id="formReasignTask">
+                        <input type="text" id="txtTaskid" hidden/>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Asignación a Perfil</label>
+                                <select class="form-control" id="txtUserProfileReasign"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Agencia</label>
+                                <select class="form-control" id="txtTaskAgencyReasign"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>Empleado</label>
+                                <select class="form-control" id="txtTaskEmployeeReasign"></select>
+                            </div>
+                        </div>
+                        <br/>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="col-xs-7">&nbsp;</div>
+                                <div class="col-xs-6">
+                                    <input type="hidden" id="inpIDRepReasign">
+                                    &nbsp;&nbsp;
+                                    <button type="button" class="btn btn-danger" id="btnCancelTaskAssignR">CANCELAR</button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="button" class="btn btn-default" id="btnAssignReasign">REASIGNAR</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -1873,7 +1977,8 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         $checkboxes.each(function() {
             if (this.checked === true) {
                 row=$(this).attr("data-id");
-                idRPTr=row.data('id');
+                console.log('row', row);
+                idRPTr=row;
                 idEmployee = $("#asignarUsuario").val();
                 if (parseInt(idEmployee) > 0) {
                     msg = 'Se ha asignado una solicitud de Instalacion';
@@ -1980,7 +2085,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
     
     function asignarTarea(id) {
-        console.log('localStorage.getItem(id)', localStorage.getItem("id"));
         var nicknamAgencia=localStorage.getItem("id");
         var idReport = 0;
         idReport = id;
@@ -2008,6 +2112,295 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             }
         });
     }
+    
+    $('#tablaReporte').on('click', '.btnDepurarAdmin:not(:disabled)', function(e) {
+        e.preventDefault();
+        var rowIDReporte=$(this).attr("data-id");
+        $("#titleCancelForm").text("Depuracion de Registros");
+        var rowTRContrato=$(this).parents("tr[role='row']").children('td').children('div .contrato').text();
+        var rowTRIDCliente=$(this).parents("tr[role='row']").children('td').children('div .idCliente').text();
+        localStorage.setItem("rowTRContrato", rowTRContrato);
+        localStorage.setItem("rowTRIDCliente", rowTRIDCliente);
+        localStorage.setItem("rowIDReporte", rowIDReporte);
+        $("#numeroContrato").text('Numero de contrato a depurar - #'+rowTRContrato);
+        var nickname = localStorage.getItem("id");
+        if (nickname.toUpperCase() === "SUPERADMIN") {
+            $("#opcionCancelar").show();
+        }
+        $('#cancelForm').modal('show');
+    });
+    
+    $('#btnCancelForm:not(:disabled)').on('click',function(e) {
+        e.preventDefault();
+        var row=$(this).attr("data-id");
+        $("#motivoCancel").text("");
+        $("#motivoCancel").val("");
+        $("#numeroContrato").text("");
+        localStorage.setItem("rowTRContrato", "");
+        localStorage.setItem("rowTRIDCliente", "");
+        localStorage.setItem("rowIDReporte", "");
+        $('#cancelForm').modal('hide');
+    });
+
+    $('#btnCancelTaskAssignR:not(:disabled)').on('click',function(e) {
+        e.preventDefault();
+        var row=$(this).attr("data-id");
+        $("#txtUserProfileReasign").html("");
+        $("#txtTaskAgencyReasign").html("");
+        $("#txtTaskEmployeeReasign").html("");
+        localStorage.setItem("rowTRContrato", "");
+        localStorage.setItem("rowIDReporte", "");
+        localStorage.setItem("rowTRTipoReporte", "");
+        $('#reasignForm').modal('hide');
+    });
+
+    $('#tablaReporte').on('click', '.openReasignForm:not(:disabled)', function(e) {
+        e.preventDefault();
+        $("#titleCompanyRTask").text("Reasignacion de Actividades");
+        var rowIDReporte=$(this).attr("data-id");
+        var rowTRContrato=$(this).parents("tr[role='row']").children('td').children('div .contrato').text();
+        var rowTRIDCliente=$(this).parents("tr[role='row']").children('td').children('div .idCliente').text();
+        var rowTRTipoReporte=$(this).parents("tr[role='row']").children('td').children('div .tipoReporte').text();
+        var agencia = localStorage.getItem("id");
+        $("#txtUserProfileReasign").html("");
+        $("#txtTaskAgencyReasign").html("");
+        $("#txtUserProfileReasign").append('<option value="0">'+rowTRTipoReporte+'</option>');
+        $("#txtTaskAgencyReasign").append('<option value="0">'+localStorage.getItem("id")+'</option>');
+        
+        localStorage.setItem("rowTRContrato", rowTRContrato);
+        localStorage.setItem("rowIDReporte", rowIDReporte);
+        localStorage.setItem("rowTRTipoReporte", rowTRTipoReporte);
+
+        if (!_.isEmpty(rowTRTipoReporte) &&
+            !_.isEmpty(agencia) &&
+            !_.isEmpty(rowIDReporte)) {
+            $.ajax({
+                method: "GET",
+                url: "dataLayer/callsWeb/getDataEmployeesReasign.php",
+                data: {
+                    rowTRTipoReporte: rowTRTipoReporte,
+                    agencia: agencia,
+                    rowIDReporte: rowIDReporte
+                },
+                dataType: "JSON",
+                success: function (data) {
+                    $("#txtTaskEmployeeReasign").html("");
+                    var optionsSelect = "";
+                    $("#txtTaskEmployeeReasign").append('<option value="0">Seleccionar un Empleado</option>');
+                    _.each(data, function (row, idx) {
+                        optionsSelect += '<option value="'+row.IDEmp+'">'+row.nicknameEmp+'</option>';
+                    });
+                    $("#txtTaskEmployeeReasign").append(optionsSelect);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('request failed');
+                    console.log(textStatus);
+                }
+            });
+        }
+        $(".numeroContrato").text('Numero de contrato a reasignar - #'+rowTRContrato);
+        var nickname = localStorage.getItem("id");
+        $('#reasignForm').modal('show');
+    });
+
+    $('#btnAssignReasign:not(:disabled)').on('click',function(e) {
+        e.preventDefault();
+        e.preventDefault();
+        $('#btnAssignReasign').prop("disabled", true);
+        var nickname = localStorage.getItem("id");
+        var rowTRContrato = localStorage.getItem("rowTRContrato");
+        var rowIDReporte = localStorage.getItem("rowIDReporte");
+        var rowTRTipoReporte = localStorage.getItem("rowTRTipoReporte");
+        var txtTaskEmployeeReasign = $("#txtTaskEmployeeReasign option:selected").val()
+        if (parseInt(txtTaskEmployeeReasign) == 0) {
+            $("#txtTaskEmployeeReasign").notify("El campo 'Empleado' es requerido", "error");
+            $('#btnAssignReasign').prop("disabled", false);
+            return false;
+        }
+        //pasamos las validaciones
+        $.notify.addStyle('reassigTasks', {
+            html: 
+            "<div>" +
+                "<div class='clearfix'>" +
+                    "<div class='title' data-notify-html='title'/>" +
+                        "<div class='buttons'>" +
+                            "<button class='btn btn-danger no'>Cancelar</button>" +
+                            "<button class='btn btn-success yes' data-notify-text='button'></button>" +
+                     "</div>" +
+                "</div>" +
+            "</div>"
+        });
+
+        $("#btnAssignReasign").notify({
+            title: 'Esta seguro que desea reasignar la tarea?',
+            button: 'Aceptar'
+        }, { 
+            style: 'reassigTasks',
+            autoHide: false,
+            clickToHide: false
+        });
+    });
+
+    $(document).on('click', '.notifyjs-reassigTasks-base .no:not(:disabled)', function(e) {
+        e.preventDefault();
+        $(this).trigger('notify-hide');
+    });
+    $(document).on('click', '.notifyjs-reassigTasks-base .yes:not(:disabled)', function(e) {
+        e.preventDefault();
+        var notifyElement = $(this);
+        var rowIDReporte = localStorage.getItem("rowIDReporte");
+        var rowTRContrato = localStorage.getItem("rowTRContrato");
+        var rowTRTipoReporte = localStorage.getItem("rowTRTipoReporte");
+        var agencia = localStorage.getItem("id");
+        var txtTaskEmployeeReasign = parseInt($("#txtTaskEmployeeReasign option:selected").val());
+        $.ajax({
+            method: "POST",
+            url: "dataLayer/callsWeb/reasignarContratos.php",
+            dataType: "JSON",
+            data: {
+                rowIDReporte : rowIDReporte,
+                rowTRTipoReporte : rowTRTipoReporte,
+                txtTaskEmployeeReasign : txtTaskEmployeeReasign,
+                agencia : agencia
+            },
+            success: function (data) {
+                var existeCode = _.has(data, "code");
+                if (existeCode) {
+                    if (parseInt(data.code) === 200) {
+                        $.notify("El contrato #"+rowTRContrato+" se reasigno correctamente", "success");
+                        $('#btnAssignReasign').prop("disabled", false);
+                        notifyElement.prop("disabled", true);
+                        notifyElement.trigger('notify-hide');
+                        localStorage.setItem("rowIDReporte", "");
+                        localStorage.setItem("rowTRContrato", "");
+                        localStorage.setItem("rowTRTipoReporte", "");
+                        cargarReportes();
+                        $('#reasignForm').modal('hide');
+                    }else if(parseInt(data.code) === 500){
+                        $("#btnAssignReasign").notify("Ocurrio un problema al tratar de reasignar el contrato", "error");
+                        $('#btnAssignReasign').prop("disabled", false);
+                        notifyElement.prop("disabled", true);
+                        notifyElement.trigger('notify-hide');
+                    }
+                }
+            }, error: function (xhr, ajaxOptions, thrownError) {
+                $("#btnAssignReasign").notify("Ocurrio un problema al tratar de cancelar el contrato", "error");
+                $('#btnAssignReasign').prop("disabled", false);
+                notifyElement.prop("disabled", true);
+                notifyElement.trigger('notify-hide');
+            }
+        });
+    });
+
+    $('#btnAddCancel:not(:disabled)').on('click',function(e) {
+        e.preventDefault();
+        $('#btnAddCancel').prop("disabled", true);
+        var nickname = localStorage.getItem("id");
+        var opcionDep = parseInt($("#opcionDepSelect option:selected").val());
+        var motivoCancel = $("#motivoCancel").val();
+        var rowTRContrato = localStorage.getItem("rowTRContrato");
+        var rowTRIDCliente = localStorage.getItem("rowTRIDCliente");
+        var rowIDReporte = localStorage.getItem("rowIDReporte");
+        localStorage.setItem("opcionDep", opcionDep);
+        localStorage.setItem("motivoCancel", motivoCancel);
+        if (opcionDep == 0) {
+            $("#opcionDepSelect").notify("El campo 'Opcion de Cancelacion' es requerido", "error");
+            $('#btnAddCancel').prop("disabled", false);
+            return false;
+        }else if (_.isEmpty(motivoCancel)) {
+            $("#motivoCancel").notify("El campo 'Motivo para eliminar el contrato' es requerido", "error");
+            $('#btnAddCancel').prop("disabled", false);
+            return false;
+        }else if (opcionDep == 0 && _.isEmpty(motivoCancel)) {
+            $("#opcionDep").notify("El campo 'Opcion de Cancelacion' es requerido", "error");
+            $("#motivoCancel").notify("El campo 'Motivo para eliminar el contrato' es requerido", "error");
+            $('#btnAddCancel').prop("disabled", false);
+            return false;
+        }
+        //pasamos las validaciones
+        if (opcionDep === 1 && _.isEmpty(rowTRIDCliente)) {
+            $.notify.addStyle('foo', {
+              html: 
+                "<div>" +
+                  "<div class='clearfix'>" +
+                    "<div class='title' data-notify-html='title'/>" +
+                    "<div class='buttons'>" +
+                      "<button class='btn btn-danger no'>Cancelar</button>" +
+                      "<button class='btn btn-success yes' data-notify-text='button'></button>" +
+                    "</div>" +
+                  "</div>" +
+                "</div>"
+            });
+
+            $("#btnAddCancel").notify({
+                title: 'Esta seguro que desea depurar el contrato #'+rowTRContrato+' ?',
+                button: 'Aceptar'
+            }, { 
+                style: 'foo',
+                autoHide: false,
+                clickToHide: false
+            });
+        }else if (opcionDep === 1 && !_.isEmpty(rowTRIDCliente)) {
+            $("#btnAddCancel").notify("El #"+rowTRContrato+" de Contrato no puede ser depurado", "warning");
+            $('#btnAddCancel').prop("disabled", false);
+        }else if (opcionDep === 2 && !_.isEmpty(rowTRIDCliente)) {
+            //entramos a opcion de cancelacion
+        }
+        $('#btnAddCancel').prop("disabled", false);
+    });
+
+    //listen for click events from this style
+    $(document).on('click', '.notifyjs-foo-base .no:not(:disabled)', function(e) {
+        e.preventDefault();
+        $(this).trigger('notify-hide');
+    });
+    $(document).on('click', '.notifyjs-foo-base .yes:not(:disabled)', function(e) {
+        e.preventDefault();
+        var notifyElement = $(this);
+        var rowIDReporte = localStorage.getItem("rowIDReporte");
+        var opcionDep = localStorage.getItem("opcionDep");
+        var motivoCancel = localStorage.getItem("motivoCancel");
+        var rowTRContrato = localStorage.getItem("rowTRContrato");
+        $.ajax({
+            method: "POST",
+            url: "dataLayer/callsWeb/cancelarContratos.php",
+            dataType: "JSON",
+            data: {
+                rowIDReporte : rowIDReporte,
+                opcionDep : opcionDep,
+                motivoCancel : motivoCancel
+            },
+            success: function (data) {
+                var existeCode = _.has(data, "code");
+                if (existeCode) {
+                    if (parseInt(data.code) === 200) {
+                        $.notify("El contrato #"+rowTRContrato+" se cancelo correctamente", "success");
+                        $('#btnAddCancel').prop("disabled", false);
+                        notifyElement.prop("disabled", true);
+                        notifyElement.trigger('notify-hide');
+                        localStorage.setItem("rowTRContrato", "");
+                        localStorage.setItem("rowTRIDCliente", "");
+                        localStorage.setItem("rowIDReporte", "");
+                        localStorage.setItem("opcionDep", "");
+                        localStorage.setItem("motivoCancel", "");
+                        cargarReportes();
+                        $('#cancelForm').modal('hide');
+                    }else if(parseInt(data.code) === 500){
+                        $("#btnAddCancel").notify("Ocurrio un problema al tratar de cancelar el contrato", "error");
+                        $('#btnAddCancel').prop("disabled", false);
+                        notifyElement.prop("disabled", true);
+                        notifyElement.trigger('notify-hide');
+                    }
+                }
+            }, error: function (xhr, ajaxOptions, thrownError) {
+                $("#btnAddCancel").notify("Ocurrio un problema al tratar de cancelar el contrato", "error");
+                $('#btnAddCancel').prop("disabled", false);
+                notifyElement.prop("disabled", true);
+                notifyElement.trigger('notify-hide');
+            }
+        });
+    });
+
     function loadPlomeria(reportID, profile) {
         var tipo, nicknamAgencia=localStorage.getItem("id");
         //loadProfile();
@@ -3182,8 +3575,109 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $("#formsDetailsBody .materialSelect").hide();
             $("#formsDetailsBody .cantMaterial").hide();
             $("#formsDetailsBody .divBtnMat").hide();
+        }  
+    });
+
+    $('#formsDetailsBody').on('change', '#installationCheck:not(:disabled)', function(e) {
+        e.preventDefault();
+        var isChecked=$("#installationCheck").is(':checked');
+        var htmlAppendInstall = "";
+        if (isChecked === true) {
+            htmlAppendInstall += '<label id="labelComentsAnom">Comentarios Liberacion de Anomalia</label>';
+            htmlAppendInstall += '<input class="form-control" style="height: 65px; !important;" type="text" id="commentsLibAnom" value="">';
+            $("#anomalias").append(htmlAppendInstall);
+        }else{
+            var labelComentsAnomLength = $("#commentsLibAnom").length;
+            var commentsLibAnomLength = $("#commentsLibAnom").length;
+            if (labelComentsAnomLength > 0 && commentsLibAnomLength > 0) {
+                $("#labelComentsAnom").remove();
+                $("#commentsLibAnom").remove();
+            }
         }
-            
+    });
+
+    $('#formsDetailsBody').on('click', '#saveAnomalia:not(:disabled)', function(e) {
+        e.preventDefault();
+        $('#saveAnomalia').prop("disabled", true);
+        var isChecked=$("#installationCheck").is(':checked');
+        if (isChecked === true) {
+            $.notify.addStyle('liberarAnomalia', {
+                html: 
+                "<div>" +
+                    "<div class='clearfix'>" +
+                        "<div class='title' data-notify-html='title'/>" +
+                            "<div class='buttons'>" +
+                                "<button class='btn btn-danger no'>Cancelar</button>" +
+                                "<button class='btn btn-success yes' data-notify-text='button'></button>" +
+                         "</div>" +
+                    "</div>" +
+                "</div>"
+            });
+
+            $("#saveAnomalia").notify({
+                title: 'Esta seguro que desea liberar la Anomalia?',
+                button: 'Aceptar'
+            }, { 
+                style: 'liberarAnomalia',
+                autoHide: false,
+                clickToHide: false
+            });
+            localStorage.setItem("idReport", $(this).attr("data-id"));
+        }else if(isChecked === false){
+            $("#saveAnomalia").notify(
+                "No se ha selecionado la opcion 'Si en el campo Procede a Instalacion'", "error"
+            );
+            $('#saveAnomalia').prop("disabled", false);
+        }
+    });
+
+    $(document).on('click', '.notifyjs-liberarAnomalia-base .yes:not(:disabled)', function(e) {
+        e.preventDefault();
+        var notifyElement = $(this);
+        var rowIDReporte = localStorage.getItem("idReport");
+        var idFormInstall = $("#consecutive").val();
+        var commentsLibAnom = $("#commentsLibAnom").val();
+        console.log('rowIDReporte', rowIDReporte);
+        if (!_.isEmpty(rowIDReporte) && !_.isEmpty(idFormInstall)) {
+            console.log('entramos');
+            $.ajax({
+                method: "POST",
+                url: "dataLayer/callsWeb/liberarAnomalia.php",
+                dataType: "JSON",
+                data: {
+                    rowIDReporte : rowIDReporte,
+                    idFormInstall : idFormInstall,
+                    commentsLibAnom : commentsLibAnom
+                },
+                success: function (data) {
+                    var existeCode = _.has(data, "code");
+                    if (existeCode) {
+                        if (parseInt(data.code) === 200) {
+                            $.notify("La anomalia se libero correctamente", "success");
+                            $('#saveAnomalia').prop("disabled", false);
+                            notifyElement.trigger('notify-hide');
+                            localStorage.setItem("idReport", "");
+                            cargarReportes();
+                            $('#formsDetails').modal('hide');
+                        }else if(parseInt(data.code) === 500){
+                            $("#saveAnomalia").notify("Ocurrio un problema al tratar de liberar la anomalia", "error");
+                            $('#saveAnomalia').prop("disabled", false);
+                            notifyElement.trigger('notify-hide');
+                        }
+                    }
+                }, error: function (xhr, ajaxOptions, thrownError) {
+                    $("#saveAnomalia").notify("Ocurrio un problema al tratar de liberar la anomalia", "error");
+                    $('#saveAnomalia').prop("disabled", false);
+                    notifyElement.prop("disabled", true);
+                    notifyElement.trigger('notify-hide');
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.notifyjs-liberarAnomalia-base .no:not(:disabled)', function(e) {
+        e.preventDefault();
+        $(this).trigger('notify-hide');
     });
 
     $('#formsDetailsBody').on('click', '#addMaterial:not(:disabled)', function(e) {
@@ -4678,7 +5172,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         $('#txtTaskAgency').empty().append('whatever');
                         $('#txtTaskEmployee').empty().append('whatever');
                         $('#btnAssign').prop('disabled', false);
-                    }else if(data.code === '200' || data.code === 200){
+                    }else if((data.code === '200' || data.code === 200) || (data.code === '100' || data.code === 100)){
                         MostrarToast(1, "Asignación Finalizada", data.result);
                         $.getScript( "assets/js/clases/notificaciones.js" )
                         .done(function( script, textStatus ) {

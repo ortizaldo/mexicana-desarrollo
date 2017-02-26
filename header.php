@@ -37,6 +37,99 @@ if (!isset($_SESSION["nickname"]) || $_SESSION["nickname"] == NULL) {
             -webkit-animation: spin 2s linear infinite;
             animation: spin 2s linear infinite;
         }
+        .notifyjs-foo-base {
+          opacity: 0.85;
+          width: 200px;
+          background: #ffffff;
+          padding: 5px;
+          border-radius: 10px;
+        }
+
+        .notifyjs-foo-base .title {
+          width: 100px;
+          float: left;
+          margin: 10px 0 0 10px;
+          text-align: right;
+        }
+
+        .notifyjs-foo-base .buttons {
+          width: 70px;
+          float: right;
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+        }
+
+        .notifyjs-foo-base button {
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+          width: 60px;
+        }
+
+        .notifyjs-reassigTasks-base {
+          opacity: 0.85;
+          width: 200px;
+          background: #ffffff;
+          padding: 5px;
+          border-radius: 10px;
+        }
+
+        .notifyjs-reassigTasks-base .title {
+          width: 100px;
+          float: left;
+          margin: 10px 0 0 10px;
+          text-align: right;
+        }
+
+        .notifyjs-reassigTasks-base .buttons {
+          width: 70px;
+          float: right;
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+        }
+
+        .notifyjs-reassigTasks-base button {
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+          width: 60px;
+        }
+
+        .notifyjs-liberarAnomalia-base {
+          opacity: 0.85;
+          width: 200px;
+          background: #f0f0f0;
+          padding: 5px;
+          border-radius: 10px;
+        }
+
+        .notifyjs-arrow {
+            background: #f0f0f0;
+        }
+
+        .notifyjs-liberarAnomalia-base .title {
+          width: 100px;
+          float: left;
+          margin: 10px 0 0 10px;
+          text-align: right;
+        }
+
+        .notifyjs-liberarAnomalia-base .buttons {
+          width: 70px;
+          float: right;
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+        }
+
+        .notifyjs-liberarAnomalia-base button {
+          font-size: 9px;
+          padding: 5px;
+          margin: 2px;
+          width: 60px;
+        }
 
         @-webkit-keyframes spin {
             0% {

@@ -245,12 +245,12 @@ if (isset($_POST["token"])) {
                     $response_instalacion = null;
                     $response_segundav = null;
 
-                    $stmHistory = $conn->prepare("SELECT idStatusReport, idReportType, idFormSell, rechazado, idSolicitud, idFormulario FROM reportHistory WHERE idReport = ? and idUserAssigned=? and idReportType=?;");
+                    $stmHistory = $conn->prepare("SELECT idStatusReport, idReportType, idFormSell, rechazado, idSolicitud, idFormulario, reasignado, idUserAssigned, liberadoAnomalia FROM reportHistory WHERE idReport = ? and idUserAssigned=? and idReportType=?;");
                     $stmHistory->bind_param("iii", $idReport, $idUser,$idReportTypeH); 
 
                     if ($stmHistory->execute()) {
                         $stmHistory->store_result();
-                        $stmHistory->bind_result($idStatusR, $idReportT, $idFormS, $rech, $idS, $idF);
+                        $stmHistory->bind_result($idStatusR, $idReportT, $idFormS, $rech, $idS, $idF, $reasignado, $idUserAssigned, $liberadoAnomalia);
                         while ($stmHistory->fetch()) {
                             switch ($idReportT) {
                                 case $TYPE_VENTA:
@@ -261,7 +261,9 @@ if (isset($_POST["token"])) {
                                         "idFormSell" =>  $idFormS,
                                         "rechazado" =>  ($rech == 1) ? true : false,
                                         "idSolicitud" =>  $idS,
-                                        "idFormulario" =>  $idF
+                                        "idFormulario" =>  $idF,
+                                        "reasignado" =>  $reasignado,
+                                        "idUserAssigned" => $idUserAssigned
                                     );
                                     break;
                                 case $TYPE_PLOMERO:
@@ -269,7 +271,9 @@ if (isset($_POST["token"])) {
                                         "idReporte" =>  $idReport,
                                         "idStatus" =>  $idStatusR,
                                         "idReporType" =>  $idReportT,
-                                        "idFormSell" =>  $idFormS
+                                        "idFormSell" =>  $idFormS,
+                                        "reasignado" =>  $reasignado,
+                                        "idUserAssigned" => $idUserAssigned
                                     );
                                     break;
                                 case $TYPE_INSTALACION:
@@ -277,7 +281,10 @@ if (isset($_POST["token"])) {
                                         "idReporte" =>  $idReport,
                                         "idStatus" =>  $idStatusR,
                                         "idReporType" =>  $idReportT,
-                                        "idFormSell" =>  $idFormS
+                                        "idFormSell" =>  $idFormS,
+                                        "reasignado" =>  $reasignado,
+                                        "idUserAssigned" => $idUserAssigned,
+                                        "liberadoAnomalia" => $liberadoAnomalia
                                     );
                                     break;
                                 case $TYPE_SEGUNDAVENTA:
@@ -286,7 +293,9 @@ if (isset($_POST["token"])) {
                                         "idReporte" =>  $idReport,
                                         "idStatus" =>  $idStatusR,
                                         "idReporType" =>  $idReportT,
-                                        "idFormulario" =>  $idForm
+                                        "idFormulario" =>  $idForm,
+                                        "reasignado" =>  $reasignado,
+                                        "idUserAssigned" => $idUserAssigned
                                     );
                                     break;
                             }

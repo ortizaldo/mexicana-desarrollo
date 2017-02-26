@@ -44,7 +44,7 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 	if ($responseToken["code"] == $CODE_EXITOSO) {
 		$solicitudJson = base64_decode($solicitudBase64);
 		$solicitud = (array)json_decode($solicitudJson);
-		error_log('jsonSolicitudo '.json_encode($solicitud));
+		error_log('jsonSolicitudo instalation'.json_encode($solicitud));
 		$idSolicitudMovil = $solicitud["id"];
 		$idAsignacion = $solicitud["idAsignacion"];
 		$fechaDeAsignacion = $solicitud["fecha_asignacion"];
@@ -262,7 +262,7 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 				/**SACAMOS EL ID REPORTE QUE GENERO LA CONSULTA**/
 				$idFormSellsGenerado= $responseArrayInsertarFormularioTipoVentaUno["idFormSellsGenerado"];
                 /**  BUG IMAGEN  */
-                error_log('message status '.$resGetStatusReport[0]["estatusVenta"]);
+                error_log('message status pinche bug '.$resGetStatusReport[0]["estatusVenta"]);
                 if (intval($resGetStatusReport[0]["estatusVenta"]) == 9) {
                 	error_log('message entre a estatus rehazado');
                 	borrarImagenFormSell($idFormSellsGenerado, $idAsignacion, $estatus);
@@ -795,18 +795,14 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 					}
 
 					$idWorkflow = 1;
-					switch ($statusType) {
-						case "Completado":
-							$idStatus = 3;
-							$idStatusContrato=51;
-							break;
-						case "Pendiente Reagendado":
-							$idStatus = 7;
-							break;
-						default:
-							error_log('ninguna de las anteriores');
-							$idStatus = 4;
-							break;
+					if ($estatusCompletoDesdeMovil == "Completado") {
+						$idStatus = 3;
+						$idStatusContrato=51;
+					}elseif ($estatusCompletoDesdeMovil == "Pendiente Reagendado") {
+						$idStatus = 7;
+					}else{
+						error_log('ninguna de las anteriores');
+						$idStatus = 4;
 					}
 					$searchReports = $conn->prepare("SELECT RP.id, RP.idEmployee, RP.idUserCreator, RP.idReportType, RP.employeesAssigned FROM report AS RP WHERE RP.`id` = ?;");
 					$searchReports->bind_param("i", $reportID);
@@ -848,7 +844,8 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
                             $oEstructuraCarpetas->moverProcesoTerminadoPlomero();
                             $oEstructuraCarpetas->crearCarpetaInstalacion();
                             $oEstructuraCarpetas->moverTemporalInstalacion();
-						} else if ($statusType == "Pendiente Reagendado") {
+						} else if ($estatusCompletoDesdeMovil == "Pendiente Reagendado") {
+							error_log('estatusCompletoDesdeMovil '.$estatusCompletoDesdeMovil);
 							$updateTiempoVenta = $conn->prepare("UPDATE reportTiempoVentas SET `fechaInicioAnomInst` = NOW() WHERE `idReporte` = ?;");
 							$updateTiempoVenta->bind_param("i", $reportID);
 							$updateTiempoVenta->execute();
@@ -1598,6 +1595,7 @@ function validarEstatusInstalacion($estatusWorkFlow)
     $ESTATUS_INSTALACION_COMPLETA = 51;
     $ESTATUS_INSTALACION_REAGENDADA = 52;
     $ESTATUS_INSTALACION_CANCELADA = 53;
+    $ESTATUS_INSTALACION_ANOMALIA = 56;
     
     
     if($estatusWorkFlow == $WORKFLOW_EN_PROCESO){
@@ -1607,7 +1605,7 @@ function validarEstatusInstalacion($estatusWorkFlow)
     } else if($estatusWorkFlow == $WORKFLOW_COMPLETO){
         $estatus = $ESTATUS_INSTALACION_COMPLETA;
     } else if($estatusWorkFlow == $WORKFLOW_REEAGENDADO){
-        $estatus = $ESTATUS_INSTALACION_REAGENDADA;
+        $estatus = $ESTATUS_INSTALACION_ANOMALIA;
     }else  {
         $estatus = $ESTATUS_INSTALACION_EN_PROCESO;
     }
@@ -1920,7 +1918,7 @@ function getStatusReport($idReport)
 						    tEstatusContrato b
 						WHERE
 						    0 = 0 
-						    AND a.idFormSell = b.idReporte
+						    AND a.idReport = b.idReporte
 						    AND a.idReportType = 2
 						    AND a.idReport = $idReport";
         $result = $conn->query($getIdRepHSQL);

@@ -1805,6 +1805,7 @@ function loadForm(idForm, type, idUsuario) {
                         var ESTATUS_CANCELADO = 8;
                         var ESTATUS_REAGENDADO = 7;
                         var NO_PUEDE_VALIDAR = 0;
+                        console.log('estatus', estatus);
                         if (estatus === ESTATUS_CANCELADO || estatus === ESTATUS_REAGENDADO) {
                             $("#btnValidarVenta").addClass('hidden');
                             $("#btnSendSell").addClass('hidden');
@@ -1823,7 +1824,7 @@ function loadForm(idForm, type, idUsuario) {
                             $("#editVentalLabel").hide();
                         }else{
                             console.log('estatus', estatus);
-                            if (estatus === 6 || estatus === 10) {
+                            if (estatus === 6 || estatus === 10 || estatus === 11) {
                                 $("#editVenta").hide();
                                 $("#editVentalLabel").hide();
                             }
@@ -2183,6 +2184,7 @@ function loadForm(idForm, type, idUsuario) {
                             agreementNumber,
                             estatusAsignacionInstalacion,
                             numInstalacionGen,
+                            reportID,
                             imgs;
                         for (var element in data) {
                             id = data[element].id;
@@ -2209,6 +2211,8 @@ function loadForm(idForm, type, idUsuario) {
                             estatusAsignacionInstalacion = data[element].estatusAsignacionInstalacion;
                             
                             imgs=data[element].arrIMG;
+
+                            reportID = data[element].reportID;
                         }
 
                         if (installation == 0) {
@@ -2434,9 +2438,15 @@ function loadForm(idForm, type, idUsuario) {
                                         htmlAppendInstall += '</div>';
 
                                         htmlAppendInstall += '<div class="col-md-12">';
-                                            htmlAppendInstall += '<div class="col-md-6">';
+                                            htmlAppendInstall += '<div class="col-md-6" id="anomalias">';
                                                 htmlAppendInstall += '<label>Procede a instalaci&oacute;n?</label>';
                                                 htmlAppendInstall += '<input class="form-control" type="text" id="installation" value="' + installationT + '" disabled="disabled">';
+                                                console.log('installationT', installationT);
+                                                if (installationT === "No") {
+                                                    htmlAppendInstall +='<input type="checkbox" id="installationCheck" data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-size="mini" data-width="100" style="display:none">';
+                                                }else if (installationT === "Si") {
+                                                    htmlAppendInstall +='<input type="checkbox" id="installationCheck" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-size="mini" data-width="100" style="display:none">';
+                                                }
                                             htmlAppendInstall += '</div>';
                                             htmlAppendInstall += '<div class="col-md-6">';
                                                     htmlAppendInstall += '<label>Cat&aacute;logo de anomal&iacute;as</label>';
@@ -2543,6 +2553,7 @@ function loadForm(idForm, type, idUsuario) {
                                         htmlAppendInstall += '</div>';
                                         htmlAppendInstall += '<br/><br/><br/>';
                                         htmlAppendInstall += '<button type="button" class="btn btn-primary" id="sendInstalacion" style="display:none">ENVIAR INSTALACION</button>';
+                                        htmlAppendInstall += '<button type="button" class="btn btn-primary" id="saveAnomalia" style="display:none" data-id="'+reportID+'">LIBERAR ANOMALIA</button>';
                                         htmlAppendInstall += '<button type="button" class="btn btn-primary" id="saveInstalacion" style="display:none">GUARDAR CAMBIOS</button>';
                                         htmlAppendInstall += '<span style="margin-left: 10px">';
                                         htmlAppendInstall += '<input type="checkbox" name="editInstall" id="editInstall" style="display:none">';
@@ -2557,6 +2568,10 @@ function loadForm(idForm, type, idUsuario) {
                     }
                     $('#checkPHLabel').bootstrapToggle();
                     $('#checkInst').bootstrapToggle();
+                    $('#formsDetailsBody #installationCheck').bootstrapToggle({
+                        on: 'Si',
+                        off: 'No'
+                    });
                     //$(".toggle").hide();
                     //$("#chck").is(':checked');
                     $('#formsDetails').modal('show');
@@ -2569,6 +2584,11 @@ function loadForm(idForm, type, idUsuario) {
                             $('#formsDetailsBody #editInstallLabel').show();
                             $('#formsDetailsBody #editInstall').show();
                         }
+                    }else if ((parseInt(estatusAsignacionInstalacion) === 56) && 
+                              localStorage.getItem("id") === 'SuperAdmin') {
+                        $('#installation').hide();
+                        $('#installationCheck').show();
+                        $('#formsDetailsBody #saveAnomalia').show();
                     }
                     $('#myCarousel4').carousel({interval: false});
                     $('#myCarousel2').carousel({interval: false});

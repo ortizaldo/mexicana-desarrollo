@@ -2312,8 +2312,16 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $('#btnAddCancel').prop("disabled", false);
             return false;
         }else if (opcionDep == 0 && _.isEmpty(motivoCancel)) {
-            $("#opcionDep").notify("El campo 'Opcion de Cancelacion' es requerido", "error");
+            $("#opcionDepSelect").notify("El campo 'Opcion de Cancelacion' es requerido", "error");
             $("#motivoCancel").notify("El campo 'Motivo para eliminar el contrato' es requerido", "error");
+            $('#btnAddCancel').prop("disabled", false);
+            return false;
+        }else if (opcionDep == 1 && nickname.toUpperCase() === "SUPERADMIN" && !_.isEmpty(rowTRIDCliente)) {
+            $("#opcionDepSelect").notify("No se puede seleccionar la opcion 'Depurar registros asociados al contrato' porque ya tiene #Cliente asociado", "error");
+            $('#btnAddCancel').prop("disabled", false);
+            return false;
+        }else if (opcionDep == 2 && nickname.toUpperCase() === "SUPERADMIN" && !_.isEmpty(rowTRIDCliente)) {
+            $("#opcionDepSelect").notify("La opcion seleccionada aun no esta disponible", "error");
             $('#btnAddCancel').prop("disabled", false);
             return false;
         }
@@ -2360,6 +2368,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         var rowIDReporte = localStorage.getItem("rowIDReporte");
         var opcionDep = localStorage.getItem("opcionDep");
         var motivoCancel = localStorage.getItem("motivoCancel");
+
         var rowTRContrato = localStorage.getItem("rowTRContrato");
         $.ajax({
             method: "POST",

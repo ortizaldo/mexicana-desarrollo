@@ -131,7 +131,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            if (intval($agreementNumber) == 35547) {
+            //if (intval($agreementNumber) == 35547) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
@@ -386,7 +386,7 @@ if (isset($_POST["idUsuario"])) {
                                                          $idAgenciaInstalacion, $idReportType);
                     $returnData[] = $reportData;
                 }
-            }
+            //}
             $contador++;
         }
         $conn->close();
@@ -922,14 +922,14 @@ function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, 
                 //error_log('maldito error '.$conn->error);
             }
             $conn->close();
-            $estatus = "REVISION SEGUNDA CAPTURA";
+            $estatus = "REVISION_SEGUNDA_CAPTURA";
         }else{
             $estatus = $GLOBALS["ESTATUS_TEXTO_CAPTURA_COMPLETA"];
 
         }
     }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION']){
         //echo "string ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION ".$GLOBALS["ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION"];
-        $estatus = "REVISION SEGUNDA CAPTURA";
+        $estatus = "REVISION_SEGUNDA_CAPTURA";
     }elseif ($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_VALIDADA']) {
         $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
     }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_CANCELADA']){

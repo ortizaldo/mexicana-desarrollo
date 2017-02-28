@@ -233,6 +233,7 @@ if ($search != "") {
                           OR tr.colonia like "%'.$search.'%"
                           OR tr.street like "%'.$search.'%") ';
 }
+//echo "query ".$queryReporte;
 $queryReporte .=' order by tr.agreementNumber, tr.created_at desc';
 $result = $conn->query($queryReporte);
 $res="";
@@ -250,7 +251,10 @@ if ($isCheckedCompletos === true) {
     $tipoReporte="pendientes";
 }
 //echo "tipoReporte ".$tipoReporte;
+/*echo "txtTypeVal ".$txtTypeVal."\n";
+echo "txtStatusVal ".$txtStatusVal."\n";*/
 if ($result->num_rows > 0) {
+    $cont2=0;
     while($row = $result->fetch_array()) {
         //if (intval($row["agreementNumber"]) == 23493) {
             $idReporte=$row["id"];
@@ -309,13 +313,15 @@ if ($result->num_rows > 0) {
                     }elseif ($estatusTexto == "COMPLETO") {
                         $fecha = $row['fechaFinAsigInst'];
                     }elseif ($estatusTexto == "INSTALACION ENVIADA") {
+                        $rowF=date('Y-m-d', strtotime($row['fechaFinRealInst']));
+                        //echo $rowF."\n";
                         $fecha = $row['fechaFinRealInst'];
                     }
                 break;
                 case 'Segunda Venta':
                     if ($estatusTexto == "EN PROCESO") {
                         $fecha = $row['fechaPrimeraCaptura'];
-                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "REVISION_SEGUNDA_CAPTURA") {
+                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "REVISION SEGUNDA CAPTURA") {
                         $fecha = $row['fechaSegundaCaptura'];
                     }
                 break;
@@ -329,14 +335,11 @@ if ($result->num_rows > 0) {
                 ($txtStatusVal != "" && $txtStatusVal == "Todos los estatus")) {
                 if ($txtType == $row["name"]) {
                     if ($dateFrom != "" && $dateTo != "") {
-                        $reportDate = date('Y-m-d');
+                        //$reportDate = date('Y-m-d');
                         $reportDate=date('Y-m-d', strtotime($fecha));;
                         $dateFrom = date('Y-m-d', strtotime($dateFrom));
                         $dateTo = date('Y-m-d', strtotime($dateTo));
-                        /*echo "reportDate ".$reportDate."\n";
-                        echo "dateFrom ".$dateFrom."\n";
-                        echo "dateTo ".$dateTo."\n";*/
-                        if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                        if (($reportDate >= $dateFrom) && ($reportDate <= $dateTo)){
                             if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
                                 $res[$cont]["id"]=$row["id"];
                                 $res[$cont]["idCliente"]=$row["idCliente"];
@@ -371,10 +374,8 @@ if ($result->num_rows > 0) {
                                 $res[$cont]["created_at"]=$fecha;
                                 $res[$cont]["created_at_orig"]=$row["created_at"];
                                 $res[$cont]['estatusReporte']=$estatusTexto;
-                            }elseif (($_POST["tipoReportes"] == "completos") &&
-                                     (intval($estatusAsignacionInstalacion) == 54 || 
-                                      intval($estatusAsignacionInstalacion) == 53 || 
-                                      intval($estatusAsignacionInstalacion) == 55)){
+                            }elseif (($tipoReporte == "completos") &&
+                                     (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                                 $res[$cont]["id"]=$row["id"];
                                 $res[$cont]["idCliente"]=$row["idCliente"];
                                 $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -481,7 +482,8 @@ if ($result->num_rows > 0) {
                             $res[$cont]["created_at"]=$fecha;
                             $res[$cont]["created_at_orig"]=$row["created_at"];
                             $res[$cont]['estatusReporte']=$estatusTexto;
-                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                        }elseif (($tipoReporte == "completos") &&
+                                 (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                             $res[$cont]["id"]=$row["id"];
                             $res[$cont]["idCliente"]=$row["idCliente"];
                             $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -556,14 +558,16 @@ if ($result->num_rows > 0) {
                      ($txtStatusVal != "" && $txtStatusVal != "Todos los estatus")) {
                 if ($txtType == $row["name"] && $txtStatus == $estatusTexto) {
                     if ($dateFrom != "" && $dateTo != "") {
-                        $reportDate = date('Y-m-d');
-                        $reportDate=date('Y-m-d', strtotime($fecha));;
+                        $reportDate=date('Y-m-d', strtotime($fecha));
                         $dateFrom = date('Y-m-d', strtotime($dateFrom));
                         $dateTo = date('Y-m-d', strtotime($dateTo));
                         /*echo "reportDate ".$reportDate."\n";
                         echo "dateFrom ".$dateFrom."\n";
                         echo "dateTo ".$dateTo."\n";*/
-                        if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                        if (($reportDate >= $dateFrom) && ($reportDate <= $dateTo)){
+                            //echo $reportDate."\n";
+                            //echo $cont2." ".$txtStatus." ".$fecha." ".intval($estatusAsignacionInstalacion)."\n";
+                            $cont2++;
                             if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
                                 $res[$cont]["id"]=$row["id"];
                                 $res[$cont]["idCliente"]=$row["idCliente"];
@@ -598,7 +602,8 @@ if ($result->num_rows > 0) {
                                 $res[$cont]["created_at"]=$fecha;
                                 $res[$cont]["created_at_orig"]=$row["created_at"];
                                 $res[$cont]['estatusReporte']=$estatusTexto;
-                            }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                            }elseif (($tipoReporte == "completos") &&
+                                     (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                                 $res[$cont]["id"]=$row["id"];
                                 $res[$cont]["idCliente"]=$row["idCliente"];
                                 $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -705,7 +710,8 @@ if ($result->num_rows > 0) {
                             $res[$cont]["created_at"]=$fecha;
                             $res[$cont]["created_at_orig"]=$row["created_at"];
                             $res[$cont]['estatusReporte']=$estatusTexto;
-                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                        }elseif (($tipoReporte == "completos") &&
+                                 (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                             $res[$cont]["id"]=$row["id"];
                             $res[$cont]["idCliente"]=$row["idCliente"];
                             $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -779,14 +785,10 @@ if ($result->num_rows > 0) {
             }elseif(($txtTypeVal != "" && intval($txtTypeVal) == 0) &&
                     ($txtStatusVal != "" && intval($txtStatusVal) == 0)){
                 if ($dateFrom != "" && $dateTo != "") {
-                    $reportDate = date('Y-m-d');
                     $reportDate=date('Y-m-d', strtotime($fecha));;
                     $dateFrom = date('Y-m-d', strtotime($dateFrom));
                     $dateTo = date('Y-m-d', strtotime($dateTo));
-                    /*echo "reportDate ".$reportDate."\n";
-                    echo "dateFrom ".$dateFrom."\n";
-                    echo "dateTo ".$dateTo."\n";*/
-                    if (($reportDate > $dateFrom) && ($reportDate < $dateTo)){
+                    if (($reportDate >= $dateFrom) && ($reportDate <= $dateTo)){
                         if (($tipoReporte == "pendientes") && (intval($row["estatusAsignacionInstalacion"]) != 54)){
                             $res[$cont]["id"]=$row["id"];
                             $res[$cont]["idCliente"]=$row["idCliente"];
@@ -821,7 +823,8 @@ if ($result->num_rows > 0) {
                             $res[$cont]["created_at"]=$fecha;
                             $res[$cont]["created_at_orig"]=$row["created_at"];
                             $res[$cont]['estatusReporte']=$estatusTexto;
-                        }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54) ){
+                        }elseif (($tipoReporte == "completos") &&
+                                 (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                             $res[$cont]["id"]=$row["id"];
                             $res[$cont]["idCliente"]=$row["idCliente"];
                             $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -926,7 +929,8 @@ if ($result->num_rows > 0) {
                         $res[$cont]["created_at"]=$fecha;
                         $res[$cont]["created_at_orig"]=$row["created_at"];
                         $res[$cont]['estatusReporte']=$estatusTexto;
-                    }elseif (($tipoReporte == "completos") && (intval($row["estatusAsignacionInstalacion"]) == 54)){
+                    }elseif (($tipoReporte == "completos") &&
+                             (intval($estatusAsignacionInstalacion) >= 53 && intval($estatusAsignacionInstalacion) < 56)){
                         $res[$cont]["id"]=$row["id"];
                         $res[$cont]["idCliente"]=$row["idCliente"];
                         $res[$cont]["agreementNumber"]=$row["agreementNumber"];
@@ -1004,7 +1008,6 @@ if ($result->num_rows > 0) {
     }
     echo json_encode($res);
 }else{
-    echo "tipoReporte ".$queryReporte;
     $response["status"] = "ERROR";
     $response["code"] = "500";
     $response["response"] = "No se encontraron datos";

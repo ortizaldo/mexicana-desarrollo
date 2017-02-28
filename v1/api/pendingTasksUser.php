@@ -320,9 +320,10 @@ if (isset($_POST["token"])) {
                     $tasksElems[] = $requests;
                     $iconta++;
                 }//end while
+
                 $info["solicitudes"] = $tasksElems;
-                
-               
+
+                $info["reportesReasignados"] = getReportesReasignados($idUser);
                 
             } else {
                 $response["status"] = "BAD";
@@ -345,6 +346,53 @@ if (isset($_POST["token"])) {
             $response["code"] = "404";
             $response["response"] = "Error en el token";
             echo json_encode($response);
+        }
+    }
+}
+
+function getReportesReasignados($idUser)
+{
+    //generamos una consulta para obtener la descripcion del contrato
+    if ($idUser != '') {
+        $DB = new DAO();
+        $conn = $DB->getConnect();
+        $getIdRepRQL = "SELECT 
+                            a.id, a.idRepReasign, a.tipoReporte
+                        FROM
+                            reportesReasignados a, reportHistory b
+                        WHERE 0=0
+                        AND a.idRepReasign = b.idReport
+                        AND a.tipoReporte = b.idReportType
+                        AND idUSerAnterior = $idUser
+                        AND a.activo=1;";
+        $result = $conn->query($getIdRepRQL);
+        $res=[];
+        if ($result->num_rows > 0) {
+            $cont=0;
+            while($row = $result->fetch_array()) {
+                $res[$cont]["idRepReasign"]=intval($row[1]);
+                $res[$cont]["tipoReporte"]=intval($row[2]);
+                //actualizamosReasignados($row[0]);
+                $cont++;
+            }
+        }
+        $conn->close();
+    }
+    return $res;
+}
+
+function actualizamosReasignados($idRepReasign)
+{
+    //actualizamos
+    if ($idRepReasign != "") {
+        $DB = new DAO();
+        $conn = $DB->getConnect();
+        $stmtReportR = "UPDATE reportesReasignados SET activo=0, updated_at=NOW() WHERE id = ?;";
+        if ($stmtReportAnt = $conn->prepare($stmtReportR)) {
+            $stmtReportAnt->bind_param("i", $idRepReasign);
+            $stmtReportAnt->execute();
+        }else{
+            error_log("error ".$conn->error);
         }
     }
 }

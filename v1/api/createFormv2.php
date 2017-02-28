@@ -795,10 +795,21 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 					}
 
 					$idWorkflow = 1;
-					if ($estatusCompletoDesdeMovil == "Completado") {
+					error_log('message status installation'.$installation);
+					if ($estatusCompletoDesdeMovil == "Completado" && 
+						     ($installation == 'true' || 
+						      $installation == true || 
+						      $installation == '1' ||
+						      intval($installation) == 1)) {
+						error_log('message entre a completado sin anomalia');
 						$idStatus = 3;
 						$idStatusContrato=51;
-					}elseif ($estatusCompletoDesdeMovil == "Pendiente Reagendado") {
+					}elseif ($estatusCompletoDesdeMovil == "Completado" && 
+						     ($installation == 'false' || 
+						      $installation == false || 
+						      $installation == '0' ||
+						      intval($installation) == 0)) {
+						error_log('message entre a completado con anomalia');
 						$idStatus = 7;
 					}else{
 						error_log('ninguna de las anteriores');
@@ -844,7 +855,11 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
                             $oEstructuraCarpetas->moverProcesoTerminadoPlomero();
                             $oEstructuraCarpetas->crearCarpetaInstalacion();
                             $oEstructuraCarpetas->moverTemporalInstalacion();
-						} else if ($estatusCompletoDesdeMovil == "Pendiente Reagendado") {
+						} else if ($estatusCompletoDesdeMovil == "Completado" && 
+							      ($installation == 'false' || 
+							       $installation == false || 
+							       $installation == '0' ||
+							       intval($installation) == 0)) {
 							error_log('estatusCompletoDesdeMovil '.$estatusCompletoDesdeMovil);
 							$updateTiempoVenta = $conn->prepare("UPDATE reportTiempoVentas SET `fechaInicioAnomInst` = NOW() WHERE `idReporte` = ?;");
 							$updateTiempoVenta->bind_param("i", $reportID);

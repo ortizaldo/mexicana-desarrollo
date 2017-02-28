@@ -2742,6 +2742,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     MostrarToast(1, "Venta Creada", "La creación de Venta y notificación de la asignación de la misma se realizó con éxito");
                     //window.location='forms.php';
                     cargarReportes();
+                    $('#btnCreateSell').prop("disabled", false);
                     //loadMain(); 
                 }, error: function (response) {
                     //alert(xhr.status);

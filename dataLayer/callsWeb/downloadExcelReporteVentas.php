@@ -88,7 +88,7 @@ mysqli_stmt_bind_param($stmt, 'sss', $fechaInicial, $fechaFinal, $nickName);
 if ($stmt->execute()) 
 {
     $stmt->store_result();
-    $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street, $nombre_usuario, $agencia, $fecha);
+    $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
 
     $i = $ROW_DATAOS_REPOPRTE;
     while ($stmt->fetch()) 
@@ -101,7 +101,7 @@ if ($stmt->execute())
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $i, $estatus_instalacion);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $i, $idCity);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $i, $colonia);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $i, $street);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $i, $street.' - Num: '.$innerNumber);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $i, $nombre_usuario);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $i, $agencia);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $i, $fecha);   

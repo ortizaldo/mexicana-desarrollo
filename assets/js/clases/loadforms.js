@@ -1150,23 +1150,25 @@ function loadForm(idForm, type, idUsuario) {
                             //$('#formsDetails').find('input').prop('disabled', true);
                         }   
                     } else if (type2 == "Venta") {
-                        var fromId;
-                        var comments;
-                        var consecutive;
-                        var financialService;
-                        var lastName;
-                        var lastNameOp;
-                        var meeting;
-                        var name;
-                        var owner;
-                        var payment;
-                        var prospect;
-                        var requestNumber;
-                        var estatus;
-                        var puedeValidar;
-                        var uninteresting;
-                        var motivosDesinteres;
-                        var estatusInstalacion;
+                        var fromId,
+                            comments,
+                            consecutive,
+                            financialService,
+                            lastName,
+                            lastNameOp,
+                            meeting,
+                            name,
+                            owner,
+                            payment,
+                            prospect,
+                            requestNumber,
+                            estatus,
+                            puedeValidar,
+                            uninteresting,
+                            motivosDesinteres,
+                            quienCancela = "",
+                            motivoCancelado = "",
+                            estatusInstalacion;
 
                         for (var element in data) {
                             fromId = data[element].id;
@@ -1191,6 +1193,8 @@ function loadForm(idForm, type, idUsuario) {
                             uninteresting = data[element].uninteresting;
                             motivosDesinteres = data[element].motivosDesinteres;
                             estatusInstalacion = data[element].estatusAsignacionInstalacion;
+                            quienCancela = data[element].quienCancela;
+                            motivoCancelado = data[element].motivoCancelado;
                             fecha = data[element].created_at;
                         }
 
@@ -1507,19 +1511,49 @@ function loadForm(idForm, type, idUsuario) {
                         }
                             
                         var htmlAppRejected="";
-                        htmlAppRejected += '<table class="table table-hover">';
-                            htmlAppRejected += '<thead>';
-                                htmlAppRejected += '<tr><th>Razon de rechazo</th><th>Rechazado Por:</th></tr>';
-                            htmlAppRejected += '</thead>';
-                            htmlAppRejected += '<tbody>';
-                            _.each(data[0].datosRechazo, function (rowRejected, idx) {
-                                htmlAppRejected += "<tr>";
-                                htmlAppRejected += '<td class="danger">'+rowRejected.reason+'</td>';
-                                htmlAppRejected += '<td class="danger">'+rowRejected.validadoPor+'</td>';
-                                htmlAppRejected += "</tr>";
-                            });
-                            htmlAppRejected += '</tbody>';
-                        htmlAppRejected += '</table>';
+                        if (!_.isUndefined(data[0].datosRechazo.length)) {
+                            htmlAppRejected += '<table class="table table-hover">';
+                                htmlAppRejected += '<thead>';
+                                    htmlAppRejected += '<tr><th>Razon de rechazo</th><th>Rechazado Por:</th></tr>';
+                                htmlAppRejected += '</thead>';
+                                htmlAppRejected += '<tbody>';
+                                _.each(data[0].datosRechazo, function (rowRejected, idx) {
+                                    htmlAppRejected += "<tr>";
+                                    htmlAppRejected += '<td class="danger">'+rowRejected.reason+'</td>';
+                                    htmlAppRejected += '<td class="danger">'+rowRejected.validadoPor+'</td>';
+                                    htmlAppRejected += "</tr>";
+                                });
+                                htmlAppRejected += '</tbody>';
+                            htmlAppRejected += '</table>';
+                        }
+
+                        var htmlAppCancel="";
+                        if (!_.isEmpty(motivoCancelado) && !_.isNull(motivoCancelado) && !_.isUndefined(motivoCancelado)) {
+                            htmlAppCancel += '<table class="table table-hover">';
+                                htmlAppCancel += '<thead>';
+                                    htmlAppCancel += '<tr><th>Razon de cancelación</th><th>Cancelado Por:</th></tr>';
+                                htmlAppCancel += '</thead>';
+                                htmlAppCancel += '<tbody>';
+                                if (!_.isEmpty(quienCancela) && !_.isEmpty(motivoCancelado)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">'+motivoCancelado+'</td>';
+                                    htmlAppCancel += '<td class="danger">'+quienCancela+'</td>';
+                                    htmlAppCancel += "</tr>";
+                                }else if (!_.isEmpty(quienCancela) && _.isEmpty(motivoCancelado)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">No se selecciono ningun motivo</td>';
+                                    htmlAppCancel += '<td class="danger">'+quienCancela+'</td>';
+                                    htmlAppCancel += "</tr>";
+                                }else if (_.isEmpty(quienCancela) && !_.isEmpty(motivoCancelado)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">'+motivoCancelado+'</td>';
+                                    htmlAppCancel += '<td class="danger"></td>';
+                                    htmlAppCancel += "</tr>";
+                                }
+                                htmlAppCancel += '</tbody>';
+                            htmlAppCancel += '</table>';
+                        }
+
                         if (prospect == 1) {
                             prospect = "S&iacute;";
                         } else if (prospect == 0) {
@@ -1605,6 +1639,9 @@ function loadForm(idForm, type, idUsuario) {
                                 + '</div>' 
                                 + '<div class="col-md-12">'
                                     + htmlAppRejected
+                                + '</div>'
+                                + '<div class="col-md-12">'
+                                    + htmlAppCancel
                                 + '</div>'
 
                             + '</div>' 
@@ -2185,6 +2222,8 @@ function loadForm(idForm, type, idUsuario) {
                             estatusAsignacionInstalacion,
                             numInstalacionGen,
                             reportID,
+                            quienLibAnomalia = "",
+                            motivoLiberacion = "",
                             imgs;
                         for (var element in data) {
                             id = data[element].id;
@@ -2205,13 +2244,12 @@ function loadForm(idForm, type, idUsuario) {
                             latitude = data[element].latitude;
                             longitude = data[element].longitude;
                             created_at = data[element].created_at;
-                            
                             consecutive = data[element].consecutive
                             agreementNumber = data[element].agreementNumber
                             estatusAsignacionInstalacion = data[element].estatusAsignacionInstalacion;
-                            
+                            quienLibAnomalia = data[element].quienLibAnomalia;
+                            motivoLiberacion = data[element].motivoLiberacion;
                             imgs=data[element].arrIMG;
-
                             reportID = data[element].reportID;
                         }
 
@@ -2394,7 +2432,33 @@ function loadForm(idForm, type, idUsuario) {
                         carouselAcometida = '<div id="myCarousel2OP" class="carousel slide"><div class="carousel-inner">' + itemsAcometidaOP + '</div>' + '<a class="left carousel-control" href="#myCarousel2OP" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel2OP" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div>';
                         carouselMeasurer = '<div id="myCarousel3OP" class="carousel slide"><div class="carousel-inner">' + itemsMeasurerOP + '</div>' + '<a class="left carousel-control" href="#myCarousel3OP" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel3OP" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div>';
                         carouselInstallation = '<div id="myCarousel4OP" class="carousel slide"><div class="carousel-inner">' + itemsInstallationOP + '</div>' + '<a class="left carousel-control" href="#myCarousel4OP" data-slide="prev">' + '<span class="icon-prev"></span>' + '</a>' + '<a class="right carousel-control" href="#myCarousel4OP" data-slide="next">' + '<span class="icon-next"></span>' + '</a>' + '</div>';
-
+                        //anomalia
+                        var htmlAppCancel="";
+                        if (!_.isEmpty(motivoLiberacion) && !_.isNull(motivoLiberacion) && !_.isUndefined(motivoLiberacion)) {
+                            htmlAppCancel += '<table class="table table-hover">';
+                                htmlAppCancel += '<thead>';
+                                    htmlAppCancel += '<tr><th>Razon de cancelación</th><th>Cancelado Por:</th></tr>';
+                                htmlAppCancel += '</thead>';
+                                htmlAppCancel += '<tbody>';
+                                if (!_.isEmpty(quienLibAnomalia) && !_.isEmpty(motivoLiberacion)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">'+motivoLiberacion+'</td>';
+                                    htmlAppCancel += '<td class="danger">'+quienLibAnomalia+'</td>';
+                                    htmlAppCancel += "</tr>";
+                                }else if (!_.isEmpty(quienLibAnomalia) && _.isEmpty(motivoLiberacion)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">No se selecciono ningun motivo</td>';
+                                    htmlAppCancel += '<td class="danger">'+quienLibAnomalia+'</td>';
+                                    htmlAppCancel += "</tr>";
+                                }else if (_.isEmpty(quienLibAnomalia) && !_.isEmpty(motivoLiberacion)) {
+                                    htmlAppCancel += "<tr>";
+                                    htmlAppCancel += '<td class="danger">'+motivoLiberacion+'</td>';
+                                    htmlAppCancel += '<td class="danger"></td>';
+                                    htmlAppCancel += "</tr>";
+                                }
+                                htmlAppCancel += '</tbody>';
+                            htmlAppCancel += '</table>';
+                        }
                         $('#formsDetailsBody').html('');
                         var htmlAppendInstall = '<div class="row" data-id="'+idForm+'">';
                                 htmlAppendInstall += '<div class="col-lg-12">';
@@ -2579,7 +2643,11 @@ function loadForm(idForm, type, idUsuario) {
                         if (numInstalacionGen !== '' && numInstalacionGen !== 'null' && numInstalacionGen !== null) {
                             $('#formsDetailsBody #sendInstalacion').show();
                             $('#formsDetailsBody #sendInstalacion').html(numInstalacionGen).prop('disabled', 'true');
+                            $('#installationCheck').hide();
+                            $('#formsDetailsBody #saveAnomalia').hide();
                         }else{
+                            $('#installationCheck').hide();
+                            $('#formsDetailsBody #saveAnomalia').hide();
                             $('#formsDetailsBody #sendInstalacion').show();
                             $('#formsDetailsBody #editInstallLabel').show();
                             $('#formsDetailsBody #editInstall').show();

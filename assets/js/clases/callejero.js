@@ -8,12 +8,9 @@ function loadCities() {
         success: function (data) {
             console.log('data', data);
             $('#txMun').html('');
-
             citiesTemp = data.ot_municipios;
             citiesTemp = citiesTemp.ot_municipiosRow;
-
             $('#txMun').append("<option value=''>SELECCIONAR</option>");
-
             for (var elem in citiesTemp) {
                 if (citiesTemp[elem].nombre !== null) {
                     $('#txMun').append('<option value="' + citiesTemp[elem].idMunicipio + '">' + citiesTemp[elem].nombre + '</option>');
@@ -31,7 +28,6 @@ function loadCities() {
 }
 
 function loadColonias(city) {
-    console.log('_.isEmpty(city)', _.isEmpty(city));
     if (!_.isEmpty(city)) {
         $.ajax({
             method: "POST",
@@ -88,36 +84,39 @@ function loadStreets(city, colonia) {
         data: {city: city, colonia: colonia},
         dataType: "JSON",
         success: function (data) {
-            //console.log(data);
-
-            directions = data.ot_direcciones.ot_direccionesRow;
-            if (directions === undefined) {
-                configurarToastCentrado();
-                MostrarToast(2, "Conflicto en Direcciones", "No se encontraron direcciones para la colonia seleccionada");
-            }
-            if (typeof(directions.length) !== 'undefined') {
-                var streets = [];
-
-                for (var elem in directions) {
-                    streets.push(directions[elem].calle);
-
-                }
-
-                streets = deleteDuplicates(streets);
-
-                $('#txtStreet').html('');
-
-                  $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
-
-                for (var street in streets) {
-                    if (streets[street] !== null && streets[street] !== "") {
-                        $('#txtStreet').append('<option value="' + streets[street] + '">' + streets[street] + '</option>');
+            var ot_direcciones = _.has(data, 'ot_direcciones');
+            if (ot_direcciones) {
+                var ot_direccionesRow = _.has(data.ot_direcciones, 'ot_direccionesRow');
+                if (ot_direccionesRow) {
+                    if (!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)) {
+                        directions = data.ot_direcciones.ot_direccionesRow;
+                        var streets = [];
+                        for (var elem in directions) {
+                            streets.push(directions[elem].calle);
+                        }
+                        streets = deleteDuplicates(streets);
+                        $('#txtStreet').html('');
+                        $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
+                        for (var street in streets) {
+                            if (streets[street] !== null && streets[street] !== "") {
+                                $('#txtStreet').append('<option value="' + streets[street] + '">' + streets[street] + '</option>');
+                            }
+                        }
+                    }else{
+                        //calle: "PECES"entre_calles: ""id_direccion: "254027"numero_exterior: "304-4"
+                        var calle = data.ot_direcciones.ot_direccionesRow.calle;
+                        var entre_calles = data.ot_direcciones.ot_direccionesRow.entre_calles;
+                        var numero_exterior = data.ot_direcciones.ot_direccionesRow.numero_exterior;
+                        
+                        directions = data.ot_direcciones.ot_direccionesRow;
+                        $('#txtStreet').html('');
+                        $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
+                        $('#txtStreet').append('<option value="' + directions.calle + '">' + directions.calle + '</option>');
                     }
+                }else{
+                    configurarToastCentrado();
+                    MostrarToast(2, "Conflicto en Direcciones", "No se encontraron direcciones para la colonia seleccionada");
                 }
-            }else{
-                $('#txtStreet').html('');
-                $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
-                $('#txtStreet').append('<option value="' + directions.calle + '">' + directions.calle + '</option>');
             }
             sortSelectOptions('#txtStreet', true);
         }

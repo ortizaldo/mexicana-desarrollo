@@ -67,7 +67,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
 
         if ($type == "Venta") {
 
-            $stmtGetForm->bind_result($id, $prospect, $uninteresting, $motivosDesinteres, $comments, $owner, $id, $name, $lastName, $lastNameOp, $payment, $financialService, $requestNumber, $meeting, $estatus, $puedeValidar,$created_at,$agenciaVendedor, $estatusAsignacionInstalacion);
+            $stmtGetForm->bind_result($id, $prospect, $uninteresting, $motivosDesinteres, $comments, $owner, $id, $name, $lastName, $lastNameOp, $payment, $financialService, $requestNumber, $meeting, $estatus, $puedeValidar,$created_at,$agenciaVendedor, $estatusAsignacionInstalacion, $motivoCancelado,$quienCancela);
 
             while ($stmtGetForm->fetch()) {
                 $responseArray["id"] = $id;
@@ -87,6 +87,8 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                 $responseArray["puedeValidar"] = $puedeValidar;
                 $responseArray["created_at"] = $created_at;
                 $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
+                $responseArray["motivoCancelado"] = $motivoCancelado;
+                $responseArray["quienCancela"] = $quienCancela;
                 $responseArray["datosRechazo"] = getRechazos($idForm);
                 $responseArray['arrIMG'] = getImgsVenta($idForm);
                 $responseArrayGetForm[] = $responseArray;
@@ -234,7 +236,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                                  FP.phLabel, FP.agencyPh, FP.agencyNumber,FP.installation,
                                  FP.abnormalities, FP.comments, FP.brand,FP.type, FP.serialNumber, 
                                  FP.measurement,FP.latitude,FP.longitude,te.fechaAlta, 
-                                 te.estatusAsignacionInstalacion ,RP.agreementNumber, FP.numInstalacionGen
+                                 te.estatusAsignacionInstalacion ,RP.agreementNumber, FP.numInstalacionGen, RP.quienLibAnomalia, RP.motivoLiberacion
                                  FROM report AS RP
                                  INNER JOIN reportHistory as rth on rth.idReport=RP.id and rth.idReportType=4
                                  INNER JOIN form_installation AS FP ON FP.consecutive = rth.idFormSell
@@ -246,7 +248,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                 if($stmtFrmPlumb->execute()){
                     $stmtFrmPlumb->store_result();
                     $stmtFrmPlumb->bind_result($reportID,$id,$consecutive, $name,$lastName, $request, $phLabel,$agencyPh,$agencyNumber,$installation,
-                        $abnormalities,$comments, $brand,$type, $serialNumber,$measurement,$latitude,$longitude,$created_at, $estatusAsignacionInstalacion, $agreementNumber, $numInstalacionGen);
+                        $abnormalities,$comments, $brand,$type, $serialNumber,$measurement,$latitude,$longitude,$created_at, $estatusAsignacionInstalacion, $agreementNumber, $numInstalacionGen, $quienLibAnomalia,$motivoLiberacion);
                     if($stmtFrmPlumb->fetch()){
                         $responseArray['reportID'] = $reportID;
                         $responseArray['id'] = $id;
@@ -269,6 +271,8 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                         $responseArray['longitude'] = $longitude;
                         $responseArray['created_at'] = $created_at;
                         $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
+                        $responseArray["quienLibAnomalia"] = $quienLibAnomalia;
+                        $responseArray["motivoLiberacion"] = $motivoLiberacion;
                         $responseArray["agreementNumber"] = $agreementNumber;
 
                     }

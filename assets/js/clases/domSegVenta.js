@@ -59,10 +59,9 @@ function Colonias(city) {
             },
             dataType: "JSON",
             success: function (data) {
+                console.log('data colonias', data);
                 if (typeof(data) !== 'undefined' && data !== null && data !== '') {
-                    ////console.log('dataColonias', data);
                     var tempData = [];
-
                     tempData = data.ot_colonias;
                     tempData = tempData.ot_coloniasRow;
                     $('#txtNextStepSaleColonia').html('');
@@ -99,11 +98,12 @@ function Streets() {
         data: {city: city, colonia: colonia},
         dataType: "JSON",
         success: function (data) {
+            console.log('data calles', data);
             var sizeData = data.length;
             window.arrayCalle = []; //arrayCalle
             window.arrayNumCalle = []; //arrayNumCalle
             window.arrayIDireccion = []; //arrayNumCalle
-            var streets=[];
+            var streets=[], direcciones="";
             var ot_direcciones=_.has(data, 'ot_direcciones');
             $('#txtNextStepSaleStreet').html('');
             $('#txtNextStepSaleStreetNumber').html('');
@@ -111,15 +111,24 @@ function Streets() {
                 var ot_direccionesRow=_.has(data.ot_direcciones, 'ot_direccionesRow');
                 if (ot_direccionesRow) {
                     $('#txtNextStepSaleStreet').append('<option value="">Seleccionar</option>');
-                    _.each(data.ot_direcciones.ot_direccionesRow, function (row, idx) {
-                        //$('#plazos').val(data[i].plazo);
-                        streets.push(row.calle);
-                        streets = deleteDuplicates(streets);
-                        window.arrayCalle[idx]=row.calle;
-                        window.arrayNumCalle[idx]=row;
-                        window.arrayIDireccion[idx]=row.id_direccion;
-                        //$('#txtNextStepSaleStreetNumber').append('<option value="' + row.id_direccion + '">' + row.numero_exterior + '</option>');
-                    });
+                    console.log('data.ot_direcciones.ot_direccionesRow', data.ot_direcciones.ot_direccionesRow.length);
+                    if (!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)) {
+                        _.each(data.ot_direcciones.ot_direccionesRow, function (row, idx) {
+                            //$('#plazos').val(data[i].plazo);
+                            streets.push(row.calle);
+                            streets = deleteDuplicates(streets);
+                            window.arrayCalle[idx]=row.calle;
+                            window.arrayNumCalle[idx]=row;
+                            window.arrayIDireccion[idx]=row.id_direccion;
+                            //$('#txtNextStepSaleStreetNumber').append('<option value="' + row.id_direccion + '">' + row.numero_exterior + '</option>');
+                        });
+                    }else{
+                        direcciones = data.ot_direcciones.ot_direccionesRow;
+                        streets.push(direcciones.calle);
+                        window.arrayCalle[0]=direcciones.calle;
+                        window.arrayNumCalle[0]=direcciones;
+                        window.arrayIDireccion[0]=direcciones.id_direccion;
+                    }
                     _.each(streets, function (street, idx) {
                         $('#txtNextStepSaleStreet').append('<option value="' + street + '">' + street + '</option>');
                     });

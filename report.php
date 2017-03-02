@@ -1337,6 +1337,8 @@ include("header.php") ?>
                         idCity='',
                         colonia='',
                         street='',
+                        innerNumber = '',
+                        outterNumber = '',
                         nombre_usuario='',
                         agencia='',
                         fecha='';
@@ -1348,35 +1350,40 @@ include("header.php") ?>
                         success: function (data) {
                             console.log('data', data);
                             _.each(data.data, function(sell, index) {
-                                id=(sell.id === '' || typeof(sell.id) === 'undefined' || sell.id === null) ? '--' : sell.id;
-                                agreementNumber=(sell.agreementNumber === '' || typeof(sell.agreementNumber) === 'undefined' || sell.agreementNumber === null) ? '--' : sell.agreementNumber;
-                                idClienteGenerado=(sell.idClienteGenerado === '' || typeof(sell.idClienteGenerado) === 'undefined' || sell.idClienteGenerado === null) ? '--' : sell.idClienteGenerado;
-                                estatus_ph=(sell.estatus_ph === '' || typeof(sell.estatus_ph) === 'undefined' || sell.estatus_ph === null) ? '--' : sell.estatus_ph;
-                                estatus_venta=(sell.estatus_venta === '' || typeof(sell.estatus_venta) === 'undefined' || sell.estatus_venta === null) ? '--' : sell.estatus_venta;
-                                idCity=(sell.idCity === '' || typeof(sell.idCity) === 'undefined' || sell.idCity === null) ? '--' : sell.idCity;
-                                colonia=(sell.colonia === '' || typeof(sell.colonia) === 'undefined' || sell.colonia === null) ? '--' : sell.colonia;
-                                street=(sell.street === '' || typeof(sell.street) === 'undefined' || sell.street === null) ? '--' : sell.street;
-                                nombre_usuario=(sell.nombre_usuario === '' || typeof(sell.nombre_usuario) === 'undefined' || sell.nombre_usuario === null) ? '--' : sell.nombre_usuario;
-                                agencia=(sell.agencia === '' || typeof(sell.agencia) === 'undefined' || sell.agencia === null) ? '--' : sell.agencia;
-                                estatus_instalacion =(sell.estatus_instalacion === '' || typeof(sell.estatus_instalacion) === 'undefined' || sell.estatus_instalacion === null) ? '--' : sell.estatus_instalacion;
-                                fecha=(sell.fecha === '' || typeof(sell.fecha) === 'undefined' || sell.fecha === null) ? '--' : sell.fecha;
-                                htmlAppend += '<tr id="idventa_'+id+'">';
-                                htmlAppend += '<td>' + id + '</td>';
-                                htmlAppend += '<td>' + agreementNumber + '</td>';
-                                htmlAppend += '<td>' + idClienteGenerado + '</td>';
-                                var etiquetaEsPH=etiquetaEstatusPH(sell.phEstatus,sell.estatus_ph);
-                                htmlAppend += '<td>' + etiquetaEsPH + '</td>';
-                                var etiquetaEsVenta=etiquetaEstatusVenta(sell.estatusVenta,sell.estatus_venta);
-                                htmlAppend += '<td>' + etiquetaEsVenta + '</td>';
-                                var etiquetaEsInstalacion=etiquetaEstatusInstalacion(sell.estatusAsignacionInstalacion,sell.estatus_instalacion);
-                                htmlAppend += '<td>' + etiquetaEsInstalacion + '</td>';
-                                htmlAppend += '<td>' + idCity + '</td>';
-                                htmlAppend += '<td>' + colonia + '</td>';
-                                htmlAppend += '<td>' + street + '</td>';
-                                htmlAppend += '<td>' + nombre_usuario + '</td>';
-                                htmlAppend += '<td>' + agencia + '</td>';
-                                htmlAppend += '<td>' + fecha + '</td>';
-                                htmlAppend += '</tr>';
+                                //if (parseInt(sell.agreementNumber) === 36356) {
+                                    console.log('sell', sell);
+                                    id=(sell.id === '' || typeof(sell.id) === 'undefined' || sell.id === null) ? '--' : sell.id;
+                                    agreementNumber=(sell.agreementNumber === '' || typeof(sell.agreementNumber) === 'undefined' || sell.agreementNumber === null) ? '--' : sell.agreementNumber;
+                                    idClienteGenerado=(sell.idClienteGenerado === '' || typeof(sell.idClienteGenerado) === 'undefined' || sell.idClienteGenerado === null) ? '--' : sell.idClienteGenerado;
+                                    estatus_ph=(sell.estatus_ph === '' || typeof(sell.estatus_ph) === 'undefined' || sell.estatus_ph === null) ? '--' : sell.estatus_ph;
+                                    estatus_venta=(sell.estatus_venta === '' || typeof(sell.estatus_venta) === 'undefined' || sell.estatus_venta === null) ? '--' : sell.estatus_venta;
+                                    idCity=(sell.idCity === '' || typeof(sell.idCity) === 'undefined' || sell.idCity === null) ? '--' : sell.idCity;
+                                    colonia=(sell.colonia === '' || typeof(sell.colonia) === 'undefined' || sell.colonia === null) ? '--' : sell.colonia;
+                                    street=(sell.street === '' || typeof(sell.street) === 'undefined' || sell.street === null) ? '--' : sell.street;
+                                    innerNumber=(sell.innerNumber === '' || typeof(sell.innerNumber) === 'undefined' || sell.innerNumber === null) ? '--' : sell.innerNumber;
+                                    outterNumber=(sell.outterNumber === '' || typeof(sell.outterNumber) === 'undefined' || sell.outterNumber === null) ? '--' : sell.outterNumber;
+                                    nombre_usuario=(sell.nombre_usuario === '' || typeof(sell.nombre_usuario) === 'undefined' || sell.nombre_usuario === null) ? '--' : sell.nombre_usuario;
+                                    agencia=(sell.agencia === '' || typeof(sell.agencia) === 'undefined' || sell.agencia === null) ? '--' : sell.agencia;
+                                    estatus_instalacion =(sell.estatus_instalacion === '' || typeof(sell.estatus_instalacion) === 'undefined' || sell.estatus_instalacion === null) ? '--' : sell.estatus_instalacion;
+                                    fecha=(sell.fecha === '' || typeof(sell.fecha) === 'undefined' || sell.fecha === null) ? '--' : sell.fecha;
+                                    htmlAppend += '<tr id="idventa_'+id+'">';
+                                    htmlAppend += '<td>' + id + '</td>';
+                                    htmlAppend += '<td>' + agreementNumber + '</td>';
+                                    htmlAppend += '<td>' + idClienteGenerado + '</td>';
+                                    var etiquetaEsPH=etiquetaEstatusPH(sell.phEstatus,sell.estatus_ph);
+                                    htmlAppend += '<td>' + etiquetaEsPH + '</td>';
+                                    var etiquetaEsVenta=etiquetaEstatusVenta(sell.estatusVenta,sell.estatus_venta);
+                                    htmlAppend += '<td>' + etiquetaEsVenta + '</td>';
+                                    var etiquetaEsInstalacion=etiquetaEstatusInstalacion(sell.estatusAsignacionInstalacion,sell.estatus_instalacion);
+                                    htmlAppend += '<td>' + etiquetaEsInstalacion + '</td>';
+                                    htmlAppend += '<td>' + idCity + '</td>';
+                                    htmlAppend += '<td>' + colonia + '</td>';
+                                    htmlAppend += '<td>' + street + ' - Num: '+innerNumber+'</td>';
+                                    htmlAppend += '<td>' + nombre_usuario + '</td>';
+                                    htmlAppend += '<td>' + agencia + '</td>';
+                                    htmlAppend += '<td>' + fecha + '</td>';
+                                    htmlAppend += '</tr>';
+                                //}
                             });
                             $('#bodyDataSells').html('');
                             $('#bodyDataSells').append(htmlAppend);
@@ -1407,17 +1414,23 @@ include("header.php") ?>
 
                 var EESTATUS_CAPTURA_COMPLETADA = 3,
                     EESTATUS_VALIDACIONES_COMPLETAS = 10,
+                    EESTATUS_VENTA_ELIMINADA = 11,
                     EESTATUS_VENTA_RECHAZADA = 2,
                     ESTATUS_VENTA_VALIDADO_POR_MEXICANA = 6,
                     EESTATUS_VENTA_VALIDADO_POR_CREDITO = 21,
                     EESTATUS_PH_COMPLETADA = 31,
+                    EESTATUS_PH_ELIMINADA = 35,
                     EESTATUS_PH_RECHAZADA= 33,
                     EESTATUS_INSTALACION_PROCESO = 50,
                     EESTATUS_INSTALACION_COMPLETA = 51,
                     EESTATUS_INSTALACION_RECHAZADA = 53;
+                    EESTATUS_INSTALACION_REAGENDADA = 52;
                     EESTATUS_INSTALACION_ENVIADA = 54;
+                    EESTATUS_INSTALACION_ELIMINADA = 55;
+
                 function etiquetaEstatusPH(idEstatus, etiqueta){
                     var etiquetaString = "---";
+                    console.log("idEstatus", idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
                         switch(idEstatus)
@@ -1426,6 +1439,9 @@ include("header.php") ?>
                                 etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
                                 break;
                             case EESTATUS_PH_RECHAZADA:
+                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                break;
+                            case EESTATUS_PH_ELIMINADA:
                                 etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
                                 break;
                             default:
@@ -1461,6 +1477,9 @@ include("header.php") ?>
                             case EESTATUS_VENTA_VALIDADO_POR_CREDITO:
                                 etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
                                 break;
+                            case EESTATUS_VENTA_ELIMINADA:
+                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                break;
                             default:
                                 etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
                                 break;
@@ -1475,6 +1494,7 @@ include("header.php") ?>
                     console.log('idEstatus', idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
+
                         console.log('idEstatus inst', idEstatus);
                         switch(idEstatus)
                         {
@@ -1486,6 +1506,12 @@ include("header.php") ?>
                                 break;
                             case EESTATUS_INSTALACION_ENVIADA:
                                 etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
+                                break;
+                            case EESTATUS_INSTALACION_ELIMINADA:
+                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                break;
+                            case EESTATUS_INSTALACION_REAGENDADA:
+                                etiquetaString = "<span class=\"label label-info\">"+etiqueta+"</span>";
                                 break;
                             default:
                                 etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";

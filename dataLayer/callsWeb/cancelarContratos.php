@@ -1,5 +1,6 @@
 <?php 
 include_once dirname(dirname(dirname(__FILE__))) . "/dataLayer/DAO.php";
+session_start();
 /*
 $ESTATUS_VENTA_DEPURADO = 11;
 $ESTATUS_PH_DEPURADO = 35;
@@ -10,6 +11,7 @@ $ESTATUS_REPORTE_DEPURADO = 65;
 $rowIDReporte = intval($_POST["rowIDReporte"]);
 $opcionDep = $_POST["opcionDep"];
 $motivoCancel = $_POST["motivoCancel"];
+$NicknameUsuarioLogeado = $_SESSION["nickname"];
 if ((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) {
     $DB = new DAO();
     $conn = $DB->getConnect();
@@ -18,9 +20,9 @@ if ((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) {
     if ($updateTEstatusContrato = $conn->prepare($updateTEstatusContratoSQL)) {
         $updateTEstatusContrato->bind_param("i", $rowIDReporte);
         if ($updateTEstatusContrato->execute()) {
-            $updateReportSQL="UPDATE report SET motivoCancelado=? where id=?";
+            $updateReportSQL="UPDATE report SET motivoCancelado=?, quienCancela=? where id=?";
             if ($updateReport = $conn->prepare($updateReportSQL)) {
-                $updateReport->bind_param("si", $motivoCancel, $rowIDReporte);
+                $updateReport->bind_param("ssi", $motivoCancel,$NicknameUsuarioLogeado, $rowIDReporte);
                 if ($updateReport->execute()) {
                     $updateReportHistorySQL="UPDATE reportHistory SET idStatusReport=8 where idReport=?";
                     if ($updateReportHistory = $conn->prepare($updateReportHistorySQL)) {

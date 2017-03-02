@@ -2682,6 +2682,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         loadCities();
         $('#modalform').modal('show');
     });
+
     $('#btnCancelSell').click(function () {
         $('#modalform').modal('hide');
         $('#titleCompany').html('');
@@ -2697,58 +2698,72 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     $('#btnCreateSell').click(function () {
         $('#btnCreateSell').prop("disabled", true);
         var city = $("#txMun option:selected").text();
-        if (city == "") {
-            //Activar toast para el aviso de llenado en los campos correspondientes
-        }
         var col = $("#txtCol option:selected").text();
         var street = $("#txtStreet option:selected").text();
         var roads = $("#txtRoads option:selected").text();
         var number = $("#txtNumber option:selected").text();
         number = number.trim();
 
-        if (street == null || street == "") {
+        if (_.isEmpty(city) || city === "SELECCIONAR") {
             configurarToastCentrado();
-            MostrarToast(2, "Ingresar Dirección", "Para crear una venta es necesario ingresar la Calle del Domicilio.");
-        } else {
-            var level = $("#txtLevel").val();
-            var addressNew = $("#txtAddressNew").val();
-            var middleStreet = $("#txtMiddleStreet").val();
-            var agency = $("#txtAgency").val();
-            var cp = $("#txtCP").val();
-            var users = $("#txtUsers").val();
-
-            $.ajax({
-                method: "POST",
-                url: "dataLayer/callsWeb/createReport.php",
-                data: {
-                    id: localStorage.getItem("id"), city: city,
-                    col: col, street: street,
-                    roads: roads, number: number,
-                    level: level, agency: agency,
-                    cp: cp, users: users
-                },
-                dataType: "JSON",
-                success: function (data) {
-                    JsNotificaciones.insertarNotificacion();
-                    $("#txMun").html('');
-                    $("#txtCol").html('');
-                    $("#txtStreet").html('');
-                    $("#txtRoads").html('');
-                    $("#txtNumber").html('');
-                    $("#txtAgency").html();
-                    $("#txtCP").html();
-                    $('#modalform').modal('hide');
-                    configurarToastCentrado();
-                    MostrarToast(1, "Venta Creada", "La creación de Venta y notificación de la asignación de la misma se realizó con éxito");
-                    //window.location='forms.php';
-                    cargarReportes();
-                    $('#btnCreateSell').prop("disabled", false);
-                    //loadMain(); 
-                }, error: function (response) {
-                    //alert(xhr.status);
-                }
-            });
+            MostrarToast(2, "Ingresar Municipio", "Para crear una venta es necesario ingresar la Calle del Domicilio.");
+            $('#btnCreateSell').prop("disabled", false);
+            return false;
+        }else if (_.isEmpty(col) || col === "SELECCIONAR") {
+            configurarToastCentrado();
+            MostrarToast(2, "Ingresar Colonia", "Para crear una venta es necesario ingresar la Calle del Domicilio.");
+            $('#btnCreateSell').prop("disabled", false);
+            return false;
+        }else if (_.isEmpty(street) || street === "SELECCIONAR") {
+            configurarToastCentrado();
+            MostrarToast(2, "Ingresar Calle", "Para crear una venta es necesario ingresar la Calle del Domicilio.");
+            $('#btnCreateSell').prop("disabled", false);
+            return false;
+        }else if (_.isEmpty(number) || number === "SELECCIONAR") {
+            configurarToastCentrado();
+            MostrarToast(2, "Ingresar Numero", "Para crear una venta es necesario ingresar la Calle del Domicilio.");
+            $('#btnCreateSell').prop("disabled", false);
+            return false;
         }
+
+        var level = $("#txtLevel").val();
+        var addressNew = $("#txtAddressNew").val();
+        var middleStreet = $("#txtMiddleStreet").val();
+        var agency = $("#txtAgency").val();
+        var cp = $("#txtCP").val();
+        var users = $("#txtUsers").val();
+
+        $.ajax({
+            method: "POST",
+            url: "dataLayer/callsWeb/createReport.php",
+            data: {
+                id: localStorage.getItem("id"), city: city,
+                col: col, street: street,
+                roads: roads, number: number,
+                level: level, agency: agency,
+                cp: cp, users: users
+            },
+            dataType: "JSON",
+            success: function (data) {
+                JsNotificaciones.insertarNotificacion();
+                $("#txMun").html('');
+                $("#txtCol").html('');
+                $("#txtStreet").html('');
+                $("#txtRoads").html('');
+                $("#txtNumber").html('');
+                $("#txtAgency").html();
+                $("#txtCP").html();
+                $('#modalform').modal('hide');
+                configurarToastCentrado();
+                MostrarToast(1, "Venta Creada", "La creación de Venta y notificación de la asignación de la misma se realizó con éxito");
+                //window.location='forms.php';
+                cargarReportes();
+                $('#btnCreateSell').prop("disabled", false);
+                //loadMain(); 
+            }, error: function (response) {
+                //alert(xhr.status);
+            }
+        });
     });
 
     function secondSell() {
@@ -2897,7 +2912,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             $('#datosTitular').find('input:text').val('');
                             $('#secondSellModal').modal('hide');
                             $('#addSecondSell').prop('disabled', false);
-                            loadMain();
+                            cargarReportes();
                         }else{
                             //generamos la instalacion y almacenamos los datos de idCliente
                             if((typeof(data.ip_contrato) !== 'undefined' && data.ip_contrato !== null && data.ip_contrato !== '') &&
@@ -2917,7 +2932,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                  .removeAttr('selected');
                                 $('#secondSellModal').modal('hide');
                                 $('#addSecondSell').prop('disabled', false);
-                                loadMain();
+                                cargarReportes();
                             }else{
                                 $('#agreementInformation').find('input:text').val('');
                                 $('#agreementInformation').find('select').val('');
@@ -5255,37 +5270,49 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     });
 
     $(document).on('change', '#txtStreet', function () {
-        //directions
-        //var colonia = $("#txtCol").val();
         var streetSelected = $("#txtStreet").val();
         var roads = [];
         var numbers = [];
         $("#txtRoads").html('');
         $("#txtNumber").html('');
-        console.log(directions);
-        roads = getEntreCalles(streetSelected, directions);
-        roads = deleteDuplicates(roads);
-        console.log(roads);
+        if (!_.isUndefined(directions.length)) {
+            roads = getEntreCalles(streetSelected, directions);
+            roads = deleteDuplicates(roads);
+            $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
+            for (var road in roads) {
+                if (roads[road] !== null && roads[road] !== "") {
+                    $('#txtRoads').append('<option value="' + roads[road] + '">' + roads[road] + '</option>');
+                }
+            }
+            numbers = getNumeros(streetSelected, directions);
+            numbers = deleteDuplicates(numbers);
+            $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
 
-        $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
+            for (var number in numbers) {
+                if (numbers[number] !== null && numbers[number] !== "") {
+                    $('#txtNumber').append('<option value="' + numbers[number] + '">' + numbers[number] + '</option>');
+                }
+            }
+        }else{
+            console.log('entre a diferente de undefined', directions.numero_exterior);
+            if (!_.isEmpty(directions.entre_calles)) {
+                $('#txtRoads').html('');
+                $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
+                $('#txtRoads').append('<option value="' + directions.entre_calles + '">' + directions.entre_calles + '</option>');
+            }else{
+                $('#txtRoads').html('');
+                $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
+            }
 
-        for (var road in roads) {
-            if (roads[road] !== null && roads[road] !== "") {
-                $('#txtRoads').append('<option value="' + roads[road] + '">' + roads[road] + '</option>');
+            if (!_.isEmpty(directions.numero_exterior)) {
+                $('#txtNumber').html('');
+                $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
+                $('#txtNumber').append('<option value="' + directions.numero_exterior + '">' + directions.numero_exterior + '</option>');
+            }else{
+                $('#txtNumber').html('');
+                $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
             }
         }
-        numbers = getNumeros(streetSelected, directions);
-        numbers = deleteDuplicates(numbers);
-        console.log(numbers);
-
-        $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
-
-        for (var number in numbers) {
-            if (numbers[number] !== null && numbers[number] !== "") {
-                $('#txtNumber').append('<option value="' + numbers[number] + '">' + numbers[number] + '</option>');
-            }
-        }
-
     });
 
     /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Get Colonias & Streets!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/

@@ -7,9 +7,11 @@ $ESTATUS_SEGUNDA_VENTA_DEPURADO = 45;
 $ESTATUS_INSTALACION_DEPURADO = 55;
 $ESTATUS_REPORTE_DEPURADO = 65;
 */
+session_start();
 $rowIDReporte = intval($_POST["rowIDReporte"]);
 $idFormInstall = $_POST["idFormInstall"];
 $commentsLibAnom = $_POST["commentsLibAnom"];
+$NicknameUsuarioLogeado = $_SESSION["nickname"];
 if (((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) &&
     ((isset($_POST['idFormInstall'])) && intval($_POST['idFormInstall']) > 0)) {
     $DB = new DAO();
@@ -48,10 +50,15 @@ if (((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) &&
                                             if ($updateReportVTA = $conn->prepare($updateReportVTASQL)) {
                                                 $updateReportVTA->bind_param("i", $rowIDReporte);
                                                 if ($updateReportVTA->execute()) {
-                                                    error_log('message actualizamos tvta');
-                                                    $result["status"] = "OK";
-                                                    $result["code"] = "200";
-                                                    $result["result"] = "La anomalia se libero correctamente";
+                                                    $updateReportSQL="UPDATE report SET motivoLiberacion=?, quienLibAnomalia=? where id=?";
+                                                    if ($updateReport = $conn->prepare($updateReportSQL)) {
+                                                        $updateReport->bind_param("ssi", $commentsLibAnom,$NicknameUsuarioLogeado, $rowIDReporte);
+                                                        if ($updateReport->execute()) {
+                                                            $result["status"] = "OK";
+                                                            $result["code"] = "200";
+                                                            $result["result"] = "La anomalia se libero correctamente";
+                                                        }
+                                                    }
                                                 }
                                             }else{
                                                 error_log('message actualizamos tvta '.$conn->error);

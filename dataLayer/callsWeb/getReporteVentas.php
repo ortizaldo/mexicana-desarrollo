@@ -39,8 +39,7 @@ function obtenerReporteVentas($conn)
     if ($stmt->execute()) 
     {
         $stmt->store_result();
-        $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street, $nombre_usuario, $agencia, $fecha);
-        
+        $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
         while ($stmt->fetch()) {
             $row = array();
             $row["id"] = $id;
@@ -55,6 +54,8 @@ function obtenerReporteVentas($conn)
             $row["idCity"] = $idCity;
             $row["colonia"] = $colonia;
             $row["street"] = $street;
+            $row["innerNumber"] = $innerNumber;
+            $row["outterNumber"] = $outterNumber;
             $row["nombre_usuario"] = $nombre_usuario;
             $row["agencia"] = $agencia;
             $row["fecha"] = $fecha;

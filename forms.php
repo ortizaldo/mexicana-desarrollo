@@ -2717,11 +2717,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
     $('#btnCreateSell').click(function () {
         $('#btnCreateSell').prop("disabled", true);
-        var city = $("#txMun").val();
-        var col = $("#txtCol").val();
-        var street = $("#txtStreet").val();
-        var roads = $("#txtRoads").val();
-        var number = $("#txtNumber").val();
+        var city = $("#txMun option:selected").text();
+        var col = $("#txtCol option:selected").text();
+        var street = $("#street option:selected").text();
+        var roads = $("#txtRoads option:selected").text();
+        var number = $("#txtNumber option:selected").text();
         number = number.trim();
 
         if (_.isEmpty(city) || city === "SELECCIONAR") {

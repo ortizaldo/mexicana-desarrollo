@@ -131,6 +131,10 @@ if (!isset($_SESSION["nickname"]) || $_SESSION["nickname"] == NULL) {
           width: 60px;
         }
 
+        .select2-container{
+            width: 250px !important;   
+        }
+
         @-webkit-keyframes spin {
             0% {
                 -webkit-transform: rotate(0deg);
@@ -156,6 +160,13 @@ if (!isset($_SESSION["nickname"]) || $_SESSION["nickname"] == NULL) {
         .dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
         .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 6px 6px 6px;-moz-border-radius:6px 6px 6px 6px;border-radius:6px 6px 6px 6px;}
         .dropdown-menu-right {margin-left:0;}
+
+        .autocomplete-suggestions { border: 1px solid #999; background: #FFF; overflow: auto; }
+        .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+        .autocomplete-selected { background: #F0F0F0; }
+        .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
+        .autocomplete-group { padding: 2px 5px; }
+        .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
     </style>
 
     <!--easy pie chart-->

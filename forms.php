@@ -16,6 +16,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
 <link rel="stylesheet" href="assets/css/dcalendar.picker.min.css" xmlns="http://www.w3.org/1999/html"/>
 <link rel="stylesheet" href="assets/css/lightbox.css"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
 <script src="assets/js/dcalendar.picker.min.js"></script>
 <script src="assets/js/jQueryRotate.js"></script>
 <script src="assets/js/lightbox.js"></script>
@@ -184,7 +185,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     </div>
 </div>
 
-<div class="modal fade disable-scroll" id="modalform" tabindex="-1" role="dialog">
+<div class="modal fade disable-scroll" id="modalform" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -199,22 +200,22 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         <div class="col-xs-6">
                             <!--<Add company according the user>-->
                             <label>Municipio</label>
-                            <select class="form-control" id="txMun" required>
-                            </select>
+                            <!--<input type="text" id="txMun" name="txMun" class="form-control" value="">-->
+                            <select id="txMun" name="txMun" class="form-control"></select>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-6" id="colonia">
                             <!--<Add company according the user>-->
                             <label>Colonia</label>
-                            <select class="form-control" id="txtCol" required>
+                            <select id="txtCol" name="txtCol" class="form-control"></select>
                             </select>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-6">
                             <label>Calle</label>
-                            <select class="form-control" name="street" id="txtStreet" required></select>
+                            <select id="street" name="street" class="form-control"></select>
                         </div>
                         <div class="col-xs-6">
                             <!--<Add rol according the user>-->
@@ -225,7 +226,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         <div class="col-xs-6">
                             <!--<Add company according the user>-->
                             <label>Entre calles</label>
-                            <select class="form-control" name="txtRoads" id="txtRoads"></select>
+                            <select id="txtRoads" name="txtRoads" class="form-control"></select>
                             <!--<input type="text" id="txtRoads" name="middleStreet" class="form-control" placeholder="Nombre de calles"/>-->
                         </div>
                         <div class="col-xs-6">
@@ -235,7 +236,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     <div class="row">
                         <div class="col-xs-6">
                             <label>N&uacute;mero</label>
-                            <select class="form-control" name="txtNumber" id="txtNumber"></select>
+                            <select id="txtNumber" name="txtNumber" class="form-control"></select>
                         </div>
                         <div class="col-xs-6">
                             <label>Empleado</label>
@@ -787,8 +788,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
         $('#dateFrom').dcalendarpicker({format: "yyyy-mm-dd"});
         $('#dateTo').dcalendarpicker({format: "yyyy-mm-dd"});
-
-
     });
 
     function loadMain() {
@@ -2679,6 +2678,27 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         $("#txtAddressNew").val('');
         $("#txtNumber").val('');
         $("#txtLevel").val('');
+        $('#txMun').select2({
+            placeholder: "Seleccionar una Colonia",
+            allowClear: true,
+        });
+        $('#txtRoads').select2({
+            placeholder: "Seleccionar una Entre Calle",
+            allowClear: true,
+        });
+        $('#txtNumber').select2({
+            placeholder: "Seleccionar un Numero",
+            allowClear: true,
+        });
+        $('#street').select2({
+            placeholder: "Seleccionar una Calle",
+            allowClear: true,
+        });
+        $('#txtCol').select2({
+            placeholder: "Seleccionar una Colonia",
+            allowClear: true,
+        });
+        //$('#txMun').select2();
         loadCities();
         $('#modalform').modal('show');
     });
@@ -2697,11 +2717,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 
     $('#btnCreateSell').click(function () {
         $('#btnCreateSell').prop("disabled", true);
-        var city = $("#txMun option:selected").text();
-        var col = $("#txtCol option:selected").text();
-        var street = $("#txtStreet option:selected").text();
-        var roads = $("#txtRoads option:selected").text();
-        var number = $("#txtNumber option:selected").text();
+        var city = $("#txMun").val();
+        var col = $("#txtCol").val();
+        var street = $("#txtStreet").val();
+        var roads = $("#txtRoads").val();
+        var number = $("#txtNumber").val();
         number = number.trim();
 
         if (_.isEmpty(city) || city === "SELECCIONAR") {
@@ -5233,84 +5253,102 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         var agency = $("#txtCompanyGeneral").val();
         loadUsersGeneral(agency);
     });
-    /*--------------------------------Load and Send Sell--------------------------------*/
-
-    /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Get Colonias & Streets!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    $(document).on('change', '#txMun', function () {
-        var city = $("#txMun").val();
-        //var colonia = $("#txtCol").val();
-        //if (colonia !== "") {
-        $("#txtCol").html('');
-        $("#txtStreet").html('');
-        $("#txtRoads").html('');
-        $("#txtNumber").html('');
-        $("#txtCP").html('');
-        //}
-        if (city > 0) {
-            loadColonias(city);
-        } else {
-            alert("No Hay Ciudad Seleccionada");
-        }
-    });
 
     $(document).on('change', '#txtCol', function () {
         var city = $("#txMun").val();
         var colonia = $("#txtCol").val();
         var streetLoaded = $("#txtStreet").val();
-
+        console.log('colonia', colonia);
+        console.log('city', city);
         $("#txtRoads").html('');
         $("#txtNumber").html('');
         $("#txtCP").html('');
-        //}
         if (colonia > 0) {
             loadStreets(city, colonia);
         } else {
-            colonia("No Hay Municipio/Colonia Seleccionados");
+            $("#btnCreateSell").notify("No Hay Municipio/Colonia Seleccionados", "warn");
+            $("#street").html('');
+            $("#txtRoads").html('');
+            $("#txtNumber").html('');
         }
     });
 
-    $(document).on('change', '#txtStreet', function () {
-        var streetSelected = $("#txtStreet").val();
+    $(document).on('change', '#txMun', function () {
+        var municipio = $('#txMun').val();
+        if (!_.isEmpty(municipio)) {
+            loadColonias(municipio);
+        }else{
+            $("#btnCreateSell").notify("No Hay Municipio/Colonia Seleccionados", "warn");
+            $("#txtCol").html('');
+            $("#street").html('');
+            $("#txtRoads").html('');
+            $("#txtNumber").html('');
+        }
+    });
+
+    $(document).on('change', '#street', function () {
+        var streetSelected = $("#street").val();
         var roads = [];
         var numbers = [];
         $("#txtRoads").html('');
         $("#txtNumber").html('');
-        if (!_.isUndefined(directions.length)) {
-            roads = getEntreCalles(streetSelected, directions);
-            roads = deleteDuplicates(roads);
-            $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
-            for (var road in roads) {
-                if (roads[road] !== null && roads[road] !== "") {
-                    $('#txtRoads').append('<option value="' + roads[road] + '">' + roads[road] + '</option>');
-                }
-            }
-            numbers = getNumeros(streetSelected, directions);
-            numbers = deleteDuplicates(numbers);
-            $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
-
-            for (var number in numbers) {
-                if (numbers[number] !== null && numbers[number] !== "") {
-                    $('#txtNumber').append('<option value="' + numbers[number] + '">' + numbers[number] + '</option>');
-                }
-            }
+        if (_.isEmpty(streetSelected)) {
+            $("#txtRoads").html('');
+            $("#txtNumber").html('');
         }else{
-            console.log('entre a diferente de undefined', directions.numero_exterior);
-            if (!_.isEmpty(directions.entre_calles)) {
-                $('#txtRoads').html('');
-                $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
-                $('#txtRoads').append('<option value="' + directions.entre_calles + '">' + directions.entre_calles + '</option>');
+            if (!_.isUndefined(directions.length)) {
+                roads = getEntreCalles(streetSelected, directions);
+                roads = deleteDuplicates(roads);
+                console.log('roads', roads);
+                $('#txtRoads').append("<option value=''></option>");
+                for (var road in roads) {
+                    if (roads[road] !== null && roads[road] !== "") {
+                        $('#txtRoads').append('<option value="' + roads[road] + '">' + roads[road] + '</option>');
+                    }
+                }
+                $('#txtRoads').select2({
+                    placeholder: "Seleccionar una Entre Calle",
+                    allowClear: true,
+                });
+                numbers = getNumeros(streetSelected, directions);
+                numbers = deleteDuplicates(numbers);
+                console.log('roads', numbers);
+                $('#txtNumber').append("<option value=''></option>");
+                for (var number in numbers) {
+                    if (numbers[number] !== null && numbers[number] !== "") {
+                        $('#txtNumber').append('<option value="' + numbers[number] + '">' + numbers[number] + '</option>');
+                    }
+                }
+                $('#txtNumber').select2({
+                    placeholder: "Seleccionar un Numero",
+                    allowClear: true,
+                });
             }else{
-                $('#txtRoads').html('');
-                $('#txtRoads').append("<option value=''>SELECCIONAR</option>");
-            }
+                if (!_.isEmpty(directions.entre_calles)) {
+                    $('#txtRoads').html('');
+                    $('#txtRoads').append("<option value=''></option>");
+                    $('#txtRoads').append('<option value="' + directions.entre_calles + '">' + directions.entre_calles + '</option>');
+                    $('#txtRoads').select2({
+                        placeholder: "Seleccionar una Entre Calle",
+                        allowClear: true,
+                    });
+                }else{
+                    $('#txtRoads').html('');
+                    $('#txtRoads').append("<option value=''></option>");
+                }
 
-            if (!_.isEmpty(directions.numero_exterior)) {
-                $('#txtNumber').html('');
-                $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
-                $('#txtNumber').append('<option value="' + directions.numero_exterior + '">' + directions.numero_exterior + '</option>');
-            }else{
-                $('#txtNumber').html('');
-                $('#txtNumber').append("<option value=''>SELECCIONAR</option>");
+                if (!_.isEmpty(directions.numero_exterior)) {
+                    $('#txtNumber').html('');
+                    $('#txtNumber').append("<option value=''></option>");
+                    $('#txtNumber').append('<option value="' + directions.numero_exterior + '">' + directions.numero_exterior + '</option>');
+                    $('#txtNumber').select2({
+                        placeholder: "Seleccionar un Numero",
+                        allowClear: true,
+                    });
+                }else{
+                    $('#txtNumber').html('');
+                    $('#txtNumber').append("<option value=''></option>");
+                }
             }
         }
     });
@@ -5797,4 +5835,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 <script type="text/javascript" src="assets/js/moment.min.js"></script>
 <script type="text/javascript" src="assets/js/notify.js"></script>
 <script src="assets/js/underscore.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <!--<script src="assets/js/bootstrap.js"></script>-->

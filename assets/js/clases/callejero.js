@@ -7,22 +7,31 @@ function loadCities() {
         dataType: "JSON",
         success: function (data) {
             console.log('data', data);
-            $('#txMun').html('');
-            citiesTemp = data.ot_municipios;
-            citiesTemp = citiesTemp.ot_municipiosRow;
-            $('#txMun').append("<option value=''>SELECCIONAR</option>");
-            for (var elem in citiesTemp) {
-                if (citiesTemp[elem].nombre !== null) {
-                    $('#txMun').append('<option value="' + citiesTemp[elem].idMunicipio + '">' + citiesTemp[elem].nombre + '</option>');
+            var ot_municipios = _.has(data, 'ot_municipios');
+            if (ot_municipios) {
+                var ot_municipiosRow = _.has(data.ot_municipios, 'ot_municipiosRow');
+                if (ot_municipiosRow) {
+                    $("#txMun").html("");
+                    var options="";
+                    options = '<option value=""></option>';
+                    _.each(data.ot_municipios.ot_municipiosRow, function (row, idx) {
+                        options += '<option value="'+row.idMunicipio+'">'+row.nombre+'</option>';
+                    });
+                    $('#txMun').html('');
+                    $('#txMun').select2({
+                        placeholder: "Seleccionar un Municipio",
+                        allowClear: true,
+                    });
+                    $("#txMun").append(options);
+                    sortSelectOptions('#txMun', true);
                 }
+            }else{
+                console.log('no entrao en el primer if');
             }
-            sortSelectOptions('#txMun', true);
-            var city = $('#txMun').val();
-            //alert(city);
-            loadColonias(city);
+            //loadColonias(city);
         }, error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
+            console.log('xhr.status', xhr.status);
+            console.log('thrownError', thrownError);
         }
     });
 }
@@ -35,14 +44,22 @@ function loadColonias(city) {
             data: {city: city},
             dataType: "JSON",
             success: function (data) {
-                console.log(data);
-                var tempData = [];
-                tempData = data.ot_colonias;
-                tempData = tempData.ot_coloniasRow;
-                console.log('has col', _.has(data, "ot_colonias"));
-                for (city in tempData) {
-                    if (tempData[city].nombre !== null) {
-                        $('#txtCol').append('<option value="' + tempData[city].idcolonia + '">' + tempData[city].nombre + '</option>');
+                var ot_colonias = _.has(data, "ot_colonias");
+                if (ot_colonias) {
+                    var ot_coloniasRow = _.has(data.ot_colonias, "ot_coloniasRow");
+                    if (ot_coloniasRow) {
+                        $("#txtCol").html("");
+                        var options="";
+                        options = '<option value=""></option>';
+                        _.each(data.ot_colonias.ot_coloniasRow, function (row, idx) {
+                            options += '<option value="'+row.idcolonia+'">'+row.nombre+'</option>';
+                        });
+                        $('#txtCol').html('');
+                        $('#txtCol').select2({
+                            placeholder: "Seleccionar una Colonia",
+                            allowClear: true,
+                        });
+                        $("#txtCol").append(options);
                     }
                 }
                 sortSelectOptions('#txtCol', true);
@@ -78,49 +95,63 @@ function getEntreCalles(street, direccionesArray) {
 }
 var directions = [];
 function loadStreets(city, colonia) {
-    $.ajax({
-        method: "POST",
-        url: "dataLayer/callsWeb/siscomCalles.php",
-        data: {city: city, colonia: colonia},
-        dataType: "JSON",
-        success: function (data) {
-            var ot_direcciones = _.has(data, 'ot_direcciones');
-            if (ot_direcciones) {
-                var ot_direccionesRow = _.has(data.ot_direcciones, 'ot_direccionesRow');
-                if (ot_direccionesRow) {
-                    if (!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)) {
-                        directions = data.ot_direcciones.ot_direccionesRow;
-                        var streets = [];
-                        for (var elem in directions) {
-                            streets.push(directions[elem].calle);
-                        }
-                        streets = deleteDuplicates(streets);
-                        $('#txtStreet').html('');
-                        $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
-                        for (var street in streets) {
-                            if (streets[street] !== null && streets[street] !== "") {
-                                $('#txtStreet').append('<option value="' + streets[street] + '">' + streets[street] + '</option>');
-                            }
+    if (!_.isEmpty(city) && !_.isEmpty(colonia)) {
+        $.ajax({
+            method: "POST",
+            url: "dataLayer/callsWeb/siscomCalles.php",
+            data: {city: city, colonia: colonia},
+            dataType: "JSON",
+            success: function (data) {
+                var ot_direcciones = _.has(data, 'ot_direcciones');
+                console.log('ot_direcciones', ot_direcciones);
+                if (ot_direcciones) {
+                    var ot_direccionesRow = _.has(data.ot_direcciones, 'ot_direccionesRow');
+                    console.log('ot_direccionesRow', ot_direccionesRow);
+                    if (ot_direccionesRow) {
+                        console.log('data.ot_direcciones.ot_direccionesRow.length', data.ot_direcciones.ot_direccionesRow.length);
+                        console.log('!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)', !_.isUndefined(data.ot_direcciones.ot_direccionesRow.length));
+                        if (!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)) {
+                            directions = data.ot_direcciones.ot_direccionesRow;
+                            var streets = [];
+                            _.each(data.ot_direcciones.ot_direccionesRow, function (rStreet, idx) {
+                                streets.push(rStreet.calle);
+                            });
+                            streets = deleteDuplicates(streets);
+                            var options = '<option value=""></option>';
+                            _.each(streets, function (calle, idx) {
+                                options += '<option value="'+calle+'">'+calle+'</option>';
+                            });
+                            $('#street').html('');
+                            $('#street').select2({
+                                placeholder: "Seleccionar una Calle",
+                                allowClear: true,
+                            });
+                            $("#street").append(options);
+                            console.log('streets', streets);
+                        }else{
+                            //calle: "PECES"entre_calles: ""id_direccion: "254027"numero_exterior: "304-4"
+                            var calle = data.ot_direcciones.ot_direccionesRow.calle;
+                            var entre_calles = data.ot_direcciones.ot_direccionesRow.entre_calles;
+                            var numero_exterior = data.ot_direcciones.ot_direccionesRow.numero_exterior;
+                            
+                            directions = data.ot_direcciones.ot_direccionesRow;
+                            $('#street').html('');
+                            $('#street').select2({
+                                placeholder: "Seleccionar una Calle",
+                                allowClear: true,
+                            });
+                            $('#street').append("<option value=''></option>");
+                            $('#street').append('<option>' + directions.calle + '</option>');
                         }
                     }else{
-                        //calle: "PECES"entre_calles: ""id_direccion: "254027"numero_exterior: "304-4"
-                        var calle = data.ot_direcciones.ot_direccionesRow.calle;
-                        var entre_calles = data.ot_direcciones.ot_direccionesRow.entre_calles;
-                        var numero_exterior = data.ot_direcciones.ot_direccionesRow.numero_exterior;
-                        
-                        directions = data.ot_direcciones.ot_direccionesRow;
-                        $('#txtStreet').html('');
-                        $('#txtStreet').append("<option value=''>SELECCIONAR</option>");
-                        $('#txtStreet').append('<option value="' + directions.calle + '">' + directions.calle + '</option>');
+                        configurarToastCentrado();
+                        MostrarToast(2, "Conflicto en Direcciones", "No se encontraron direcciones para la colonia seleccionada");
                     }
-                }else{
-                    configurarToastCentrado();
-                    MostrarToast(2, "Conflicto en Direcciones", "No se encontraron direcciones para la colonia seleccionada");
                 }
+                sortSelectOptions('#street', true);
             }
-            sortSelectOptions('#txtStreet', true);
-        }
-    });
+        });
+    }
 }
 
 function sortSelectOptions(selector, skip_first) {

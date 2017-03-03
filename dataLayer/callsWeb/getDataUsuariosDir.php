@@ -6,6 +6,7 @@ session_start();
 $agency=strtoupper($_SESSION["nickname"]);
 $angencyLike = '%' . $agency . '%';
 $venta = '%venta%';
+$censo = '%censo%';
 if ($angencyLike != "") {
     $stmtUsuarios = "SELECT 
                                 a.nickname, a.id
@@ -19,7 +20,7 @@ if ($angencyLike != "") {
                                 a.id = c.idUser AND b.id = c.idProfile
                                     AND c.id = d.idemployee
                                     AND e.id = d.idAgency
-                                    AND b.name LIKE ?
+                                    AND (b.name LIKE ? OR b.name LIKE ?)
                                     AND d.idAgency IN (SELECT 
                                         f.id
                                     FROM
@@ -30,7 +31,7 @@ if ($angencyLike != "") {
                                             AND g.nickname LIKE ?);";
 
     if ($connUs = $conn->prepare($stmtUsuarios)) {
-        $connUs->bind_param("ss",$venta, $angencyLike);
+        $connUs->bind_param("sss",$venta,$censo, $angencyLike);
         //devolvemos la respuesta
         if ($connUs->execute()) {
             $connUs->store_result();

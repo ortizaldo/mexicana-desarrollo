@@ -2632,20 +2632,18 @@ function loadForm(idForm, type, idUsuario) {
                     }
                     $('#checkPHLabel').bootstrapToggle();
                     $('#checkInst').bootstrapToggle();
-                    $('#formsDetailsBody #installationCheck').bootstrapToggle({
-                        on: 'Si',
-                        off: 'No'
-                    });
                     //$(".toggle").hide();
                     //$("#chck").is(':checked');
                     $('#formsDetails').modal('show');
                     if ((parseInt(estatusAsignacionInstalacion) === 51 || parseInt(estatusAsignacionInstalacion) === 54 ) && localStorage.getItem("id") !== 'SuperAdmin') {
                         if (numInstalacionGen !== '' && numInstalacionGen !== 'null' && numInstalacionGen !== null) {
+                            console.log('entre1');
                             $('#formsDetailsBody #sendInstalacion').show();
                             $('#formsDetailsBody #sendInstalacion').html(numInstalacionGen).prop('disabled', 'true');
                             $('#installationCheck').hide();
                             $('#formsDetailsBody #saveAnomalia').hide();
                         }else{
+                            console.log('entre2');
                             $('#installationCheck').hide();
                             $('#formsDetailsBody #saveAnomalia').hide();
                             $('#formsDetailsBody #sendInstalacion').show();
@@ -2654,9 +2652,14 @@ function loadForm(idForm, type, idUsuario) {
                         }
                     }else if ((parseInt(estatusAsignacionInstalacion) === 56) && 
                               localStorage.getItem("id") === 'SuperAdmin') {
+                        console.log('entre3');
                         $('#installation').hide();
                         $('#installationCheck').show();
                         $('#formsDetailsBody #saveAnomalia').show();
+                        $('#formsDetailsBody #installationCheck').bootstrapToggle({
+                            on: 'Si',
+                            off: 'No'
+                        });
                     }
                     $('#myCarousel4').carousel({interval: false});
                     $('#myCarousel2').carousel({interval: false});

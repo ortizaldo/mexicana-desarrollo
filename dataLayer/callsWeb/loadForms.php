@@ -131,7 +131,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 35547) {
+            //if (intval($agreementNumber) == 32713) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
@@ -170,6 +170,23 @@ if (isset($_POST["idUsuario"])) {
                     }else{
                         $reportData["Usuario"] = $nicknameEmpleado;
                     }
+                    $tienePlomero=obtenerSiTienePlomero($id);
+                    if (($descriptionStatus != "EN PROCESO") &&
+                        $tienePlomero == false &&
+                        ($nicknameEmpleado != "Pendiente de Asignar" && 
+                        ($_SESSION["nickname"] != "SuperAdmin" && 
+                         $_SESSION["nickname"] != "AYOPSA" &&
+                         $_SESSION["nickname"] != "CallCenter"))) {
+                        $body = '<div class="checkbox" data-id="'.$id.'" style="display:none"> ';
+                            $body .= '<label>';
+                                $body .= '<input type="checkbox" class="asignarUsuarioPlomero" name="asignarUsuarioPlomero" data-id="'.$id.'">';
+                                $body .= '<i class="fa fa-user" aria-hidden="true"></i>';
+                            $body .= '</label>';
+                        $body .= '</div>';
+                        $reportData["tienePlomero"] = $body;
+                    }else{
+                        $reportData["tienePlomero"] = "";
+                    }
                     $reportData["Agencia"] = $nicknameAgencia;
                     $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                     $fecha = $created_at;
@@ -199,9 +216,16 @@ if (isset($_POST["idUsuario"])) {
                         break;
                         case 'Plomero':
                             if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigPH;
+                                $fecha = $fechaInicioRealizoPH;
+                            }elseif ($descriptionStatus == "REAGENDADA") {
+                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
+                                $fecha = $fechaInicioAnomPH;
                             }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinRealizoPH;
+                                if ($fechaFinAnomPH != "") {
+                                    $fecha = $fechaInicioAnomPH;
+                                }else{
+                                    $fecha = $fechaFinRealizoPH;
+                                }
                             }
                         break;
                         case 'Instalacion':
@@ -275,9 +299,16 @@ if (isset($_POST["idUsuario"])) {
                         break;
                         case 'Plomero':
                             if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigPH;
+                                $fecha = $fechaInicioRealizoPH;
+                            }elseif ($descriptionStatus == "REAGENDADA") {
+                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
+                                $fecha = $fechaInicioAnomPH;
                             }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinRealizoPH;
+                                if ($fechaFinAnomPH != "") {
+                                    $fecha = $fechaInicioAnomPH;
+                                }else{
+                                    $fecha = $fechaFinRealizoPH;
+                                }
                             }
                         break;
                         case 'Instalacion':
@@ -348,9 +379,16 @@ if (isset($_POST["idUsuario"])) {
                         break;
                         case 'Plomero':
                             if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigPH;
+                                $fecha = $fechaInicioRealizoPH;
+                            }elseif ($descriptionStatus == "REAGENDADA") {
+                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
+                                $fecha = $fechaInicioAnomPH;
                             }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinRealizoPH;
+                                if ($fechaFinAnomPH != "") {
+                                    $fecha = $fechaInicioAnomPH;
+                                }else{
+                                    $fecha = $fechaFinRealizoPH;
+                                }
                             }
                         break;
                         case 'Instalacion':
@@ -433,6 +471,34 @@ function getHTMLButtons($idReporte,$tipoAgencia,$tipoReporte,$estatus,
     }
 }
 
+function obtenerSiTienePlomero($idReporte)
+{
+    $DB = new DAO();
+    $conn = $DB->getConnect();
+    if ($idReporte != '') {
+        $returnData = []; $reports = [];
+        $getReportStatus = "SELECT 
+                                a.id, a.agreementNumber, c.id, c.name
+                            FROM
+                                report a,
+                                reportHistory b,
+                                reportType c
+                            WHERE
+                            0 = 0 AND a.id = b.idReport
+                            AND c.id = b.idReportType
+                            AND a.id = $idReporte
+                            AND c.id = 3;";
+        $getReportStatus;
+        $result = $conn->query($getReportStatus);
+        $res = false;
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_array()) {
+                $res = true;
+            }
+        }
+    }
+    return $res;
+}
 /**
  * FUNCION QUE SE ENCARGA DE GENERAR EL BOTON DE ACUERDO AL TIPO DE PROCESO (VENTA, PLOMERIA, SEGUNDA VENTA E INSTALACION)
  * DE ACUERDO A LOS PERMISOS DEL USUARIO Y ALA AGENCIA EN QUE PERTENECE 
@@ -656,6 +722,7 @@ function getBotonInstalacion($idReporte,$idUsuario,$NicknameUsuarioLogeado, $est
         if(($estatusReporte == $GLOBALS['ESTATUS_REPORTE_COMPLETO']) && 
            ($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_COMPLETA'] ||
             $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA'] ||
+            $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA'] ||
             $estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA'])){
             $permisosDelProceso = '<button id="" name="" data-toggle="button" style="width:144px" class="btn btn-default" onclick="loadForm(' . $idReporte . ',' . chr(39) . $GLOBALS['TIPOS_DE_REPORTE_INSTALACION'] . chr(39) . ',' . $idUsuario . ')"><i class="fa fa-wrench"></i> Instalación</button>';
         }else{

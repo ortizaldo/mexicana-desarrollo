@@ -145,10 +145,10 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     <th>
                                         <button id="asignacionMasiva" 
                                                 data-toggle="button" 
-                                                style="width:144px" 
+                                                style="width:200px" 
                                                 class="btn btn-default active" 
                                                 aria-pressed="true">
-                                            <i class="fa fa-wrench"></i> Asignacion masiva <br> de Instalacion
+                                            <i class="fa fa-wrench"></i> Asignacion masiva <br> de Instalacion/Plomeria
                                         </button>
                                     </th>
                                 </tr>
@@ -803,7 +803,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             dataType: "JSON",
             data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
             success: function (data) {
-                console.log('reportes', data);
+                //console.log('reportes', data);
                 $('#bodyReport').html('');
                 var sizeData = data.length;
                 if (sizeData > 0) {
@@ -1697,10 +1697,12 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             idReportType;
             procesosReporte = "";
         var arrObjDatos=[],myFailure;
-        var fecha;
+        var fecha, existePlomero;
         var arr=[];
         _.each(dataLoadFormI, function (row, idx) {
             //if (idx === 0) {
+                //console.log('row', row);
+                existePlomero = _.has(row, 'tienePlomero');
                 if (row.Status === "EN PROCESO" && row.Usuario === "Pendiente de Asignar" && 
                     (localStorage.getItem("id") !== "SuperAdmin" && localStorage.getItem("id") !== "AYOPSA" && localStorage.getItem("id") !== "CallCenter")) {
                         body = '<div class="checkbox" data-id="'+row.Id+'" style="display:none"> ';
@@ -1710,9 +1712,13 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             body += '</label>';
                         body += '</div>';
                 }else{
-                    body = '<div> ';
-                    body += '</div>';
+                    body = "";
                 }
+
+                if (_.isEmpty(body)) {
+                    body = row.tienePlomero;
+                }
+                
                 arr.push([
                     row.html.permisosDelProceso,
                     body,
@@ -1782,13 +1788,25 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     }
 
     $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {
-        var checkboxes = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
-        if (checkboxes.length > 0) {
+        var checkboxesInstalacion = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
+        var checkboxesPlomeros = $("#tablaReporte input[type=checkbox][name=asignarUsuarioPlomero]");
+        if (checkboxesInstalacion.length > 0) {
             var isChecked = $('input.seleccionarChecks').is(':checked');
             if (isChecked) {
                 var row="", idRPTr=0;
                 $("#tablaReporte .checkbox").show();
                 loadEmployeesInstallation(localStorage.getItem("id"));
+            }else{
+                $("#tablaReporte .checkbox").hide();
+                $(".select").hide();
+            }
+        }else if (checkboxesPlomeros.length > 0) {
+            var isChecked = $('input.seleccionarChecks').is(':checked');
+            if (isChecked) {
+                var row="", idRPTr=0;
+                $("#tablaReporte .checkbox").show();
+                console.log('entre a plomeros');
+                loadEmployeesPlumbers(localStorage.getItem("id"));
             }else{
                 $("#tablaReporte .checkbox").hide();
                 $(".select").hide();
@@ -1967,44 +1985,104 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         }
     }
 
+    function loadEmployeesPlumbers(agencia) {
+        console.log('reportID', agencia);
+        if (agencia !== "") {
+            $.ajax({
+                method: "GET",
+                url: "dataLayer/callsWeb/getDPlomeriaMasiva.php",
+                data: {
+                    'agencia':localStorage.getItem("id"),
+                },
+                dataType: "JSON",
+                success: function (data) {
+                    console.log('loadEmployeesInstallation', data);
+                    if(data.length > 0){
+                        tipo=data[0].tipo;
+                        $("#asignarUsuario").empty().append('whatever');
+                        $("#asignarUsuario").append($('<option>', {
+                            value: 0,
+                            text: "Seleccionar"
+                        }));
+                        _.each(data, function (row, idx) {
+                            $("#asignarUsuario").append('<option value="' + row.IDEmp + '">' + row.nicknameEmp + '</option>');
+                        });
+                        $(".select").show();
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    //alert('request failed');
+                }
+            });
+        }
+    }
+
     $('#tablaReporte').on('click', '#asignacionMasiva:not(:disabled)', function(e) {
         e.preventDefault();
         console.log('e', e);
         $("#asignacionMasiva").prop("disabled", true);
-        var $checkboxes = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
-        var row="", idRPTr=0, idEmployee = 0, arrInstalaciones=[];
-        $checkboxes.each(function() {
-            if (this.checked === true) {
-                row=$(this).attr("data-id");
-                console.log('row', row);
-                idRPTr=row;
-                idEmployee = $("#asignarUsuario").val();
-                if (parseInt(idEmployee) > 0) {
-                    msg = 'Se ha asignado una solicitud de Instalacion';
-                    employeeProfile = '4';
-                    arrInstalaciones.push({
-                        'agencia':localStorage.getItem("id"),
-                        'empleado':idEmployee,
-                        'idReporte':idRPTr,
-                    });
+        var $checkboxesInstalacion = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
+        var $checkboxesPlomeros = $("#tablaReporte input[type=checkbox][name=asignarUsuarioPlomero]");
+        var row="", idRPTr=0, idEmployee = 0, arrInstalaciones=[], arrPlomerias=[];
+        if ($checkboxesInstalacion.length) {
+            $checkboxesInstalacion.each(function() {
+                if (this.checked === true) {
+                    row=$(this).attr("data-id");
+                    console.log('row', row);
+                    idRPTr=row;
+                    idEmployee = $("#asignarUsuario").val();
+                    if (parseInt(idEmployee) > 0) {
+                        msg = 'Se ha asignado una solicitud de Instalacion';
+                        employeeProfile = '4';
+                        arrInstalaciones.push({
+                            'agencia':localStorage.getItem("id"),
+                            'empleado':idEmployee,
+                            'idReporte':idRPTr,
+                            'perfil':employeeProfile,
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }else if ($checkboxesPlomeros.length) {
+            $checkboxesPlomeros.each(function() {
+                if (this.checked === true) {
+                    row=$(this).attr("data-id");
+                    console.log('row', row);
+                    idRPTr=row;
+                    idEmployee = $("#asignarUsuario").val();
+                    if (parseInt(idEmployee) > 0) {
+                        msg = 'Se ha asignado una solicitud de Plomeria';
+                        employeeProfile = '3';
+                        arrPlomerias.push({
+                            'agencia':localStorage.getItem("id"),
+                            'empleado':idEmployee,
+                            'idReporte':idRPTr,
+                            'perfil':employeeProfile,
+                        });
+                    }
+                }
+            });
+        }
+        var tipo = "";
         if (arrInstalaciones.length > 0) {
-            generarAsignacionMasiva(arrInstalaciones);
+            tipo = "instalacion";
+            generarAsignacionMasiva(arrInstalaciones, tipo);
+        }else if (arrPlomerias.length > 0) {
+            tipo = "plomeria";
+            generarAsignacionMasiva(arrPlomerias, tipo);
         }else{
-            MostrarToast(2, 'Info', "No se han seleccionado Instalaciones para asignar..");
+            MostrarToast(2, 'Info', "No se han seleccionado Instalaciones y/o Plomerias para asignar..");
             $("#asignacionMasiva").prop("disabled", false);
         }
     });
 
-    function generarAsignacionMasiva(arrInstalaciones){
+    function generarAsignacionMasiva(arrSolicitudes, tipo){
         $.ajax({
             method: "POST",
             url: "dataLayer/callsWeb/assignReportMasivo.php",
             dataType: "JSON",
             data: {
-                arrInstalaciones: arrInstalaciones
+                arrSolicitudes: arrSolicitudes
             },
             success: function (data) {
                 console.log('data', data);
@@ -2089,24 +2167,41 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         idReport = id;
         $('#taskForm').modal('show');
         var profile='';
-        
-        //validamos si la agencia es solamente instaladora o si es instaladora comercializadora
         $.ajax({
             method: "GET",
             url: "dataLayer/callsWeb/getTipoAgencia.php",
-            data: {nicknamAgencia: nicknamAgencia},
+            data: {nicknamAgencia: nicknamAgencia, idReporte:idReport},
             dataType: "JSON",
             success: function (data) {
                 console.log('getTipoAgencia', data);
                 $('#titleCompanyTask').html('Asignar Tarea');
                 $('#btnAssign').html('ASIGNAR');
                 $('#inpIDRep').val(idReport);
+                var existeRep="";
                 if (data.response[0].tipoAgencia === 'Instalacion' || data.response[0].tipoAgencia === 'Instalacion y Comercializadora') {
-                    //cargamos la informacion de instalacion
-                    loadInstalacion(idReport, profile);
+                    //verificamos que tipos de reportes tiene asignados
+                    existeRep = _.has(data, 'ReportesAsignados');
+                    if (existeRep) {
+                        _.each(data.ReportesAsignados, function (rowR, idx) {
+                            if (rowR.idReportType === 3) {
+                                loadPlomeria(idReport, profile);
+                            }else if (rowR.idReportType === 5) {
+                                loadInstalacion(idReport, profile);
+                            }
+                        });
+                    }
                 }else{
                     //generamos el proceso normal del modal
-                    loadPlomeria(idReport, profile);
+                    existeRep = _.has(data, 'ReportesAsignados');
+                    if (existeRep) {
+                        _.each(data.ReportesAsignados, function (rowR, idx) {
+                            if (rowR.idReportType === 3) {
+                                loadPlomeria(idReport, profile);
+                            }else if (rowR.idReportType === 5) {
+                                loadInstalacion(idReport, profile);
+                            }
+                        });
+                    }
                 }
             }
         });

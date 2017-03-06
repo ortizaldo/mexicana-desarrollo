@@ -120,7 +120,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
             $conn = $DB->getConnect();
             $querySmtFrmPlumb = "SELECT RP.idReport,FP.id, FP.consecutive,FP.name,FP.lastName, FP.request, 
                                 FP.documentNumber, FP.tapon, FP.ri, FP.comments, FP.newPipe, 
-                                FP.diagram, FP.pipesCount, FP.ph, tec.fechaAlta, tec.estatusAsignacionInstalacion, tec.idClienteGenerado
+                                FP.diagram, FP.pipesCount, FP.ph, RP.created_at, tec.estatusAsignacionInstalacion, tec.idClienteGenerado
                                 FROM reportHistory AS RP
                                 -- INNER JOIN report_employee_form AS REF ON RP.idReport = REF.idReport
                                 INNER JOIN form_plumber AS FP ON FP.id = RP.idFormulario
@@ -235,7 +235,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
             $querySmtFrmPlumb = "SELECT RP.id,FP.id, FP.consecutive,FP.name,FP.lastName, FP.request,
                                  FP.phLabel, FP.agencyPh, FP.agencyNumber,FP.installation,
                                  FP.abnormalities, FP.comments, FP.brand,FP.type, FP.serialNumber, 
-                                 FP.measurement,FP.latitude,FP.longitude,te.fechaAlta, 
+                                 FP.measurement,FP.latitude,FP.longitude,rth.created_at, 
                                  te.estatusAsignacionInstalacion ,RP.agreementNumber, FP.numInstalacionGen, RP.quienLibAnomalia, RP.motivoLiberacion
                                  FROM report AS RP
                                  INNER JOIN reportHistory as rth on rth.idReport=RP.id and rth.idReportType=4

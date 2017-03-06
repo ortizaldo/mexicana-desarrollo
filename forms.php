@@ -5243,19 +5243,22 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 tipoSentencia: 'insert'
             },
             success: function (data) {
-                console.log('data', data);
-                if (data.code === '500' || data.code === 500) {
-                    $("#addMaterial").notify(
-                        "Ocurrio un error al insertar un material", "error"
-                    );
-                }else if(data.code === '200' || data.code === 200){
-                    $("#materialSelect").val(0);
-                    $("#cantidadMaterial").val('');
-                    $("#addMaterial").notify(
-                        "La informacion se agrego correctamente", "success"
-                    );
-                    loadMaterialInst(idFI);
-                    $("#addMaterial").prop('disabled', false);
+                var existeCode = _.has(data, 'code');
+                if (existeCode) {
+                    if (data.code === '500' || data.code === 500) {
+                        $("#addMaterial").notify(
+                            "Error de captura, "+data.result, "info" 
+                        );
+                        $("#addMaterial").prop('disabled', false);
+                    }else if(data.code === '200' || data.code === 200){
+                        $("#materialSelect").val(0);
+                        $("#cantidadMaterial").val('');
+                        $("#addMaterial").notify(
+                            "La informacion se agrego correctamente", "success"
+                        );
+                        loadMaterialInst(idFI);
+                        $("#addMaterial").prop('disabled', false);
+                    }
                 }
             }
         });

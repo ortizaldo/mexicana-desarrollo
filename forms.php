@@ -1529,7 +1529,9 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
-                '<option>REAGENDADA</option>' ,
+                '<option>REAGENDADA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' ,
             
                 '<option>POR ASIGNAR</option>' +
                 '<option>EN PROCESO</option>' +
@@ -1538,17 +1540,26 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 '<option>CAPTURA COMPLETADA</option>' +
                 '<option>VALIDADO POR AYOPSA</option>' +
                 '<option>VALIDADO POR MEXICANA</option>' +
-                '<option>VALIDACIONES COMPLETAS</option>' 
+                '<option>VALIDACIONES COMPLETAS</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' 
                 ,
         
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
-                '<option>REAGENDADA</option>' ,
+                '<option>INSTALACION ENVIADA</option>' +
+                '<option>REAGENDADA</option>' +
+                '<option>ANOMALIA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' ,
         
         
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
-                '<option>REAGENDADA</option>' 
+                '<option>REVISION SEGUNDA CAPTURA</option>' +
+                '<option>REAGENDADA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' 
             ];
 
         $("#txtStatus").html('');
@@ -1632,6 +1643,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 '<option>COMPLETO</option>' +
                 '<option>INSTALACION ENVIADA</option>' +
                 '<option>REAGENDADA</option>' +
+                '<option>ANOMALIA</option>' +
                 '<option>ELIMINADO</option>' +
                 '<option>CANCELADO</option>' ,
         

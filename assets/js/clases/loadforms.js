@@ -2437,23 +2437,23 @@ function loadForm(idForm, type, idUsuario) {
                         if (!_.isEmpty(motivoLiberacion) && !_.isNull(motivoLiberacion) && !_.isUndefined(motivoLiberacion)) {
                             htmlAppCancel += '<table class="table table-hover">';
                                 htmlAppCancel += '<thead>';
-                                    htmlAppCancel += '<tr><th>Razon de cancelación</th><th>Cancelado Por:</th></tr>';
+                                    htmlAppCancel += '<tr><th>Razon de Liberación</th><th>Liberado Por:</th></tr>';
                                 htmlAppCancel += '</thead>';
                                 htmlAppCancel += '<tbody>';
                                 if (!_.isEmpty(quienLibAnomalia) && !_.isEmpty(motivoLiberacion)) {
                                     htmlAppCancel += "<tr>";
-                                    htmlAppCancel += '<td class="danger">'+motivoLiberacion+'</td>';
-                                    htmlAppCancel += '<td class="danger">'+quienLibAnomalia+'</td>';
+                                    htmlAppCancel += '<td class="success">'+motivoLiberacion+'</td>';
+                                    htmlAppCancel += '<td class="success">'+quienLibAnomalia+'</td>';
                                     htmlAppCancel += "</tr>";
                                 }else if (!_.isEmpty(quienLibAnomalia) && _.isEmpty(motivoLiberacion)) {
                                     htmlAppCancel += "<tr>";
-                                    htmlAppCancel += '<td class="danger">No se selecciono ningun motivo</td>';
-                                    htmlAppCancel += '<td class="danger">'+quienLibAnomalia+'</td>';
+                                    htmlAppCancel += '<td class="success">No se selecciono ningun motivo</td>';
+                                    htmlAppCancel += '<td class="success">'+quienLibAnomalia+'</td>';
                                     htmlAppCancel += "</tr>";
                                 }else if (_.isEmpty(quienLibAnomalia) && !_.isEmpty(motivoLiberacion)) {
                                     htmlAppCancel += "<tr>";
-                                    htmlAppCancel += '<td class="danger">'+motivoLiberacion+'</td>';
-                                    htmlAppCancel += '<td class="danger"></td>';
+                                    htmlAppCancel += '<td class="success">'+motivoLiberacion+'</td>';
+                                    htmlAppCancel += '<td class="success"></td>';
                                     htmlAppCancel += "</tr>";
                                 }
                                 htmlAppCancel += '</tbody>';
@@ -2521,6 +2521,10 @@ function loadForm(idForm, type, idUsuario) {
                                         htmlAppendInstall += '<div class="col-md-12">';
                                             htmlAppendInstall += '<label>Comentarios</label>';
                                             htmlAppendInstall += '<input class="form-control" style="height: 65px; !important;" type="text" id="comments" value="' + comments + '" disabled="disabled">';
+                                        htmlAppendInstall += '</div>';
+
+                                        htmlAppendInstall += '<div class="col-md-12">';
+                                            htmlAppendInstall += htmlAppCancel;
                                         htmlAppendInstall += '</div>';
                                     htmlAppendInstall += '</div>';
 

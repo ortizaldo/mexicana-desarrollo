@@ -1612,7 +1612,9 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
-                '<option>REAGENDADA</option>' ,
+                '<option>REAGENDADA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' ,
             
                 '<option>POR ASIGNAR</option>' +
                 '<option>EN PROCESO</option>' +
@@ -1621,19 +1623,25 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 '<option>CAPTURA COMPLETADA</option>' +
                 '<option>VALIDADO POR AYOPSA</option>' +
                 '<option>VALIDADO POR MEXICANA</option>' +
-                '<option>VALIDACIONES COMPLETAS</option>' 
+                '<option>VALIDACIONES COMPLETAS</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' 
                 ,
         
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
                 '<option>INSTALACION ENVIADA</option>' +
-                '<option>REAGENDADA</option>' ,
+                '<option>REAGENDADA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' ,
         
         
                 '<option>EN PROCESO</option>' +
                 '<option>COMPLETO</option>' +
                 '<option>REVISION SEGUNDA CAPTURA</option>' +
-                '<option>REAGENDADA</option>' 
+                '<option>REAGENDADA</option>' +
+                '<option>ELIMINADO</option>' +
+                '<option>CANCELADO</option>' 
             ];
 
         $("#txtStatus").html('');
@@ -1703,6 +1711,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             //if (idx === 0) {
                 //console.log('row', row);
                 existePlomero = _.has(row, 'tienePlomero');
+                body = "";
                 if (row.Status === "EN PROCESO" && row.Usuario === "Pendiente de Asignar" && 
                     (localStorage.getItem("id") !== "SuperAdmin" && localStorage.getItem("id") !== "AYOPSA" && localStorage.getItem("id") !== "CallCenter")) {
                         body = '<div class="checkbox" data-id="'+row.Id+'" style="display:none"> ';
@@ -1713,10 +1722,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         body += '</div>';
                 }else{
                     body = "";
-                }
-
-                if (_.isEmpty(body)) {
-                    body = row.tienePlomero;
                 }
                 
                 arr.push([
@@ -1736,6 +1741,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 ]);
             //}
         });
+        //console.log('arr', arr);
         $("#tablaReporte").DataTable().destroy();
         $('#tablaLoader').html('');
         $('#tablaReporte').DataTable( {
@@ -2339,6 +2345,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         e.preventDefault();
         $(this).trigger('notify-hide');
     });
+
     $(document).on('click', '.notifyjs-reassigTasks-base .yes:not(:disabled)', function(e) {
         e.preventDefault();
         var notifyElement = $(this);
@@ -2414,12 +2421,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $("#opcionDepSelect").notify("No se puede seleccionar la opcion 'Depurar registros asociados al contrato' porque ya tiene #Cliente asociado", "error");
             $('#btnAddCancel').prop("disabled", false);
             return false;
-        }else if (opcionDep == 2 && nickname.toUpperCase() === "SUPERADMIN" && !_.isEmpty(rowTRIDCliente)) {
-            $("#opcionDepSelect").notify("La opcion seleccionada aun no esta disponible", "error");
-            $('#btnAddCancel').prop("disabled", false);
-            return false;
         }
-        //pasamos las validaciones
         if (opcionDep === 1 && _.isEmpty(rowTRIDCliente)) {
             $.notify.addStyle('foo', {
               html: 
@@ -2446,7 +2448,27 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             $("#btnAddCancel").notify("El #"+rowTRContrato+" de Contrato no puede ser depurado", "warning");
             $('#btnAddCancel').prop("disabled", false);
         }else if (opcionDep === 2 && !_.isEmpty(rowTRIDCliente)) {
-            //entramos a opcion de cancelacion
+            $.notify.addStyle('foo', {
+              html: 
+                "<div>" +
+                  "<div class='clearfix'>" +
+                    "<div class='title' data-notify-html='title'/>" +
+                    "<div class='buttons'>" +
+                      "<button class='btn btn-danger no'>Cancelar</button>" +
+                      "<button class='btn btn-success yes' data-notify-text='button'></button>" +
+                    "</div>" +
+                  "</div>" +
+                "</div>"
+            });
+
+            $("#btnAddCancel").notify({
+                title: 'Esta seguro que desea depurar el contrato #'+rowTRContrato+' ?',
+                button: 'Aceptar'
+            }, { 
+                style: 'foo',
+                autoHide: false,
+                clickToHide: false
+            });
         }
         $('#btnAddCancel').prop("disabled", false);
     });

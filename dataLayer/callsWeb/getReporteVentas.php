@@ -39,7 +39,7 @@ function obtenerReporteVentas($conn)
     if ($stmt->execute()) 
     {
         $stmt->store_result();
-        $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
+        $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatusReporte, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
         while ($stmt->fetch()) {
             $row = array();
             $row["id"] = $id;
@@ -50,6 +50,7 @@ function obtenerReporteVentas($conn)
             $row["estatusVenta"] = $estatusVenta;
             $row["estatus_venta"] = $estatus_venta;
             $row["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
+            $row["estatusReporte"] = $estatusReporte;
             $row["estatus_instalacion"] = $estatus_instalacion;
             $row["idCity"] = $idCity;
             $row["colonia"] = $colonia;

@@ -23,6 +23,7 @@ $ESTATUS_TEXTO_RECHAZADO_POR_AYOPSA = "VALIDACION RECHAZADA POR AYOPSA";
 $ESTATUS_TEXTO_VALIDACIONES_COMPLETAS = "VALIDACIONES COMPLETAS";
 $ESTATUS_TEXTO_REAGENDADA = "REAGENDADA";
 $ESTATUS_TEXTO_CANCELADA = "CANCELADA";
+$ESTATUS_TEXTO_ELIMINADA = "CANCELADO";
 $ESTATUS_TEXTO_EN_PROCESO_DE_VALIDACION_DE_VENTA = "EN PROCESO DE VALIDACION DE VENTA";
 $ESTATUS_TEXTO_VALIDADO_POR_CREDITO = "VALIDADO POR AYOPSA";
 $ESTATUS_TEXTO_VALIDADO_POR_CONTADO = "VALIDADO POR MEXICANA";
@@ -59,6 +60,7 @@ $ESTATUS_VENTA_CANCELADA = 8;
 $ESTATUS_VENTA_RECHAZADO = 9;
 $ESTATUS_VENTA_VALIDACIONES_COMPLETAS = 10;
 $ESTATUS_VENTA_DEPURADO = 11;
+$ESTATUS_VENTA_ELIMINADO = 12;
 
 
 /**ESTATUS DE VALIDACION AYOPSA Y MEXICANA**/
@@ -76,6 +78,7 @@ $ESTATUS_PH_REAGENDADO = 32;
 $ESTATUS_PH_RECHAZADO = 33;
 $ESTATUS_PH_CANCELADO = 34;
 $ESTATUS_PH_DEPURADO = 35;
+$ESTATUS_PH_ELIMINADO = 36;
 
 /**ESTATUS DE SEGUNDA VENTA**/
 $ESTATUS_SEGUNDA_VENTA_EN_PROCESO = 40;
@@ -84,6 +87,7 @@ $ESTATUS_SEGUNDA_VENTA_VALIDADA = 42;
 $ESTATUS_SEGUNDA_VENTA_REVISION = 43;
 $ESTATUS_SEGUNDA_VENTA_CANCELADA = 44;
 $ESTATUS_SEGUNDA_VENTA_DEPURADO = 45;
+$ESTATUS_SEGUNDA_VENTA_ELIMINADO = 46;
 
 /**ESTATUS DE INSTALACION**/
 $ESTATUS_INSTALACION_EN_PROCESO = 50;
@@ -93,6 +97,7 @@ $ESTATUS_INSTALACION_CANCELADA = 53;
 $ESTATUS_INSTALACION_ENVIADA = 54;
 $ESTATUS_INSTALACION_DEPURADO = 55;
 $ESTATUS_INSTALACION_ANOMALIA = 56;
+$ESTATUS_INSTALACION_ELIMINADO = 57;
 
 /**ESTATUS DE REPORTE***/
 $ESTATUS_REPORTE_EN_PROCESO = 60;
@@ -101,6 +106,7 @@ $ESTATUS_REPORTE_RECHAZADO = 62;
 $ESTATUS_REPORTE_REAGENDADO = 63;
 $ESTATUS_REPORTE_CANCELADO = 64;
 $ESTATUS_REPORTE_DEPURADO = 65;
+$ESTATUS_REPORTE_ELIMINADO = 66;
 
 /**ESTATUS DE CENSO**/
 $ESTATUS_CENSO_NO_APLICA = 0;
@@ -131,7 +137,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 32713) {
+            //if (intval($agreementNumber) == 34830) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
@@ -140,7 +146,10 @@ if (isset($_POST["idUsuario"])) {
                 );
                 //echo "agreementNumber ".$descriptionStatus;
                 if (($_POST["tipoReportes"] == "pendientes") && 
-                    (intval($estatusAsignacionInstalacion) != 54 && intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) 
+                    (intval($estatusAsignacionInstalacion) != 54 && 
+                     intval($estatusAsignacionInstalacion) != 53 &&
+                     intval($estatusReporte) != 66 &&
+                     intval($estatusAsignacionInstalacion) != 55)) 
                 {
 
                     $reportData["Id"] = $id;
@@ -261,16 +270,16 @@ if (isset($_POST["idUsuario"])) {
                                                          $idAgenciaInstalacion, $idReportType);
                     $returnData[] = $reportData;
                 }elseif (($_POST["tipoReportes"] == "completos") &&
-                         (intval($estatusAsignacionInstalacion) == 54 || intval($estatusAsignacionInstalacion) == 53 || intval($estatusAsignacionInstalacion) == 55)){
+                         (intval($estatusAsignacionInstalacion) >= 54)){
                     $reportData["Id"] = $id;
                     $reportData["idReportType"] = $idReportType;
                     $reportData['idStatus'] =$idStatus;
                     $reportData["primerTD"] = "";
                     $reportData["segundoTD"] = "";
                     $reportData["estatusVenta"] = $estatusVenta;
-                    $reportData["idClienteGenerado"] = $idClienteGenerado;
-                    $reportData["Contrato"] = $agreementNumber;
-                    $reportData["Tipo"] = $name;
+                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
+                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
+                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
                     $reportData["Status"] = $description;
                     $reportData["Municipio"] = $idCity;
                     $reportData["Colonia"] = $colonia;
@@ -349,9 +358,9 @@ if (isset($_POST["idUsuario"])) {
                     $reportData['idStatus'] =$idStatus;
                     $reportData["primerTD"] = "";
                     $reportData["segundoTD"] = "";
-                    $reportData["idClienteGenerado"] = $idClienteGenerado;
-                    $reportData["Contrato"] = $agreementNumber;
-                    $reportData["Tipo"] = $name;
+                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
+                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
+                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
                     $reportData["Status"] = $description;
                     $reportData["Municipio"] = $idCity;
                     $reportData["Colonia"] = $colonia;
@@ -800,17 +809,17 @@ function validarEstatusDesdeLaTablaDeEstatusControl($idReporte,$estatusCenso, $e
 
         // plomero
         case 3:
-            $estatus = getEstatusPlomero($idReporte,$phEstatus);
+            $estatus = getEstatusPlomero($idReporte,$phEstatus, $estatusReporte);
             break;
 
         // instalacion
         case 4:
-            $estatus = getEstatusInstalacion($estatusAsignacionInstalacion);
+            $estatus = getEstatusInstalacion($estatusAsignacionInstalacion, $estatusReporte);
             break;
 
         // segunda venta
         case 5:
-            $estatus = getEstatusSegundaVenta($validacionSegundaVenta, $estatusVenta, $phEstatus, $idReporte);
+            $estatus = getEstatusSegundaVenta($validacionSegundaVenta, $estatusVenta, $phEstatus, $idReporte, $estatusReporte);
             break;
     }
    
@@ -858,54 +867,58 @@ function getEstatusVenta($idReporte,$estatusReporte,$estatusVenta, $validadoMexi
     
 //    var_dump(array("venta" => $estatusVenta, "mexicana" => $validadoMexicana, "ayopsa" => $validadoAyopsa));exit();
     /**SI REVISAMOS QUE NO ES UN CENSO, ENTONCES ESTA EN UN PROCESO DE VENTA DEBEMOS CONDICIONAR POR LAS VENTAS***/
-    if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_POR_ASIGNAR']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_POR_ASIGNAR'];
+    if ($estatusReporte != 66) {
+        if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_POR_ASIGNAR']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_POR_ASIGNAR'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_PENDIENTE']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_PENDIENTE'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_PENDIENTE']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_PENDIENTE'];
 
-    } else if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_COMPLETA']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_CAPTURA_COMPLETA'];
+        } else if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_COMPLETA']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_CAPTURA_COMPLETA'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_EN_PROCESO']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_EN_PROCESO'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_EN_PROCESO']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_EN_PROCESO'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_REAGENDADO']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_REAGENDADA'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_REAGENDADO']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_REAGENDADA'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_CANCELADA']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_CANCELADA']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_RECHAZADO']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_RECHAZADO']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
 
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_PENDIENTE_VALIDACION']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_PENDIENTE_VALIDACION'];
-
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDADO_POR_MEXICANA_DE_GAS']) {
-
-        if ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_EN_PROCESO']) {
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_PENDIENTE_VALIDACION']) {
             $estatus = $GLOBALS['ESTATUS_TEXTO_PENDIENTE_VALIDACION'];
 
-        } elseif ($validadoAyopsa == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_RECHAZADO']) {
-            $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO_POR_AYOPSA'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDADO_POR_MEXICANA_DE_GAS']) {
 
-        } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_RECHAZADO']) {
-            $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO_POR_AYOPSA'];
+            if ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_EN_PROCESO']) {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_PENDIENTE_VALIDACION'];
 
-        } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_CREDITO']) {
-            $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_CREDITO'];
+            } elseif ($validadoAyopsa == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_RECHAZADO']) {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO_POR_AYOPSA'];
 
-        } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_CONTADO']) {
-            $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_CONTADO'];
+            } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_RECHAZADO']) {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO_POR_AYOPSA'];
 
-        } else {
-            $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_MEXICANA'];
+            } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_CREDITO']) {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_CREDITO'];
+
+            } elseif ($validadoMexicana == $GLOBALS['ESTATUS_MEXICANA_AYOPSA_CONTADO']) {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_CONTADO'];
+
+            } else {
+                $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDADO_POR_MEXICANA'];
+            }
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDACIONES_COMPLETAS'];
+        } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_DEPURADO']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
         }
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_VALIDACIONES_COMPLETAS'];
-    } elseif ($estatusVenta == $GLOBALS['ESTATUS_VENTA_DEPURADO']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+    }elseif ($estatusReporte == 66) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_ELIMINADA'];
     }
     
     return $estatus;
@@ -917,23 +930,28 @@ function getEstatusVenta($idReporte,$estatusReporte,$estatusVenta, $validadoMexi
  * @param type $phEstatus
  * @return type
  */
-function getEstatusPlomero($idReporte,$phEstatus)
+function getEstatusPlomero($idReporte,$phEstatus, $estatusReporte)
 {
     
     $estatus = "";
-    if($phEstatus == $GLOBALS['ESTATUS_PH_EN_PROCESO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_EN_PROCESO'];
-    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_COMPLETO'];
-    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_REAGENDADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_REAGENDADA'];
-    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_RECHAZADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
-    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_CANCELADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
-    }elseif($phEstatus == $GLOBALS['ESTATUS_PH_DEPURADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+    if ($estatusReporte != 66) {
+        if($phEstatus == $GLOBALS['ESTATUS_PH_EN_PROCESO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_EN_PROCESO'];
+        }elseif($phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_COMPLETO'];
+        }elseif($phEstatus == $GLOBALS['ESTATUS_PH_REAGENDADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_REAGENDADA'];
+        }elseif($phEstatus == $GLOBALS['ESTATUS_PH_RECHAZADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_RECHAZADO'];
+        }elseif($phEstatus == $GLOBALS['ESTATUS_PH_CANCELADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_CANCELADA'];
+        }elseif($phEstatus == $GLOBALS['ESTATUS_PH_DEPURADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+        }
+    }elseif ($estatusReporte == 66) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_ELIMINADA'];
     }
+        
     
     return $estatus;
 }
@@ -943,23 +961,27 @@ function getEstatusPlomero($idReporte,$phEstatus)
  * @param type $estatusAsignacionInstalacion
  * @return type
  */
-function getEstatusInstalacion($estatusAsignacionInstalacion)
+function getEstatusInstalacion($estatusAsignacionInstalacion, $estatusReporte)
 {
     $estatus = "";
-    if($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_EN_PROCESO']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_EN_PROCESO"];
-    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_COMPLETA']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
-    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_REAGENDADA"];
-    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_CANCELADA']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
-    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_ENVIADO"];
-    }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_DEPURADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
-    }elseif (intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA']) {
-        $estatus = $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'];
+    if ($estatusReporte != 66) {
+        if($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_EN_PROCESO']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_EN_PROCESO"];
+        }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_COMPLETA']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
+        }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_REAGENDADA']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_REAGENDADA"];
+        }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_CANCELADA']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
+        }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_ENVIADA']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_ENVIADO"];
+        }elseif($estatusAsignacionInstalacion == $GLOBALS['ESTATUS_INSTALACION_DEPURADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+        }elseif (intval($estatusAsignacionInstalacion) == $GLOBALS['ESTATUS_INSTALACION_ANOMALIA']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'];
+        }
+    }elseif ($estatusReporte == 66) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_ELIMINADA'];
     }
     //echo "estatus ".$estatus;
     return $estatus;
@@ -970,41 +992,47 @@ function getEstatusInstalacion($estatusAsignacionInstalacion)
  * @param type $estatusSegundaVenta
  * @return type
  */
-function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, $idReporte)
+function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, $idReporte, $estatusReporte)
 {
     $estatus = "";
-    if($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_EN_PROCESO']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_EN_PROCESO"];
-    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_COMPLETA']){
-        if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS'] && $phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO']) {
-            $DB = new DAO();
-            $conn = $DB->getConnect();
-            //actualizamos testatusContrato
-            $statusSegundaVenta=$GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION'];
-            $stmtTEstatus = "UPDATE tEstatusContrato SET validacionSegundaVenta = ? WHERE idReporte = ?;";
-            if ($estatusCrontratoReport = $conn->prepare($stmtTEstatus)) {
-                $estatusCrontratoReport->bind_param("ii", $statusSegundaVenta,$idReporte);
-                $estatusCrontratoReport->execute();
+    if ($estatusReporte != 66) {
+        if($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_EN_PROCESO']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_EN_PROCESO"];
+        }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_COMPLETA']){
+            if ($estatusVenta == $GLOBALS['ESTATUS_VENTA_VALIDACIONES_COMPLETAS'] && $phEstatus == $GLOBALS['ESTATUS_PH_COMPLETO']) {
+                $DB = new DAO();
+                $conn = $DB->getConnect();
+                //actualizamos testatusContrato
+                $statusSegundaVenta=$GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION'];
+                $stmtTEstatus = "UPDATE tEstatusContrato SET validacionSegundaVenta = ? WHERE idReporte = ?;";
+                if ($estatusCrontratoReport = $conn->prepare($stmtTEstatus)) {
+                    $estatusCrontratoReport->bind_param("ii", $statusSegundaVenta,$idReporte);
+                    $estatusCrontratoReport->execute();
+                }else{
+                    //error_log('maldito error '.$conn->error);
+                }
+                $conn->close();
+                $estatus = "REVISION_SEGUNDA_CAPTURA";
             }else{
-                //error_log('maldito error '.$conn->error);
-            }
-            $conn->close();
-            $estatus = "REVISION_SEGUNDA_CAPTURA";
-        }else{
-            $estatus = $GLOBALS["ESTATUS_TEXTO_CAPTURA_COMPLETA"];
+                $estatus = $GLOBALS["ESTATUS_TEXTO_CAPTURA_COMPLETA"];
 
+            }
+        }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION']){
+            //echo "string ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION ".$GLOBALS["ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION"];
+            $estatus = "REVISION_SEGUNDA_CAPTURA";
+        }elseif ($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_VALIDADA']) {
+            $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
+        }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_CANCELADA']){
+            $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
+        }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_DEPURADO']){
+            $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
+        } elseif ($estatusReporte == $GLOBALS['ESTATUS_REPORTE_ELIMINADO']) {
+            $estatus = $GLOBALS['ESTATUS_TEXTO_ELIMINADA'];
+        }else{
+            $estatus = $GLOBALS["ESTATUS_TEXTO_PENDIENTE"];
         }
-    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_REVISION']){
-        //echo "string ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION ".$GLOBALS["ESTATUS_TEXTO_SEGUNDA_VENTA_REVISION"];
-        $estatus = "REVISION_SEGUNDA_CAPTURA";
-    }elseif ($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_VALIDADA']) {
-        $estatus = $GLOBALS["ESTATUS_TEXTO_COMPLETO"];
-    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_CANCELADA']){
-        $estatus = $GLOBALS["ESTATUS_TEXTO_CANCELADA"];
-    }elseif($estatusSegundaVenta == $GLOBALS['ESTATUS_SEGUNDA_VENTA_DEPURADO']){
-        $estatus = $GLOBALS['ESTATUS_TEXTO_DEPURADO'];
-    }else{
-        $estatus = $GLOBALS["ESTATUS_TEXTO_PENDIENTE"];
+    }elseif ($estatusReporte == 66) {
+        $estatus = $GLOBALS['ESTATUS_TEXTO_ELIMINADA'];
     }
     return $estatus;
 }
@@ -1071,6 +1099,8 @@ function generarSpanDeEstatusPorColor($estatus)
         $estatusColores = '<span class="label label-danger">'.$GLOBALS['ESTATUS_TEXTO_DEPURADO'].'</span>';
     }elseif($estatus == $GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA']){
         $estatusColores = '<span class="label label-danger">'.$GLOBALS['ESTATUS_TEXTO_INSTALACION_ANOMALIA'].'</span>';
+    }elseif($estatus == $GLOBALS['ESTATUS_TEXTO_ELIMINADA']){
+        $estatusColores = '<span class="label label-danger">'.$GLOBALS['ESTATUS_TEXTO_ELIMINADA'].'</span>';
     }
     return $estatusColores;
 }
@@ -1078,6 +1108,7 @@ function generarSpanDeEstatusPorColor($estatus)
 function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusVenta, $idClienteGenerado, $tipoReporte, $estatusAsignacionInstalacion)
 {
     $NicknameUsuarioLogeado = $_SESSION["nickname"];
+
     //echo "estatusAsignacionInstalacion ".$estatusAsignacionInstalacion;
     if (($NicknameUsuarioLogeado != "AYOPSA" && $NicknameUsuarioLogeado != "SuperAdmin") &&
         (intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) {
@@ -1114,7 +1145,7 @@ function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusV
             $botonAsignarTarea = '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-default " onclick="mensajeToastBotonTareaAsignarNoDisponible()"><i class="fa fa-calendar-o"></i></button>';
         }
     }elseif (($NicknameUsuarioLogeado == "SuperAdmin" && $tipoReporte == "Venta") &&
-             (intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55)) {
+             (intval($estatusAsignacionInstalacion) != 53 && intval($estatusAsignacionInstalacion) != 55 && $estatusReporte != 'CANCELADA')) {
         $botonAsignarTarea = '<button id="btnDepurarAdmin" name="btnDepurarAdmin" data-toggle="button" style="width: 50px;" class="btn btn-danger btnDepurarAdmin" data-id="'.$id.'"><i class="fa fa-trash" aria-hidden="true"></i>';
     }else {
         $botonAsignarTarea = '';

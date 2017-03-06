@@ -1348,9 +1348,9 @@ include("header.php") ?>
                         url: "dataLayer/callsWeb/getReporteVentas.php",
                         dataType: "JSON",
                         success: function (data) {
-                            console.log('data', data);
+                            //console.log('data', data);
                             _.each(data.data, function(sell, index) {
-                                //if (parseInt(sell.agreementNumber) === 36356) {
+                                //if (parseInt(sell.agreementNumber) === 34830) {
                                     console.log('sell', sell);
                                     id=(sell.id === '' || typeof(sell.id) === 'undefined' || sell.id === null) ? '--' : sell.id;
                                     agreementNumber=(sell.agreementNumber === '' || typeof(sell.agreementNumber) === 'undefined' || sell.agreementNumber === null) ? '--' : sell.agreementNumber;
@@ -1370,11 +1370,11 @@ include("header.php") ?>
                                     htmlAppend += '<td>' + id + '</td>';
                                     htmlAppend += '<td>' + agreementNumber + '</td>';
                                     htmlAppend += '<td>' + idClienteGenerado + '</td>';
-                                    var etiquetaEsPH=etiquetaEstatusPH(sell.phEstatus,sell.estatus_ph);
+                                    var etiquetaEsPH=etiquetaEstatusPH(sell.phEstatus,sell.estatus_ph, sell.estatusReporte);
                                     htmlAppend += '<td>' + etiquetaEsPH + '</td>';
-                                    var etiquetaEsVenta=etiquetaEstatusVenta(sell.estatusVenta,sell.estatus_venta);
+                                    var etiquetaEsVenta=etiquetaEstatusVenta(sell.estatusVenta,sell.estatus_venta, sell.estatusReporte);
                                     htmlAppend += '<td>' + etiquetaEsVenta + '</td>';
-                                    var etiquetaEsInstalacion=etiquetaEstatusInstalacion(sell.estatusAsignacionInstalacion,sell.estatus_instalacion);
+                                    var etiquetaEsInstalacion=etiquetaEstatusInstalacion(sell.estatusAsignacionInstalacion,sell.estatus_instalacion, sell.estatusReporte);
                                     htmlAppend += '<td>' + etiquetaEsInstalacion + '</td>';
                                     htmlAppend += '<td>' + idCity + '</td>';
                                     htmlAppend += '<td>' + colonia + '</td>';
@@ -1428,25 +1428,30 @@ include("header.php") ?>
                     EESTATUS_INSTALACION_ENVIADA = 54;
                     EESTATUS_INSTALACION_ELIMINADA = 55;
 
-                function etiquetaEstatusPH(idEstatus, etiqueta){
+                function etiquetaEstatusPH(idEstatus, etiqueta, estatusReporte){
                     var etiquetaString = "---";
                     console.log("idEstatus", idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
-                        switch(idEstatus)
-                        {
-                            case EESTATUS_PH_COMPLETADA:
-                                etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_PH_RECHAZADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_PH_ELIMINADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            default:
-                                etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
-                                break;
+                        console.log('estatusReporte', estatusReporte);
+                        if (estatusReporte === 66) {
+                            etiquetaString = "<span class=\"label label-danger\">CANCELADO</span>";
+                        }else{
+                            switch(idEstatus)
+                            {
+                                case EESTATUS_PH_COMPLETADA:
+                                    etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_PH_RECHAZADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_PH_ELIMINADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                default:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                            }
                         }
                     }
                     return etiquetaString;
@@ -1456,66 +1461,72 @@ include("header.php") ?>
                  * Metodo que se encarga de colocar las etiquetas de estatus decuerdo 
                  * @returns {undefined}
                  */
-                function etiquetaEstatusVenta(idEstatus, etiqueta){
+                function etiquetaEstatusVenta(idEstatus, etiqueta, estatusReporte){
                     var etiquetaString = "---";
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
-                        switch(idEstatus)
-                        {
-                            case EESTATUS_VALIDACIONES_COMPLETAS:
-                                etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_VENTA_RECHAZADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_CAPTURA_COMPLETADA:
-                                etiquetaString = "<span class=\"label label-warning\">CAPTURA COMPLETADA</span>";
-                                break;
-                            case ESTATUS_VENTA_VALIDADO_POR_MEXICANA:
-                                etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_VENTA_VALIDADO_POR_CREDITO:
-                                etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_VENTA_ELIMINADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            default:
-                                etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
-                                break;
+                        if (estatusReporte === 66) {
+                            etiquetaString = "<span class=\"label label-danger\">CANCELADO</span>";
+                        }else{
+                            switch(idEstatus)
+                            {
+                                case EESTATUS_VALIDACIONES_COMPLETAS:
+                                    etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_VENTA_RECHAZADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_CAPTURA_COMPLETADA:
+                                    etiquetaString = "<span class=\"label label-warning\">CAPTURA COMPLETADA</span>";
+                                    break;
+                                case ESTATUS_VENTA_VALIDADO_POR_MEXICANA:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_VENTA_VALIDADO_POR_CREDITO:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_VENTA_ELIMINADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                default:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                            }
                         }
                     }
                     return etiquetaString;
                 }
                 
                 
-                function etiquetaEstatusInstalacion(idEstatus, etiqueta){
+                function etiquetaEstatusInstalacion(idEstatus, etiqueta, estatusReporte){
                     var etiquetaString = "---";
                     console.log('idEstatus', idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
-
-                        console.log('idEstatus inst', idEstatus);
-                        switch(idEstatus)
-                        {
-                            case EESTATUS_INSTALACION_COMPLETA:
-                                etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_INSTALACION_RECHAZADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_INSTALACION_ENVIADA:
-                                etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_INSTALACION_ELIMINADA:
-                                etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
-                                break;
-                            case EESTATUS_INSTALACION_REAGENDADA:
-                                etiquetaString = "<span class=\"label label-info\">"+etiqueta+"</span>";
-                                break;
-                            default:
-                                etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
-                                break;
+                        if (estatusReporte === 66) {
+                            etiquetaString = "<span class=\"label label-danger\">CANCELADO</span>";
+                        }else{
+                            switch(idEstatus)
+                            {
+                                case EESTATUS_INSTALACION_COMPLETA:
+                                    etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_INSTALACION_RECHAZADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_INSTALACION_ENVIADA:
+                                    etiquetaString = "<span class=\"label label-success\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_INSTALACION_ELIMINADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case EESTATUS_INSTALACION_REAGENDADA:
+                                    etiquetaString = "<span class=\"label label-info\">"+etiqueta+"</span>";
+                                    break;
+                                default:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                            }
                         }
                     }
                     return etiquetaString;

@@ -7,6 +7,12 @@ $ESTATUS_PH_DEPURADO = 35;
 $ESTATUS_SEGUNDA_VENTA_DEPURADO = 45;
 $ESTATUS_INSTALACION_DEPURADO = 55;
 $ESTATUS_REPORTE_DEPURADO = 65;
+
+$ESTATUS_VENTA_ELIMINADO = 12;
+$ESTATUS_PH_ELIMINADO = 36;
+$ESTATUS_SEGUNDA_VENTA_ELIMINADO = 46;
+$ESTATUS_INSTALACION_ELIMINADO = 57;
+$ESTATUS_REPORTE_ELIMINADO = 66;
 */
 $rowIDReporte = intval($_POST["rowIDReporte"]);
 $opcionDep = $_POST["opcionDep"];
@@ -15,8 +21,12 @@ $NicknameUsuarioLogeado = $_SESSION["nickname"];
 if ((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) {
     $DB = new DAO();
     $conn = $DB->getConnect();
-    $updateTEstatusContratoSQL="UPDATE tEstatusContrato SET estatusReporte=65, estatusVenta=11, validacionSegundaVenta=45,estatusAsignacionInstalacion=55,phEstatus=35
+    if (intval($opcionDep) == 1) {
+        $updateTEstatusContratoSQL="UPDATE tEstatusContrato SET estatusReporte=65, estatusVenta=11, validacionSegundaVenta=45,estatusAsignacionInstalacion=55,phEstatus=35
                         where idReporte=?";
+    }elseif (intval($opcionDep) == 2) {
+        $updateTEstatusContratoSQL="UPDATE tEstatusContrato SET estatusReporte=66 where idReporte=?";
+    }
     if ($updateTEstatusContrato = $conn->prepare($updateTEstatusContratoSQL)) {
         $updateTEstatusContrato->bind_param("i", $rowIDReporte);
         if ($updateTEstatusContrato->execute()) {

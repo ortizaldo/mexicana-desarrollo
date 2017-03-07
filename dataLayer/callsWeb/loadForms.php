@@ -137,7 +137,7 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
         $contador=0;
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 34830) {
+            //if (intval($agreementNumber) == 32005) {
 
                 $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
                         $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,

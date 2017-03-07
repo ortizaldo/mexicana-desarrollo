@@ -1536,7 +1536,7 @@ include("header.php") ?>
                                     etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
                                     break;
                                 case ESTATUS_SEGUNDA_VENTA_VALIDADA:
-                                    etiquetaString = "<span class=\"label label-warning\">CAPTURA COMPLETADA</span>";
+                                    etiquetaString = "<span class=\"label label-success\">COMPLETO</span>";
                                     break;
                                 case ESTATUS_SEGUNDA_VENTA_REVISION:
                                     etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";

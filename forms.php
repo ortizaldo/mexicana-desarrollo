@@ -124,37 +124,31 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             <div class="panel-body">
                 <table id="tablaReporte" name="tablaReporte" class="table responsive-data-table data-table">
                     <thead>
-                        <?php 
-                            if($_SESSION['typeAgency'] == 'Instalacion' || 
-                               $_SESSION['typeAgency'] == 'Instalacion y Comercializadora'){ ?>
-                                <tr>
-                                    <th>
-                                        <div class="checkboxAsignacionMasiva">
-                                            <label>
-                                                <input type="checkbox" class="seleccionarChecks" name="seleccionarChecks">
-                                                <i class="fa fa-check-square-o" aria-hidden="true"></i> Habilitar <br> Opciones
-                                            </label>
-                                        </div>
-                                        <div class="select" style="display: none">
-                                            <label>
-                                                <select id="asignarUsuario" class="form-control">
-                                                </select>
-                                            </label>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <button id="asignacionMasiva" 
-                                                data-toggle="button" 
-                                                style="width:200px" 
-                                                class="btn btn-default active" 
-                                                aria-pressed="true">
-                                            <i class="fa fa-wrench"></i> Asignacion masiva <br> de Instalacion/Plomeria
-                                        </button>
-                                    </th>
-                                </tr>
-                        <?php 
-                            }
-                        ?>
+                        <tr>
+                            <th>
+                                <div class="checkboxAsignacionMasiva">
+                                    <label>
+                                        <input type="checkbox" class="seleccionarChecks" name="seleccionarChecks">
+                                        <i class="fa fa-check-square-o" aria-hidden="true"></i> Habilitar <br> Opciones
+                                    </label>
+                                </div>
+                                <div class="select" style="display: none">
+                                    <label>
+                                        <select id="asignarUsuario" class="form-control">
+                                        </select>
+                                    </label>
+                                </div>
+                            </th>
+                            <th>
+                                <button id="asignacionMasiva" 
+                                        data-toggle="button" 
+                                        style="width:200px" 
+                                        class="btn btn-default active" 
+                                        aria-pressed="true">
+                                    <i class="fa fa-wrench"></i> Asignacion masiva <br> de Instalacion/Plomeria
+                                </button>
+                            </th>
+                        </tr>
                         <tr>
                             <th>&nbsp;</th>
                             <th>Seleccionar Usuario</th>
@@ -1735,6 +1729,10 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 }else{
                     body = "";
                 }
+
+                if (!_.isEmpty(row.tienePlomero)) {
+                    body = row.tienePlomero;
+                }
                 
                 arr.push([
                     row.html.permisosDelProceso,
@@ -1766,7 +1764,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             },
             "order": [[11, 'desc']],
             "columnDefs": [
-                {"orderable": true, "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}
+                {
+                    "orderable": true, 
+                    //"targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                    "targets": "_all"
+                }
             ],
             autoWidth: true,
             searching: true,
@@ -1806,30 +1808,48 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
     }
 
     $('#tablaReporte').on('click', '.seleccionarChecks:not(:disabled)', function(e) {
-        var checkboxesInstalacion = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
-        var checkboxesPlomeros = $("#tablaReporte input[type=checkbox][name=asignarUsuarioPlomero]");
-        if (checkboxesInstalacion.length > 0) {
-            var isChecked = $('input.seleccionarChecks').is(':checked');
-            if (isChecked) {
-                var row="", idRPTr=0;
-                $("#tablaReporte .checkbox").show();
-                loadEmployeesInstallation(localStorage.getItem("id"));
-            }else{
-                $("#tablaReporte .checkbox").hide();
-                $(".select").hide();
+        //validamos si la agencia es instaladora y comercialicadora o solo comercializadora
+        var checkboxesInstalacion = "", checkboxesPlomeros = "";
+        $.ajax({
+            method: "GET",
+            url: "dataLayer/callsWeb/getTipoAgencia.php",
+            dataType: "JSON",
+            data: {nicknamAgencia: localStorage.getItem("id")},
+            success: function (data) {
+                console.log('data', data);
+                var existeResponse = _.has(data, 'response');
+                if (existeResponse) {
+                    if (data.response[0].tipoAgencia === "Comercializadora") {
+                        checkboxesPlomeros = $("#tablaReporte input[type=checkbox][name=asignarUsuarioPlomero]");
+                    }else if (data.response[0].tipoAgencia === "Instalacion y Comercializadora") {
+                        checkboxesInstalacion = $("#tablaReporte input[type=checkbox][name=asignarUsuario]");
+                        checkboxesPlomeros = $("#tablaReporte input[type=checkbox][name=asignarUsuarioPlomero]");
+                    }
+                    if (checkboxesInstalacion.length > 0) {
+                        var isChecked = $('input.seleccionarChecks').is(':checked');
+                        if (isChecked) {
+                            var row="", idRPTr=0;
+                            $("#tablaReporte .checkbox").show();
+                            loadEmployeesInstallation(localStorage.getItem("id"));
+                        }else{
+                            $("#tablaReporte .checkbox").hide();
+                            $(".select").hide();
+                        }
+                    }else if (checkboxesPlomeros.length > 0) {
+                        var isChecked = $('input.seleccionarChecks').is(':checked');
+                        if (isChecked) {
+                            var row="", idRPTr=0;
+                            $("#tablaReporte .checkbox").show();
+                            console.log('entre a plomeros');
+                            loadEmployeesPlumbers(localStorage.getItem("id"));
+                        }else{
+                            $("#tablaReporte .checkbox").hide();
+                            $(".select").hide();
+                        }
+                    }
+                }
             }
-        }else if (checkboxesPlomeros.length > 0) {
-            var isChecked = $('input.seleccionarChecks').is(':checked');
-            if (isChecked) {
-                var row="", idRPTr=0;
-                $("#tablaReporte .checkbox").show();
-                console.log('entre a plomeros');
-                loadEmployeesPlumbers(localStorage.getItem("id"));
-            }else{
-                $("#tablaReporte .checkbox").hide();
-                $(".select").hide();
-            }
-        }
+        });
     });
 
     $('#completos').on('click', function(e) {

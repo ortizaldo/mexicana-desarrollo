@@ -14,7 +14,7 @@ $ROW_DATAOS_REPOPRTE = 4;
 $objPHPExcel = new PHPExcel();
 
 // TITULO DEL REPORTE
-$objPHPExcel->getActiveSheet()->mergeCells('A1:L1');
+$objPHPExcel->getActiveSheet()->mergeCells('A1:M1');
 $objPHPExcel->setActiveSheetIndex(0)
              ->setCellValue('A1', "REPORTE DE VENTAS");
 
@@ -31,13 +31,14 @@ $objPHPExcel->setActiveSheetIndex(0)
     ->setCellValue('C'. $ROW_HEADER_REPOPRTE, "No. Cliente")
     ->setCellValue('D'. $ROW_HEADER_REPOPRTE, "PH")
     ->setCellValue('E'. $ROW_HEADER_REPOPRTE, "Venta")
-    ->setCellValue('F'. $ROW_HEADER_REPOPRTE, "Instalación")
-    ->setCellValue('G'. $ROW_HEADER_REPOPRTE, "Municipio")
-    ->setCellValue('H'. $ROW_HEADER_REPOPRTE, "Colonia")
-    ->setCellValue('I'. $ROW_HEADER_REPOPRTE, "Calle")
-    ->setCellValue('J'. $ROW_HEADER_REPOPRTE, "Usuario")
-    ->setCellValue('K'. $ROW_HEADER_REPOPRTE, "Agencia")
-    ->setCellValue('L'. $ROW_HEADER_REPOPRTE, "Fecha");
+    ->setCellValue('F'. $ROW_HEADER_REPOPRTE, "Segunda Venta")
+    ->setCellValue('G'. $ROW_HEADER_REPOPRTE, "Instalación")
+    ->setCellValue('H'. $ROW_HEADER_REPOPRTE, "Municipio")
+    ->setCellValue('I'. $ROW_HEADER_REPOPRTE, "Colonia")
+    ->setCellValue('J'. $ROW_HEADER_REPOPRTE, "Calle")
+    ->setCellValue('K'. $ROW_HEADER_REPOPRTE, "Usuario")
+    ->setCellValue('L'. $ROW_HEADER_REPOPRTE, "Agencia")
+    ->setCellValue('M'. $ROW_HEADER_REPOPRTE, "Fecha");
 
 $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
 $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(12);
@@ -51,6 +52,7 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(20);
 $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(12);
 $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(12);
 $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth(12);
+$objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth(12);
 
 
 $objPHPExcel->getActiveSheet()->setTitle('Reporte Ventas');
@@ -88,23 +90,30 @@ mysqli_stmt_bind_param($stmt, 'sss', $fechaInicial, $fechaFinal, $nickName);
 if ($stmt->execute()) 
 {
     $stmt->store_result();
-    $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
+    $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion,$validacionSegundaVenta,$estatus_seg_venta,  $estatusReporte,$estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
 
     $i = $ROW_DATAOS_REPOPRTE;
     while ($stmt->fetch()) 
     {
+        if ($estatusReporte === 66) {
+            $estatus_ph = "CANCELADO";
+            $estatus_venta = "CANCELADO";
+            $estatus_seg_venta = "CANCELADO";
+            $estatus_instalacion = "CANCELADO";
+        }
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $i, $id);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('B' . $i, $agreementNumber);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('C' . $i, $idClienteGenerado);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $i, $estatus_ph);
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $i, $estatus_venta);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $i, $estatus_instalacion);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $i, $idCity);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $i, $colonia);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $i, $street.' - Num: '.$innerNumber);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $i, $nombre_usuario);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $i, $agencia);
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $i, $fecha);   
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $i, $estatus_seg_venta);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $i, $estatus_instalacion);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $i, $idCity);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $i, $colonia);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $i, $street.' - Num: '.$innerNumber);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $i, $nombre_usuario);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $i, $agencia);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $i, $fecha);   
         $i++;
     }
 }

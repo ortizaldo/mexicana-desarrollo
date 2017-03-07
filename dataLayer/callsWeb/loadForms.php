@@ -1132,7 +1132,7 @@ function generarBotonAsignarTarea($estatusCenso, $estatusReporte, $id, $estatusV
             $botonAsignarTarea = '<table>';
                 $botonAsignarTarea .= '<tr>';
                     $botonAsignarTarea .= '<td>';
-                        $botonAsignarTarea .= '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>&nbsp;';
+                        $botonAsignarTarea .= '<button id="btnAsignarTarea" name="btnAsignarTarea" data-toggle="button" style="width: 50px;" class="btn btn-info " onclick="asignarTarea(' . $id . ')"><i class="fa fa-calendar-o"></i></button>;';
                     $botonAsignarTarea .= '</td>';
                     if ($idClienteGenerado == "" && $tipoReporte == "Venta") {
                         $botonAsignarTarea .= '<td>';

@@ -28,7 +28,7 @@ include("header.php") ?>
                 </div>
             </header>
 
-            <div class="container">
+            <div class="container" style="width: auto !important">
                 <div class="row">
                     <div class="col-lg-12">
                         <!-- tabs -->
@@ -679,6 +679,7 @@ include("header.php") ?>
                         + "<th>No. Cliente</th>"
                         + "<th>PH</th>"
                         + "<th>Venta</th>"
+                        + "<th>Segunda Venta</th>"
                         + "<th>Instalaci&oacute;n</th>"
                         + "<th>Municipio</th>"
                         + "<th>Colonia</th>"
@@ -1351,7 +1352,6 @@ include("header.php") ?>
                             //console.log('data', data);
                             _.each(data.data, function(sell, index) {
                                 //if (parseInt(sell.agreementNumber) === 34830) {
-                                    console.log('sell', sell);
                                     id=(sell.id === '' || typeof(sell.id) === 'undefined' || sell.id === null) ? '--' : sell.id;
                                     agreementNumber=(sell.agreementNumber === '' || typeof(sell.agreementNumber) === 'undefined' || sell.agreementNumber === null) ? '--' : sell.agreementNumber;
                                     idClienteGenerado=(sell.idClienteGenerado === '' || typeof(sell.idClienteGenerado) === 'undefined' || sell.idClienteGenerado === null) ? '--' : sell.idClienteGenerado;
@@ -1374,6 +1374,8 @@ include("header.php") ?>
                                     htmlAppend += '<td>' + etiquetaEsPH + '</td>';
                                     var etiquetaEsVenta=etiquetaEstatusVenta(sell.estatusVenta,sell.estatus_venta, sell.estatusReporte);
                                     htmlAppend += '<td>' + etiquetaEsVenta + '</td>';
+                                    var etiquetaEsSegVenta=etiquetaEstatusSegundaVenta(sell.validacionSegundaVenta, sell.estatus_seg_venta,sell.estatusReporte);
+                                    htmlAppend += '<td>' + etiquetaEsSegVenta + '</td>';
                                     var etiquetaEsInstalacion=etiquetaEstatusInstalacion(sell.estatusAsignacionInstalacion,sell.estatus_instalacion, sell.estatusReporte);
                                     htmlAppend += '<td>' + etiquetaEsInstalacion + '</td>';
                                     htmlAppend += '<td>' + idCity + '</td>';
@@ -1421,11 +1423,23 @@ include("header.php") ?>
                     EESTATUS_PH_COMPLETADA = 31,
                     EESTATUS_PH_ELIMINADA = 35,
                     EESTATUS_PH_RECHAZADA= 33,
+
+
+                    ESTATUS_SEGUNDA_VENTA_EN_PROCESO = 40,
+                    ESTATUS_SEGUNDA_VENTA_COMPLETA = 41,
+                    ESTATUS_SEGUNDA_VENTA_VALIDADA = 42,
+                    ESTATUS_SEGUNDA_VENTA_REVISION = 43,
+                    ESTATUS_SEGUNDA_VENTA_CANCELADA = 44,
+                    ESTATUS_SEGUNDA_VENTA_DEPURADO = 45,
+                    ESTATUS_SEGUNDA_VENTA_ELIMINADO = 46,
+
+
+
                     EESTATUS_INSTALACION_PROCESO = 50,
                     EESTATUS_INSTALACION_COMPLETA = 51,
-                    EESTATUS_INSTALACION_RECHAZADA = 53;
-                    EESTATUS_INSTALACION_REAGENDADA = 52;
-                    EESTATUS_INSTALACION_ENVIADA = 54;
+                    EESTATUS_INSTALACION_RECHAZADA = 53,
+                    EESTATUS_INSTALACION_REAGENDADA = 52,
+                    EESTATUS_INSTALACION_ENVIADA = 54,
                     EESTATUS_INSTALACION_ELIMINADA = 55;
 
                 function etiquetaEstatusPH(idEstatus, etiqueta, estatusReporte){
@@ -1486,6 +1500,54 @@ include("header.php") ?>
                                     etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
                                     break;
                                 case EESTATUS_VENTA_ELIMINADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                default:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                            }
+                        }
+                    }
+                    return etiquetaString;
+                }
+
+                function etiquetaEstatusSegundaVenta(idEstatus, etiqueta, estatusReporte){
+                    var etiquetaString = "---";
+                    if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
+                    {
+                        if (estatusReporte === 66) {
+                            etiquetaString = "<span class=\"label label-danger\">CANCELADO</span>";
+                        }else{
+                            /*
+                            ESTATUS_SEGUNDA_VENTA_EN_PROCESO = 40,
+                            ESTATUS_SEGUNDA_VENTA_COMPLETA = 41,
+                            ESTATUS_SEGUNDA_VENTA_VALIDADA = 42,
+                            ESTATUS_SEGUNDA_VENTA_REVISION = 43,
+                            ESTATUS_SEGUNDA_VENTA_CANCELADA = 44,
+                            ESTATUS_SEGUNDA_VENTA_DEPURADO = 45,
+                            ESTATUS_SEGUNDA_VENTA_ELIMINADO = 46,
+                            */
+                            switch(idEstatus)
+                            {
+                                case ESTATUS_SEGUNDA_VENTA_EN_PROCESO:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_COMPLETA:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_VALIDADA:
+                                    etiquetaString = "<span class=\"label label-warning\">CAPTURA COMPLETADA</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_REVISION:
+                                    etiquetaString = "<span class=\"label label-warning\">"+etiqueta+"</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_CANCELADA:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_DEPURADO:
+                                    etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
+                                    break;
+                                case ESTATUS_SEGUNDA_VENTA_ELIMINADO:
                                     etiquetaString = "<span class=\"label label-danger\">"+etiqueta+"</span>";
                                     break;
                                 default:

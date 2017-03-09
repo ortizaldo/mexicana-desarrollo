@@ -28,16 +28,16 @@ if (((isset($_POST['rowIDReporte'])) && intval($_POST['rowIDReporte']) > 0) &&
             $banderaMuFI = 0;
             $banderaDetailsFI = 0;
             if ($deleteMuFI = $conn->prepare($deleteSQLForm_installation_multimedia)) {
-                $deleteMuFI->bind_param("i", $idFormInstallation);
+                $deleteMuFI->bind_param("i", $idFormInstall);
                 if ($deleteMuFI->execute()) {
                     error_log('message eliminamos las fotos');
                     if ($deleteDetailsFI = $conn->prepare($deleteSQLForm_installation_details)) {
-                        $deleteDetailsFI->bind_param("i", $idFormInstallation);
+                        $deleteDetailsFI->bind_param("i", $idFormInstall);
                         if ($deleteDetailsFI->execute()) {
                             $banderaDetailsFI = 1;
                             error_log('message eliminamos el detalle');
                             if ($deleteFI = $conn->prepare($deleteSQLForm_installation)) {
-                                $deleteFI->bind_param("i", $idFormInstallation);
+                                $deleteFI->bind_param("i", $idFormInstall);
                                 if ($deleteFI->execute()) {
                                     error_log('message eliminamos el formulario');
                                     //actualizamos el history y la tabla de tiempos

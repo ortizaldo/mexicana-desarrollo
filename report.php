@@ -59,12 +59,51 @@ include("header.php") ?>
                             </div>
                             <p></p>
                             <header class="panel-heading">
+                                <table id="filtrosPendCompletos" style="display: none">
+                                    <tr>
+                                        <td>
+                                            <label id="labelFiltros">Seleccionar Tipo de filtro</label>
+                                            <div class="checkbox" id="divFiltros">
+                                                <label>
+                                                    <input type="checkbox" id="general">
+                                                    <i class="fa fa-tasks btn btn-info" aria-hidden="true">
+                                                        Todos los estatus
+                                                    </i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" id="completos">
+                                                    <i class="fa fa-check-circle btn btn-success" aria-hidden="true">
+                                                        Completos
+                                                    </i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" id="pendientes">
+                                                    <i class="fa fa-check-circle btn btn-warning" aria-hidden="true">
+                                                        Pendientes
+                                                    </i>
+                                                </label>
+                                            </div>
+                                            <br>
+                                        </td>
+                                    </tr>
+                                </table>
                                 <div class="form-inline">
                                     <p><b>CONSULTAS</b></p>
 
                                     <form method="POST" action="">
                                         <label>Filtros</label>
                                         &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <select class="form-control" id="txtType" name="txtType" style="display: none">
+                                            <option value="0">Todos los tipos</option>
+                                            <option value="1">Censo</option>
+                                            <option value="2">Plomer&iacute;a</option>
+                                            <option value="3">Venta</option>
+                                            <option value="4">Instalacion</option>
+                                            <option value="5">Segunda Venta</option>
+                                        </select>
+                                        <select class="form-control" id="txtStatus" name="txtStatus" onchange="buscarPorEstatus()" style="display: none">
+                                            <option value="0">Todos los estatus</option>
+                                        </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <label class="text-capitalize">Fecha de:</label>&nbsp;
                                         <input type='text' class="form-control" id="dateFrom" name="dateFrom"/>
 
@@ -743,6 +782,167 @@ include("header.php") ?>
                         + "</div>");
                 }
 
+                function buscarPorTipo() {
+                    var estatus = [
+                            '<option>PH EN PROCESO</option>' +
+                            '<option>PH COMPLETA</option>' +
+                            '<option>PH REAGENDADA</option>' +
+                            '<option>PH RECHAZADA</option>' +
+                            '<option>PH CANCELADO</option>' +
+                            '<option>PH DEPURADA</option>' +
+                            '<option>PH ELIMINADA</option>' ,
+                        
+                            '<option>PENDIENTE</option>'+
+                            '<option>COMPLETO</option>'+
+                            '<option>VALIDADO POR MEXICANA</option>'+
+                            '<option>VALIDADO POR AYOPSA</option>'+
+                            '<option>VALIDACIONES COMPLETAS</option>'+
+                            '<option>VENTA DEPURADA</option>',
+                    
+                            '<option>INSTALACION EN PROCESO</option>'+
+                            '<option>INSTALACION COMPLETADA</option>'+
+                            '<option>INSTALACION RECHAZADA </option>'+
+                            '<option>INSTALACION ENVIADA</option>'+
+                            '<option>INSTALACION DEPURADA</option>'+
+                            '<option>REAGENDADA</option>',
+                    
+                    
+                            '<option>SEGUNDA VENTA PROCESO</option>'+
+                            '<option>SEG. VENTA CAPTURA COMPLETADA</option>'+
+                            '<option>SEGUNDA VENTA CANCELADA</option>'+
+                            '<option>SEGUNDA VENTA DEPURADA</option>'+
+                            '<option>SEGUNDA VENTA ELIMINADA</option>'+
+                            '<option>SEGUNDA VENTA COMPLETO</option>'+
+                            '<option>REVISION SEGUNDA CAPTURA</option>'
+                        ];
+
+                    $("#txtStatus").html('');
+                    $("#txtStatus").append('<option>Todos los estatus</option>');
+
+                    var tipo = $("#txtType option:selected").text();
+                    
+                    if (tipo === 'Censo') {
+                        $("#txtStatus").append(estatus[0]);
+                    }
+                    
+                    if (tipo === 'Plomería') {
+                        tipo= 'Plomero';
+                        $("#txtStatus").append(estatus[1]);
+                    }
+                    
+                    if(tipo === 'Venta')
+                        $("#txtStatus").append(estatus[2]);
+
+                    if(tipo === 'Instalacion')
+                        $("#txtStatus").append(estatus[3]);
+                    
+                    if(tipo === 'Segunda Venta')
+                        $("#txtStatus").append(estatus[4]);
+
+                    // alert(tipo);
+                    var table = $('#tablaReporte').DataTable();
+
+                    if (tipo != 'Todos los tipos') {
+                        table
+                            .columns(4)
+                            .search('^'+tipo+'$', true)
+                            .draw();
+                    }
+                }
+
+                function buscarPorEstatus() {
+                    var status = $("#txtStatus option:selected").text();
+                    //alert(status);
+                    var tipoRep = $('.tituloReporte').text();
+                    if (tipoRep === "REPORTE DE VENTAS") {
+                        var table = $('#tablaReporteVentas').DataTable();
+                        table.search('').columns().search( '' ).draw();
+                    }
+                    var tipoReporte = $("#txtType option:selected").text();
+                    var col=0;
+                    switch(tipoReporte) {
+                        case "Plomería":
+                            col = 3;
+                            break;
+                        case "Venta":
+                            col = 4;
+                            break;
+                        case "Instalacion":
+                            col = 6;
+                            break;
+                        case "Segunda Venta":
+                            col = 5;
+                            break;
+                    }
+                    if (status != 'Todos los estatus') {
+                        table
+                            .columns(col)
+                            .search('^'+status+'$', true)
+                            .draw();
+                    } else {
+                        table.search( '' ).search( '' ).draw();
+                    }
+
+                }
+                // #myInput is a <input type="text"> element
+                $('#txtType').on( 'change', function () {
+                    var tipoRep = $('.tituloReporte').text();
+                    if (tipoRep === "REPORTE DE VENTAS") {
+                        var table = $('#tablaReporteVentas').DataTable();
+                        table.search('').columns().search( '' ).draw();
+                    }
+                    var estatus = [
+                            '<option>PH EN PROCESO</option>' +
+                            '<option>PH COMPLETA</option>' +
+                            '<option>PH REAGENDADA</option>' +
+                            '<option>PH RECHAZADA</option>' +
+                            '<option>PH CANCELADO</option>' +
+                            '<option>PH DEPURADA</option>' +
+                            '<option>PH ELIMINADA</option>' ,
+                        
+                            '<option>EN PROCESO</option>'+
+                            '<option>CAPTURA COMPLETADA</option>'+
+                            '<option>VALIDADO POR MEXICANA</option>'+
+                            '<option>VALIDACIONES COMPLETAS</option>'+
+                            '<option>VENTA DEPURADA</option>',
+                    
+                            '<option>INSTALACION EN PROCESO</option>'+
+                            '<option>INSTALACION COMPLETADA</option>'+
+                            '<option>INSTALACION RECHAZADA </option>'+
+                            '<option>INSTALACION ENVIADA</option>'+
+                            '<option>INSTALACION DEPURADA</option>'+
+                            '<option>REAGENDADA</option>',
+                    
+                    
+                            '<option>SEGUNDA VENTA PROCESO</option>'+
+                            '<option>SEG. VENTA CAPTURA COMPLETADA</option>'+
+                            '<option>SEGUNDA VENTA CANCELADA</option>'+
+                            '<option>SEGUNDA VENTA DEPURADA</option>'+
+                            '<option>SEGUNDA VENTA ELIMINADA</option>'+
+                            '<option>COMPLETO</option>'+
+                            '<option>REVISION SEGUNDA CAPTURA</option>'
+                        ];
+
+                    $("#txtStatus").html('');
+                    $("#txtStatus").append('<option>Todos los estatus</option>');
+
+                    var tipo = $("#txtType option:selected").text();
+                    
+                    if (tipo === 'Plomería') {
+                        tipo= 'Plomero';
+                        $("#txtStatus").append(estatus[0]);
+                    }
+                    
+                    if(tipo === 'Venta')
+                        $("#txtStatus").append(estatus[1]);
+
+                    if(tipo === 'Instalacion')
+                        $("#txtStatus").append(estatus[2]);
+                    
+                    if(tipo === 'Segunda Venta')
+                        $("#txtStatus").append(estatus[3]);
+                });
+
                 $(document).ready(function () {
                     var string_nickname = $("#nicknameZone").html();
                     string_nickname = string_nickname.substring(0, string_nickname.indexOf('<'));
@@ -784,7 +984,8 @@ include("header.php") ?>
                     $('.tituloReporte').html('REPORTE DE VENTAS');
                     $('#btn_chart').hide();
                     loadHeaders();
-                    loadSell();
+                    var tipo = 'pendientes';
+                    loadSell(tipo);
                 });
 
                 $(document).on('click', '.sellTime', function () {
@@ -1280,7 +1481,9 @@ include("header.php") ?>
                 });
 
                 function loadRejectedReasonForm() {
-                    console.log("desplegar los datos de la tabla de rechazados");
+                    $("#txtType").hide();
+                    $("#txtStatus").hide();
+                    $("#filtrosPendCompletos").hide();
                     var limit = $('#txtQty').val();
                     var dateFrom = $('#dateFrom').val();
                     var dateTo = $('#dateTo').val();
@@ -1292,7 +1495,6 @@ include("header.php") ?>
                         url: "dataLayer/callsWeb/getReporteRechazo.php",
                         dataType: "JSON",
                         success: function (data) {
-                            console.log('data loadRejectedReasonForm', data);
                             _.each(data.data, function(rech, index) {
                                 htmlAppend += '<tr>';
                                 htmlAppend += '<td>' + rech.agreementNumber + '</td>';
@@ -1324,7 +1526,11 @@ include("header.php") ?>
                     });
                 }
 
-                function loadSell() {
+                function loadSell(tipoReporte) {
+                    console.log('tipoReporte', tipoReporte);
+                    $("#txtType").show();
+                    $("#txtStatus").show();
+                    $("#filtrosPendCompletos").show();
                     var limit = $('#txtQty').val();
                     var dateFrom = $('#dateFrom').val();
                     var dateTo = $('#dateTo').val();
@@ -1348,8 +1554,9 @@ include("header.php") ?>
                         //url: "dataLayer/callsWeb/sellsReport.php",
                         url: "dataLayer/callsWeb/getReporteVentas.php",
                         dataType: "JSON",
+                        data: {tipoReporte: tipoReporte},
                         success: function (data) {
-                            //console.log('data', data);
+                            console.log('getReporteVentas', data);
                             _.each(data.data, function(sell, index) {
                                 //if (parseInt(sell.agreementNumber) === 34830) {
                                     id=(sell.id === '' || typeof(sell.id) === 'undefined' || sell.id === null) ? '--' : sell.id;
@@ -1413,7 +1620,48 @@ include("header.php") ?>
                         }
                     });
                 }
-
+                $('#general').on('click', function(e) {
+                    var tipoReporte = "general";
+                    var general = $('#general').is(':checked');
+                    var completos = $('#completos').is(':checked');
+                    var pendientes = $('#pendientes').is(':checked');
+                    if (general) {
+                        $('#bodyDataSells').html('');
+                        //$('#bodyDataSells').append(htmlAppend);
+                        $("#tablaReporteVentas").DataTable().destroy();
+                        $('#completos').prop('checked', false);
+                        $('#pendientes').prop('checked', false);
+                        loadSell(tipoReporte);
+                    }
+                });
+                $('#completos').on('click', function(e) {
+                    var tipoReporte = "completos";
+                    var general = $('#general').is(':checked');
+                    var completos = $('#completos').is(':checked');
+                    var pendientes = $('#pendientes').is(':checked');
+                    if (completos) {
+                        $('#bodyDataSells').html('');
+                        //$('#bodyDataSells').append(htmlAppend);
+                        $("#tablaReporteVentas").DataTable().destroy();
+                        $('#general').prop('checked', false);
+                        $('#pendientes').prop('checked', false);
+                        loadSell(tipoReporte);
+                    }
+                });
+                $('#pendientes').on('click', function(e) {
+                    var tipoReporte = "pendientes";
+                    var general = $('#general').is(':checked');
+                    var completos = $('#completos').is(':checked');
+                    var pendientes = $('#pendientes').is(':checked');
+                    if (pendientes) {
+                        $('#bodyDataSells').html('');
+                        //$('#bodyDataSells').append(htmlAppend);
+                        $("#tablaReporteVentas").DataTable().destroy();
+                        $('#completos').prop('checked', false);
+                        $('#general').prop('checked', false);
+                        loadSell(tipoReporte);
+                    }
+                });
                 var EESTATUS_CAPTURA_COMPLETADA = 3,
                     EESTATUS_VALIDACIONES_COMPLETAS = 10,
                     EESTATUS_VENTA_ELIMINADA = 11,
@@ -1444,10 +1692,8 @@ include("header.php") ?>
 
                 function etiquetaEstatusPH(idEstatus, etiqueta, estatusReporte){
                     var etiquetaString = "---";
-                    console.log("idEstatus", idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
-                        console.log('estatusReporte', estatusReporte);
                         if (estatusReporte === 66) {
                             etiquetaString = "<span class=\"label label-danger\">CANCELADO</span>";
                         }else{
@@ -1562,7 +1808,6 @@ include("header.php") ?>
                 
                 function etiquetaEstatusInstalacion(idEstatus, etiqueta, estatusReporte){
                     var etiquetaString = "---";
-                    console.log('idEstatus', idEstatus);
                     if((!_.isNull(idEstatus) || !_.isEmpty(idEstatus)) && idEstatus !== 0)
                     {
                         if (estatusReporte === 66) {
@@ -1595,7 +1840,9 @@ include("header.php") ?>
                 }
 
                 function loadTimeSells(flagExcel) {
-                    console.log("desplegar los datos de la tabla de tiempo venta");
+                    $("#txtType").hide();
+                    $("#txtStatus").hide();
+                    $("#filtrosPendCompletos").hide();
                     var limit = $('#txtQty').val();
                     var dateFrom = $('#dateFrom').val();
                     var dateTo = $('#dateTo').val();
@@ -1972,6 +2219,9 @@ include("header.php") ?>
                     return span;
                 }
                 function loadConcentratedStatus() {
+                    $("#txtType").hide();
+                    $("#txtStatus").hide();
+                    $("#filtrosPendCompletos").hide();
                     var htmlAppend='';
                     $.ajax({
                         method: "GET",
@@ -2228,25 +2478,33 @@ include("header.php") ?>
                 $('#limpiarFiltros').click(function () {
                     $('#dateFrom').val('');
                     $('#dateTo').val('');
+
                     var titulo=$(".tituloReporte").text();
                     switch (titulo) {
                         case 'REPORTE DE CONCENTRADO DE STATUS':
                             loadConcentratedStatus();
                         break;
                         case 'REPORTE DE VENTAS':
-                            var oTable = $("#tablaReporteVentas").dataTable();
-                            oTable.fnDraw();
+                            var oTable = $("#tablaReporteVentas").DataTable();
+                            $( "#txtType" ).val(0).change();
+                            oTable.search('').columns().search( '' ).draw();
                         break;
                         case 'REPORTE TIEMPO DE VENTAS':
-                            var oTable = $("#tablaReporteTVentas").dataTable();
-                            oTable.fnDraw();
+                            var oTable = $("#tablaReporteTVentas").DataTable();
+                            $( "#txtType" ).val(0).change();
+                            oTable.search('').columns().search( '' ).draw();
+                            //oTable.fnDraw();
                         break;
                         case 'REPORTE MOTIVOS DE RECHAZO':
                             loadRejectedReasonForm();
                         break;
                     }
                 });
+
                 function loadRejectedReasonForm(dateF,dateT) {
+                    $("#txtType").hide();
+                    $("#txtStatus").hide();
+                    $("#filtrosPendCompletos").hide();
                     console.log("desplegar los datos de la tabla de rechazados");
                     var limit = $('#txtQty').val();
                     var dateFrom = $('#dateFrom').val();
@@ -2300,6 +2558,9 @@ include("header.php") ?>
                     });
                 }
                 function loadConcentratedStatus(dateF,dateT) {
+                    $("#txtType").hide();
+                    $("#txtStatus").hide();
+                    $("#filtrosPendCompletos").hide();
                     var htmlAppend='';
                     $.ajax({
                         method: "GET",

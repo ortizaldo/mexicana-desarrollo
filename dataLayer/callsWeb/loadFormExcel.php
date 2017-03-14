@@ -1,24 +1,34 @@
 <?php include_once "../DAO.php";
 //echo json_encode($_POST);
 ini_set("memory_limit","1024M");
-if (isset($_POST['form']) && isset($_POST['type']) && isset($_POST['idUsuario'])) {
-    $reports = array();
+if (count($_POST['collection']) > 0) {
+    $reportsAll = array();
 
     $DB = new DAO();
     $conn = $DB->getConnect();
-
-    $idForm = intval($_POST['form']);
+    /*$idForm = intval($_POST['form']);
     $type = $_POST['type'];
-    $idUsuario = intval($_POST['idUsuario']);
+    $idUsuario = intval($_POST['idUsuario']);*/
     
-    $reports = GetForm($conn, $type, $idForm, $idUsuario);
-    $reports['datosGrales']=$_POST['collection'];
-    echo json_encode($reports);
+    //$reports = GetForm($conn, $type, $idForm, $idUsuario);
+    //var_dump($_POST["collection"]);
+    $arrayFormularios = array();
+    foreach ($_POST["collection"] as $key => $value) {
+        $idForm = intval($value['id']);
+        $type = $value['name'];
+        $idUsuario = intval($value['idUserAssigned']);
+        //echo 'idForm '.$idForm." type ".$type." idUsuario ".$idUsuario;
+        $reports = GetForm($type, $idForm, $idUsuario);
+        array_push($arrayFormularios, $reports);
+        $options['data'][$key]=array_merge($reports, $_POST['collection'][$key]);
+    }
+    //$arrayFormularios['datosGrales']=$_POST['collection'];
+    echo json_encode($options['data']);
     //echo $type;
 
 }
 
-function GetForm($conn, $type, $idForm, $idUsuario)
+function GetForm($type, $idForm, $idUsuario)
 {
     /****PRIMERO SETEAMOS LAS VARIABLES DE ENTRADA DEL STOREPROCEDURE PARA QUE ESTEN
      * LISTAS EN MYSQL*/
@@ -58,6 +68,8 @@ function GetForm($conn, $type, $idForm, $idUsuario)
     $NoSerie="";
     $niple="";
     $estatusAsignacionInstalacion = "";
+    $DB = new DAO();
+    $conn = $DB->getConnect();
     $stmtGetForm = $conn->prepare("call spGetform(?,?,?);");
     //$stmtGetForm = $conn->prepare("call spGetform('Venta',2071,347);");
     //call spGetform('Venta',2071,347);
@@ -297,6 +309,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                     $stmtFrmPlumb->bind_result($id,$consecutive, $name,$lastName, $request, $phLabel,$agencyPh,$agencyNumber,$installation,
                         $abnormalities,$comments, $brand,$type, $serialNumber,$measurement,$latitude,$longitude,$created_at, $estatusAsignacionInstalacion, $agreementNumber);
                     if($stmtFrmPlumb->fetch()){
+                        $agenciaVendedora = getAgenciaVendedora($idForm, $conn);
                         $responseArray['id'] = $id;
                         $responseArray['consecutive'] = $consecutive;
                         $responseArray['name'] = $name;
@@ -317,7 +330,7 @@ function GetForm($conn, $type, $idForm, $idUsuario)
                         $responseArray['created_at'] = $created_at;
                         $responseArray["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
                         $responseArray["agreementNumber"] = $agreementNumber;
-
+                        $responseArray["agenciaVendedora"] = $agenciaVendedora[0]["agenciaVendedora"];
                     }
                     $querySmtFrmPlumbIMG = "SELECT MUL.content, MUL.name, MUL.id
                                             FROM report AS RP
@@ -669,6 +682,48 @@ function getReferences($idAgreement, $conn){
         }
     }
     return $responseArray;   
+}
+
+function getAgenciaVendedora($idReporte, $conn)
+{
+    if ($idReporte != '') {
+        $getAgVend = "SELECT 
+                            b.nickname AS vendedor,
+                            (SELECT 
+                                    f.nickname
+                                FROM
+                                    user f,
+                                    agency g
+                                WHERE
+                                    f.id = g.idUser AND g.id = d.id) AS agenciaVendedora
+                        FROM
+                            reportHistory a,
+                            user b,
+                            agency_employee c,
+                            agency d,
+                            employee e
+                        WHERE
+                        0 = 0 AND a.idUserAssigned = b.id
+                        AND e.idUser = b.id
+                        AND e.id = c.idemployee
+                        AND d.id = c.idAgency
+                        AND a.idReport = $idReporte
+                        AND a.idReportType = 2;";
+        //echo $getReference;
+        $result = $conn->query($getAgVend);
+        $cont=0;
+        //var_dump($result);
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_array()) {
+                $responseArray[$cont] = array('vendedor' => $row[0], 
+                                              'agenciaVendedora' => $row[1]);
+                $cont++;
+            }
+        }else{
+            $responseArray=$result->num_rows;
+        }
+    }
+    return $responseArray; 
 }
 
 function getImgSolicitud($idFormSell, $conn){

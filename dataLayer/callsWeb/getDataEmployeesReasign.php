@@ -3,6 +3,9 @@
 $DB = new DAO();
 $conn = $DB->getConnect();
 $rowTRTipoReporte=$_GET['rowTRTipoReporte'];
+if ($rowTRTipoReporte == "Segunda Venta") {
+	$rowTRTipoReporte = "Venta";
+}
 $agencia=$_GET['agencia'];
 $idReporte=$_GET['rowIDReporte'];
 $returnData = []; $reports = [];

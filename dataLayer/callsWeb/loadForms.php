@@ -119,15 +119,23 @@ if (isset($_POST["idUsuario"])) {
     /***VIENEN LOS DOS PARAMETROS SIN PROBLEMA**/
     $idUsuario = $_POST["idUsuario"];
     $tipoAgencia = $_POST["tipoAgencia"];
+    if ($_POST["tipoReportes"] == "pendientes") {
+        $tipoReporte = 1;
+    }elseif ($_POST["tipoReportes"] == "completos") {
+        $tipoReporte = 2;
+    }elseif ($_POST["tipoReportes"] == "general") {
+        $tipoReporte = 3;
+    }
     $reportData = []; $returnData = [];$reportData = [];
 
     /***UNA VEZ SETEADAS ENTONCES PROCEDEMOS A PASARLAS Y PREPARAR LA LLAMADA AL STOREPROCEDURE**/
-    $stmtObtenerContratos = $conn->prepare("call spObtenerContratos(?);");
-    mysqli_stmt_bind_param($stmtObtenerContratos, 'i', $idUsuario);
+    $stmtObtenerContratos = $conn->prepare("call spObtenerContratos(?,?);");
+    mysqli_stmt_bind_param($stmtObtenerContratos, 'ii', $idUsuario, $tipoReporte);
+    //var_dump($stmtObtenerContratos);
     if ($stmtObtenerContratos->execute()) {
         $stmtObtenerContratos->store_result();
         $stmtObtenerContratos->bind_result($idClienteGenerado, $id, $agreementNumber, $name, $idStatus, 
-                                           $description, $idCity, $colonia, $street,$innerNumber,$estatusReporte,$estatusCenso,$estatusVenta,$idEmpleadoParaVenta,
+                                           $idCity, $colonia, $street,$innerNumber,$estatusReporte,$estatusCenso,$estatusVenta,$idEmpleadoParaVenta,
                                            $asignadoMexicana,$asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
                                            $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,$validacionInstalacion,
                                            $estatusAsignacionInstalacion,$idEmpleadoInstalacion,$idAgenciaInstalacion, $nicknameEmpleado, $nicknameAgencia, 
@@ -135,305 +143,135 @@ if (isset($_POST["idUsuario"])) {
                                            $fechaInicioRechazo,$fechaFinRechazo,$fechaPrimeraCaptura,$fechaSegundaCaptura,$fechaInicioAsigPH,
                                            $fechaFinAsigPH,$fechaInicioRealizoPH,$fechaFinRealizoPH,$fechaInicioAnomPH,$fechaFinAnomPH,
                                            $fechaInicioAsigInst,$fechaFinAsigInst,$fechaInicioRealInst,$fechaFinRealInst,$fechaInicioAnomInst,$fechaFinAnomInst);
+        $contadorPendientes=0;
         $contador=0;
+        $returnData = [];
+        $myArr = array();
         while ($stmtObtenerContratos->fetch()) {
-            //if (intval($agreementNumber) == 32005) {
-
-                $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
-                        $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
-                        $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
-                        $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
-                );
-                //echo "agreementNumber ".$descriptionStatus;
-                if (($_POST["tipoReportes"] == "pendientes") && 
-                    (intval($estatusAsignacionInstalacion) != 54 && 
-                     intval($estatusAsignacionInstalacion) != 53 &&
-                     intval($estatusReporte) != 66 &&
-                     intval($estatusAsignacionInstalacion) != 55)) 
-                {
-
-                    $reportData["Id"] = $id;
-                    $reportData["idReportType"] = $idReportType;
-                    $reportData['idStatus'] =$idStatus;
-                    $reportData["primerTD"] = "";
-                    $reportData["segundoTD"] = "";
-                    $reportData["estatusVenta"] = $estatusVenta;
-                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
-                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
-                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
-                    $reportData["Status"] = $description;
-                    $reportData["Municipio"] = $idCity;
-                    $reportData["Colonia"] = $colonia;
-                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
-                    if (($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") &&
-                        ($nicknameEmpleado != "Pendiente de Asignar" && 
-                        ($_SESSION["nickname"] != "SuperAdmin" && 
-                         $_SESSION["nickname"] != "AYOPSA" &&
-                         $_SESSION["nickname"] != "CallCenter"))) {
-                        $button  = '<div class="idUsuario" data-id="'.$id.'">';
-                            $button .= '<button class="btn btn-warning openReasignForm" type="button" data-id="'.$id.'">';
-                            $button .= '<i class="fa fa-chain-broken" aria-hidden="true">&nbsp;</i>'.$nicknameEmpleado;
-                            $button .= '</button>';
-                        $button .= '</div>';
-                        $reportData["Usuario"] = $button;
-                    }else{
-                        $reportData["Usuario"] = $nicknameEmpleado;
-                    }
-                    $tienePlomero=obtenerSiTienePlomero($id);
-                    if (($descriptionStatus != "EN PROCESO") &&
-                        ($name == "Venta") &&
-                        $tienePlomero == false &&
-                        ($nicknameEmpleado != "Pendiente de Asignar" && 
-                        ($_SESSION["nickname"] != "SuperAdmin" && 
-                         $_SESSION["nickname"] != "AYOPSA" &&
-                         $_SESSION["nickname"] != "CallCenter"))) {
-                        $body = '<div class="checkbox" data-id="'.$id.'" style="display:none"> ';
-                            $body .= '<label>';
-                                $body .= '<input type="checkbox" class="asignarUsuarioPlomero" name="asignarUsuarioPlomero" data-id="'.$id.'">';
-                                $body .= '<i class="fa fa-user" aria-hidden="true"></i>';
-                            $body .= '</label>';
-                        $body .= '</div>';
-                        $reportData["tienePlomero"] = $body;
-                    }else{
-                        $reportData["tienePlomero"] = "";
-                    }
-                    $reportData["Agencia"] = $nicknameAgencia;
-                    $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
-                    $fecha = $created_at;
-                    switch ($name) {
-                        case 'Venta':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
-                                $fecha=$fechaInicioVenta;
-                            }elseif ($descriptionStatus == "RECHAZADO") {
-                                if ($fechaInicioRechazo != "" && $fechaFinRechazo != "") {
-                                    $fecha=$fechaFinRechazo;
-                                }elseif ($fechaInicioRechazo != "" && $fechaFinRechazo == "") {
-                                    $fecha=$fechaInicioRechazo;
-                                }elseif ($fechaInicioRechazo == "" && $fechaFinRechazo != "") {
-                                    $fecha=$fechaFinRechazo;
-                                }
-                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
-                                $fecha=$fechaInicioFinanciera;
-                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
-                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
-                                    $fecha=$fechaInicioFinanciera;
-                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }
-                            }
-                        break;
-                        case 'Plomero':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioRealizoPH;
-                            }elseif ($descriptionStatus == "REAGENDADA") {
-                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
-                                $fecha = $fechaInicioAnomPH;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                if ($fechaFinAnomPH != "") {
-                                    $fecha = $fechaInicioAnomPH;
-                                }else{
-                                    $fecha = $fechaFinRealizoPH;
-                                }
-                            }
-                        break;
-                        case 'Instalacion':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigInst;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinAsigInst;
-                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
-                                $fecha = $fechaFinRealInst;
-                            }
-                        break;
-                        case 'Segunda Venta':
-                            if ($descriptionStatus == "EN PROCESO") {
-                                $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
-                                $fecha = $fechaSegundaCaptura;
-                            }
-                        break;
-                        case 'Censo':
-                            $fecha = $created_at;
-                        break;
-                    }
-                    if ($fecha == null || $fecha == "") {
-                        $fecha = $created_at;
-                    }
-                    $reportData["Fecha"] = $fecha;
-                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
-                                            $estatusReporte,$estatusCenso,$estatusVenta,
-                                                         $idEmpleadoParaVenta,$asignadoMexicana,
-                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
-                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
-                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
-                                                         $idAgenciaInstalacion, $idReportType);
-                    $returnData[] = $reportData;
-                }elseif (($_POST["tipoReportes"] == "completos") &&
-                         (intval($estatusAsignacionInstalacion) >= 54)){
-                    $reportData["Id"] = $id;
-                    $reportData["idReportType"] = $idReportType;
-                    $reportData['idStatus'] =$idStatus;
-                    $reportData["primerTD"] = "";
-                    $reportData["segundoTD"] = "";
-                    $reportData["estatusVenta"] = $estatusVenta;
-                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
-                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
-                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
-                    $reportData["Status"] = $description;
-                    $reportData["Municipio"] = $idCity;
-                    $reportData["Colonia"] = $colonia;
-                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
+            $descriptionStatus=validarEstatusDesdeLaTablaDeEstatusControl(
+                    $idReporte,$estatusCenso, $estatusReporte, $estatusVenta, $validadoMexicana, $validadoAyopsa,
+                    $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
+                    $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
+            );
+            //if (intval($agreementNumber) == 37927) {
+                $reportData["Id"] = $id;
+                $reportData["idReportType"] = $idReportType;
+                $reportData['idStatus'] =$idStatus;
+                $reportData["primerTD"] = "";
+                $reportData["segundoTD"] = "";
+                $reportData["estatusVenta"] = $estatusVenta;
+                $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
+                $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
+                $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
+                $reportData["Status"] = $descriptionStatus;
+                $reportData["Municipio"] = $idCity;
+                $reportData["Colonia"] = $colonia;
+                $reportData['Calle'] = $street.' - Num: '.$innerNumber;
+                if (($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") &&
+                    ($nicknameEmpleado != "Pendiente de Asignar" && 
+                    ($_SESSION["nickname"] != "SuperAdmin" && 
+                     $_SESSION["nickname"] != "AYOPSA" &&
+                     $_SESSION["nickname"] != "CallCenter"))) {
+                    $button  = '<div class="idUsuario" data-id="'.$id.'">';
+                        $button .= '<button class="btn btn-warning openReasignForm" type="button" data-id="'.$id.'">';
+                        $button .= '<i class="fa fa-chain-broken" aria-hidden="true">&nbsp;</i>'.$nicknameEmpleado;
+                        $button .= '</button>';
+                    $button .= '</div>';
+                    $reportData["Usuario"] = $button;
+                }else{
                     $reportData["Usuario"] = $nicknameEmpleado;
-                    $reportData["Agencia"] = $nicknameAgencia;
-                    $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
-                    $fecha = $created_at;
-                    switch ($name) {
-                        case 'Venta':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
-                                $fecha=$fechaInicioVenta;
-                            }elseif ($descriptionStatus == "RECHAZADO") {
-                                $fecha=$fechaFinRechazo;
-                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
-                                $fecha=$fechaInicioFinanciera;
-                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
-                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
-                                    $fecha=$fechaInicioFinanciera;
-                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }
-                            }
-                        break;
-                        case 'Plomero':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioRealizoPH;
-                            }elseif ($descriptionStatus == "REAGENDADA") {
-                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
-                                $fecha = $fechaInicioAnomPH;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                if ($fechaFinAnomPH != "") {
-                                    $fecha = $fechaInicioAnomPH;
-                                }else{
-                                    $fecha = $fechaFinRealizoPH;
-                                }
-                            }
-                        break;
-                        case 'Instalacion':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigInst;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinAsigInst;
-                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
-                                $fecha = $fechaFinRealInst;
-                            }
-                        break;
-                        case 'Segunda Venta':
-                            if ($descriptionStatus == "EN PROCESO") {
-                                $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
-                                $fecha = $fechaSegundaCaptura;
-                            }
-                        break;
-                        case 'Censo':
-                            $fecha = $created_at;
-                        break;
-                    }
-                    if ($fecha == null || $fecha == "") {
-                        $fecha = $created_at;
-                    }
-                    $reportData["Fecha"] = $fecha;
-                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
-                                            $estatusReporte,$estatusCenso,$estatusVenta,
-                                                         $idEmpleadoParaVenta,$asignadoMexicana,
-                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
-                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
-                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
-                                                         $idAgenciaInstalacion, $idReportType);
-                    $returnData[] = $reportData;
-                }elseif ($_POST["tipoReportes"] == "general"){
-                    $reportData["Id"] = $id;
-                    $reportData["idReportType"] = $idReportType;
-                    $reportData['idStatus'] =$idStatus;
-                    $reportData["primerTD"] = "";
-                    $reportData["segundoTD"] = "";
-                    $reportData["idClienteGenerado"] = '<div class="idCliente" data-id="'.$idClienteGenerado.'">'.$idClienteGenerado.'</div>';
-                    $reportData["Contrato"] = '<div class="contrato" data-id="'.$agreementNumber.'">'.$agreementNumber.'</div>';
-                    $reportData["Tipo"] = '<div class="tipoReporte" data-id="'.$name.'">'.$name.'</div>';
-                    $reportData["Status"] = $description;
-                    $reportData["Municipio"] = $idCity;
-                    $reportData["Colonia"] = $colonia;
-                    $reportData['Calle'] = $street.' - Num: '.$innerNumber;
-                    $reportData["Usuario"] = $nicknameEmpleado;
-                    $reportData["Agencia"] = $nicknameAgencia;
-                    $fecha = $created_at;
-                    switch ($name) {
-                        case 'Venta':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
-                                $fecha=$fechaInicioVenta;
-                            }elseif ($descriptionStatus == "RECHAZADO") {
-                                $fecha=$fechaFinRechazo;
-                            }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
-                                $fecha=$fechaInicioFinanciera;
-                            }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
-                                if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
-                                    $fecha=$fechaInicioFinanciera;
-                                }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
-                                    $fecha=$fechaFinFinanciera;
-                                }
-                            }
-                        break;
-                        case 'Plomero':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioRealizoPH;
-                            }elseif ($descriptionStatus == "REAGENDADA") {
-                                error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
-                                $fecha = $fechaInicioAnomPH;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                if ($fechaFinAnomPH != "") {
-                                    $fecha = $fechaInicioAnomPH;
-                                }else{
-                                    $fecha = $fechaFinRealizoPH;
-                                }
-                            }
-                        break;
-                        case 'Instalacion':
-                            if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                                $fecha = $fechaInicioAsigInst;
-                            }elseif ($descriptionStatus == "COMPLETO") {
-                                $fecha = $fechaFinAsigInst;
-                            }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
-                                $fecha = $fechaFinRealInst;
-                            }
-                        break;
-                        case 'Segunda Venta':
-                            if ($descriptionStatus == "EN PROCESO") {
-                                $fecha = $fechaPrimeraCaptura;
-                            }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
-                                $fecha = $fechaSegundaCaptura;
-                            }
-                        break;
-                        case 'Censo':
-                            $fecha = $created_at;
-                        break;
-                    }
-                    if ($fecha == null || $fecha == "") {
-                        $fecha = $created_at;
-                    }
-                    $reportData["Fecha"] = $fecha;
-                    $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
-                                            $estatusReporte,$estatusCenso,$estatusVenta,
-                                                         $idEmpleadoParaVenta,$asignadoMexicana,
-                                                         $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
-                                                         $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
-                                                         $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
-                                                         $idAgenciaInstalacion, $idReportType);
-                    $returnData[] = $reportData;
                 }
+                $tienePlomero=obtenerSiTienePlomero($id);
+                if (($descriptionStatus != "EN PROCESO") &&
+                    ($name == "Venta") &&
+                    $tienePlomero == false &&
+                    ($nicknameEmpleado != "Pendiente de Asignar" && 
+                    ($_SESSION["nickname"] != "SuperAdmin" && 
+                     $_SESSION["nickname"] != "AYOPSA" &&
+                     $_SESSION["nickname"] != "CallCenter"))) {
+                    $body = '<div class="checkboxPlomeros" data-id="'.$id.'" style="display:none"> ';
+                        $body .= '<label>';
+                            $body .= '<input type="checkbox" class="asignarUsuarioPlomero" name="asignarUsuarioPlomero" data-id="'.$id.'">';
+                            $body .= '<i class="fa fa-user" aria-hidden="true"></i>';
+                        $body .= '</label>';
+                    $body .= '</div>';
+                    $reportData["tienePlomero"] = $body;
+                }else{
+                    $reportData["tienePlomero"] = "";
+                }
+                $reportData["Agencia"] = $nicknameAgencia;
+                $reportData["estatusAsignacionInstalacion"] = $estatusAsignacionInstalacion;
+                $fecha = $created_at;
+                switch ($name) {
+                    case 'Venta':
+                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                            $fecha=$fechaInicioVenta;
+                        }elseif ($descriptionStatus == "RECHAZADO") {
+                            if ($fechaInicioRechazo != "" && $fechaFinRechazo != "") {
+                                $fecha=$fechaFinRechazo;
+                            }elseif ($fechaInicioRechazo != "" && $fechaFinRechazo == "") {
+                                $fecha=$fechaInicioRechazo;
+                            }elseif ($fechaInicioRechazo == "" && $fechaFinRechazo != "") {
+                                $fecha=$fechaFinRechazo;
+                            }
+                        }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
+                            $fecha=$fechaInicioFinanciera;
+                        }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
+                            if ($fechaInicioFinanciera != "" && $fechaFinFinanciera != "") {
+                                $fecha=$fechaFinFinanciera;
+                            }elseif ($fechaInicioFinanciera != "" && $fechaFinFinanciera == "") {
+                                $fecha=$fechaInicioFinanciera;
+                            }elseif ($fechaInicioFinanciera == "" && $fechaFinFinanciera != "") {
+                                $fecha=$fechaFinFinanciera;
+                            }
+                        }
+                    break;
+                    case 'Plomero':
+                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                            $fecha = $fechaInicioRealizoPH;
+                        }elseif ($descriptionStatus == "REAGENDADA") {
+                            error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
+                            $fecha = $fechaInicioAnomPH;
+                        }elseif ($descriptionStatus == "COMPLETO") {
+                            if ($fechaFinAnomPH != "") {
+                                $fecha = $fechaInicioAnomPH;
+                            }else{
+                                $fecha = $fechaFinRealizoPH;
+                            }
+                        }
+                    break;
+                    case 'Instalacion':
+                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
+                            $fecha = $fechaInicioAsigInst;
+                        }elseif ($descriptionStatus == "COMPLETO") {
+                            $fecha = $fechaFinAsigInst;
+                        }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
+                            $fecha = $fechaFinRealInst;
+                        }
+                    break;
+                    case 'Segunda Venta':
+                        if ($descriptionStatus == "EN PROCESO") {
+                            $fecha = $fechaPrimeraCaptura;
+                        }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
+                            $fecha = $fechaSegundaCaptura;
+                        }
+                    break;
+                    case 'Censo':
+                        $fecha = $created_at;
+                    break;
+                }
+                if ($fecha == null || $fecha == "") {
+                    $fecha = $created_at;
+                }
+                $reportData["Fecha"] = $fecha;
+                $reportData["html"] = getHTMLButtons($id,$tipoAgencia,$name,$description, 
+                                        $estatusReporte,$estatusCenso,$estatusVenta,
+                                                     $idEmpleadoParaVenta,$asignadoMexicana,
+                                                     $asignadoAyopsa,$validadoMexicana,$validadoAyopsa,$phEstatus,$idEmpleadoPhAsignado,
+                                                     $asignacionSegundaVenta,$idEmpleadoSegundaVenta,$validacionSegundaVenta,$idClienteGenerado,
+                                                     $validacionInstalacion,$estatusAsignacionInstalacion,$idEmpleadoInstalacion,
+                                                     $idAgenciaInstalacion, $idReportType);
+                $returnData[] = $reportData;
             //}
             $contador++;
         }

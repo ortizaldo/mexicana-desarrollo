@@ -130,10 +130,14 @@ if (isset($_POST['param']) && isset($_POST['employee'])) {
                                     }
                                 }
                             } else {
-                                echo $updateReportAssignedStatus->error;
+                                $result["status"] = "BAD";
+                                $result["code"] = "500";
+                                $result["result"] = "No se asigno correctamente ".$updateReportAssignedStatus->error;
                             }
                         } else {
-                            echo $updateReportStatus->error;
+                            $result["status"] = "BAD";
+                            $result["code"] = "500";
+                            $result["result"] = "No se asigno correctamente ".$updateReportStatus->error;
                         }
                     }else{
                         $result["status"] = "BAD";
@@ -218,6 +222,8 @@ if (isset($_POST['param']) && isset($_POST['employee'])) {
         asignarInstalacion($report, $profileToAssign, $employee, $_POST['param']);
 
     }
+}else{
+    echo "error";
 }
 
 function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClient){
@@ -263,11 +269,9 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                             $searchReports->fetch();
                             error_log("Si busco el empleado asignado. ProfileToAssing,employeeToAssign: ".$profileToAssign.",".$employeeToAssign);
 
-                            if ($profileToAssign == 4)
-                            {
+                            if ($profileToAssign == 4){
                                 $employeesAssigned = $employeeToAssign;
-                            }
-                            else {
+                            }else {
                                 $employeesAssigned = "";
                             }
                             
@@ -316,7 +320,6 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                                         $connSegVta->close();
                                     }
                                     echo json_encode($response);
-
                                 }else{
                                     $response["status"] = "ERROR";
                                     $response["code"] = "500";
@@ -329,13 +332,17 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                                 $response["response"] = 'Error en primer update asignacion inst / '.$conn2->error;
                                 echo json_encode($response);
                             }
-
+                        }else{
+                            $response["status"] = "ERROR";
+                            $response["code"] = "500";
+                            $response["response"] ="NO encontro el empleado asignado ".$searchReports->error;
+                            echo json_encode($response);
                         }
-
-                    }
-                    else
-                    {
-                        echo $searchReports->error;
+                    }else{
+                        $response["status"] = "ERROR";
+                        $response["code"] = "500";
+                        $response["response"] ="NO encontro el empleado asignado ".$searchReports->error;
+                        echo json_encode($response);
                     }
                 } else {
                     $DB2 = new DAO();
@@ -349,7 +356,6 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                         $getReportCity->store_result();
                         $getReportCity->bind_result($idReport, $idUserCreator, $idEmployee, $city,$reportType, $employeeAssigned, $idFormulario, $idForm,$idSolicitudMovil);
                         if ($getReportCity->fetch()) {
-
                             $employeesAssigned="";
                             //SELECCIONAR AGENCIA QUE TENGA EL MUNICIPIO ASIGNADO
                             $idCity=getIdCity($city);
@@ -416,7 +422,12 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                                                 }
                                                 $connSegVta->close();
                                             }
-                                            //echo json_encode($response);
+                                            echo json_encode($response);
+                                        }else{
+                                            $response["status"] = "ERROR";
+                                            $response["code"] = "500";
+                                            $response["response"] =$conn2->error;
+                                            echo json_encode($response);
                                         }
                                     }else{
                                         $response["status"] = "ERROR";
@@ -424,15 +435,37 @@ function asignarInstalacion($report,$profileToAssign,$employeeToAssign, $idClien
                                         $response["response"] =$conn2->error;
                                         echo json_encode($response);
                                     }
+                                }else{
+                                    $response["status"] = "ERROR";
+                                    $response["code"] = "500";
+                                    $response["response"] ="NO encontro el empleado asignado 4".$getAgencyCity->error;
+                                    echo json_encode($response);
                                 }
                             }else{
-                                echo $getAgencyCity->error;
+                                $response["status"] = "ERROR";
+                                $response["code"] = "500";
+                                $response["response"] ="NO encontro el empleado asignado 3".$getAgencyCity->error;
+                                echo json_encode($response);
                             }
+                        }else{
+                            $response["status"] = "ERROR";
+                            $response["code"] = "500";
+                            $response["response"] ="NO encontro el empleado asignado 2";
+                            echo json_encode($response);
                         }
+                    }else{
+                        $response["status"] = "ERROR";
+                        $response["code"] = "500";
+                        $response["response"] ="NO encontro el empleado asignado 1";
+                        echo json_encode($response);
                     }
-
                 }
             }
+        }else{
+            $response["status"] = "ERROR";
+            $response["code"] = "500";
+            $response["response"] ="NO encontro el empleado asignado";
+            echo json_encode($response);
         }
     }else{
         $response["status"] = "ERROR";

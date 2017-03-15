@@ -406,6 +406,7 @@ function sendSecondSell($post)
     $sell['tf_causas'] = "";
     $sell['tf_dir_id'] = $post["outterNumber"];
     $sell['tf_ffirma'] = $post['RequestDate'];
+    $sell['tf_ffirma'] = date('Y-m-d',strtotime($post['RequestDate']));
     $sell['tf_fpago'] = $post['NextSellDateRI'];
     $sell['tf_antsol'] = 0;
     $sell['tf_mtsri'] = $post['NextSellRI'];
@@ -442,11 +443,11 @@ function sendSecondSell($post)
     $sell['tf_calentador'] = 0;
     $sell['tf_tpocto'] = 1;
     $cont=1;
-    //var_dump($cont);
     foreach ($post['References'] as $referencias) {
         $data = (array)$referencias;
         $txtNombreRefrencia='txtNombreRefrencia'.$cont;
         $txtTelefonoParticularRefrencia='txtTelefonoParticularRefrencia'.$cont;
+        $txtTelefonoDeTrabajoReferencia='txtTelefonoDeTrabajoReferencia'.$cont;
         $txtTelefonoTrabajoExtRefrencia='txtTelefonoTrabajoExtRefrencia'.$cont;
         $txtTelefonoTrabajoExtRefrencia='txtTelefonoTrabajoExtRefrencia'.$cont;
         if($data[$txtNombreRefrencia] != "" ||
@@ -471,6 +472,8 @@ function sendSecondSell($post)
         }
         $cont++;
     }
+    //var_dump($sell);
+    //die();
     $sell['tf_nomrefer3'] = "";
     $sell['tf_tel3'] = "";
     $sell['tf_movil'] = "";
@@ -562,7 +565,10 @@ function getNameVendedor($idUser)
         $res="";
         if ($result->num_rows > 0) {
             while($row = $result->fetch_array()) {
-                $res=$row[0].' '.$row[1].' '.$row[2];
+                $name=ltrim($row[0]);
+                $apPaterno=ltrim($row[1]);
+                $LastNameOP=ltrim($row[2]);
+                $res=$name.''.$apPaterno.' '.$LastNameOP;
             }
         }
         $conn->close();

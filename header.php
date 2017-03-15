@@ -252,6 +252,7 @@ if (!isset($_SESSION["nickname"]) || $_SESSION["nickname"] == NULL) {
 
                 <li><h3 class="navigation-title">Reportes</h3></li>
                 <li id="gogeneral" class="limenu"><a href="forms.php"><i class="fa fa-search"></i><span>Consultas</span></a>
+                <li id="gogeneral" class="limenu"><a href="asignacionDirecciones.php"><i class="fa fa-search"></i><span>Direcciones</span></a>
                 </li>
                 <?php if(!(isset($_SESSION["typeAgency"]) && $_SESSION["typeAgency"] == "CallCenter")): ?>
                 

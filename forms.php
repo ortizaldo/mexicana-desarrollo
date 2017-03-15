@@ -129,6 +129,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             <div class="panel-body">
                 <table id="tablaReporte" name="tablaReporte" class="table responsive-data-table data-table">
                     <thead>
+                        <?php if($_SESSION['typeAgency']== 'Comercializadora' || $_SESSION['typeAgency'] == 'Instalacion' || $_SESSION['typeAgency'] == 'Instalacion y Comercializadora'): ?>
                         <tr>
                             <th>
                                 <div class="checkboxAsignacionMasiva">
@@ -160,6 +161,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                 </button>
                             </th>
                         </tr>
+                        <?php endif; ?>
                         <tr>
                             <th>&nbsp;</th>
                             <th>Seleccionar Usuario</th>
@@ -1707,7 +1709,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         var fecha, existePlomero;
         var arr=[];
         _.each(dataLoadFormI, function (row, idx) {
-            //if (idx === 0) {
+            //if (parseInt(row.Contrato) === 37927) {
                 //console.log('row', row);
                 existePlomero = _.has(row, 'tienePlomero');
                 body = "";
@@ -1722,11 +1724,10 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 }else{
                     body = "";
                 }
-
                 if (!_.isEmpty(row.tienePlomero)) {
                     body = row.tienePlomero;
                 }
-                
+                //console.log('body', body);
                 arr.push([
                     row.html.permisosDelProceso,
                     body,
@@ -1825,11 +1826,11 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             var isChecked = $('input.seleccionarChecks').is(':checked');
                             if (isChecked) {
                                 var row="", idRPTr=0;
-                                $("#tablaReporte .checkbox").show();
+                                $("#tablaReporte .checkboxPlomeros").show();
                                 console.log('entre a plomeros');
                                 loadEmployeesPlumbers(localStorage.getItem("id"));
                             }else{
-                                $("#tablaReporte .checkbox").hide();
+                                $("#tablaReporte .checkboxPlomeros").hide();
                                 $(".select").hide();
                             }
                         }
@@ -3089,7 +3090,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                 console.log('agency', agency);
                                 console.log('data.ip_contrato', data.ip_contrato);
                                 //validamos si el usuario que creo la plomeria es un plomero instalador
-                                /*asignarInstalacion(id, idEmployee, data.ip_contrato, agency);
+                                asignarInstalacion(id, idEmployee, data.ip_contrato, agency);
                                 MostrarToast(1, "Info", 'Segunda Venta actualizada con exito - '+data.ip_contrato+' - '+data.op_message);
                                 configurarToastCentrado();
                                 $('#agreementInformation').find('input:text').val('');
@@ -3101,9 +3102,9 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                  .val('')
                                  .removeAttr('checked')
                                  .removeAttr('selected');
-                                //$('#secondSellModal').modal('hide');
-                                $('#addSecondSell').prop('disabled', false);*/
-                                //cargarReportes();
+                                $('#secondSellModal').modal('hide');
+                                $('#addSecondSell').prop('disabled', false);
+                                cargarReportes();
                             }else{
                                 $('#agreementInformation').find('input:text').val('');
                                 $('#agreementInformation').find('select').val('');
@@ -5824,40 +5825,44 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
         if (!_.isEmpty(tipoReporte)) {
             //cargamos el reporte dependiendo de que se tenga seleccionado
             $("#limpiarFiltros").notify("Cargando informacion..", "info");
-            $.ajax({
-                method: "POST",
-                url: "dataLayer/callsWeb/loadForms.php",
-                dataType: "JSON",
-                data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:tipoReporte},
-                success: function (data) {
-                    $('#bodyReport').html('');
-                    var sizeData = data.length;
-                    if (sizeData > 0) {
-                        var sizeReportes = data.length;
-                        construirProcesosReporte(0, sizeReportes, data);
-                    } else {
-                        $("#tablaLoader").html('');
+            Pace.track(function(){
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:tipoReporte},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
                     }
-                }
+                });
             });
         }else{
             //cargamos los pendientes por defecto
             $("#limpiarFiltros").notify("Cargando informacion..", "info");
-            $.ajax({
-                method: "POST",
-                url: "dataLayer/callsWeb/loadForms.php",
-                dataType: "JSON",
-                data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
-                success: function (data) {
-                    $('#bodyReport').html('');
-                    var sizeData = data.length;
-                    if (sizeData > 0) {
-                        var sizeReportes = data.length;
-                        construirProcesosReporte(0, sizeReportes, data);
-                    } else {
-                        $("#tablaLoader").html('');
+            Pace.track(function(){
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/loadForms.php",
+                    dataType: "JSON",
+                    data: {idUsuario: idUser, tipoAgencia:tipoAgencia, tipoReportes:"pendientes"},
+                    success: function (data) {
+                        $('#bodyReport').html('');
+                        var sizeData = data.length;
+                        if (sizeData > 0) {
+                            var sizeReportes = data.length;
+                            construirProcesosReporte(0, sizeReportes, data);
+                        } else {
+                            $("#tablaLoader").html('');
+                        }
                     }
-                }
+                });
             });
         }
     }

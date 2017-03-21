@@ -664,9 +664,11 @@ include("header.php") ?>
             <script type="text/javascript" src="assets/js/clases/funciones.js"></script>
             <script type="text/javascript" src="assets/js/underscore.js"></script>
             <script type="text/javascript" src="assets/js/momentPrecise.js"></script>
+            <script type="text/javascript" src="assets/js/pace.js"></script>
             <!--data table init-->
             <script src="assets/js/data-table-init.js"></script>
             <link rel="stylesheet" href="assets/css/dcalendar.picker.min.css"/>
+            <link rel="stylesheet" href="assets/css/pace.css"/>
 
             <script type="text/javascript">
                 var concentratedArray = [];
@@ -959,7 +961,8 @@ include("header.php") ?>
                         $('#btnConfiguration').hide();
                         $('.tituloReporte').html('REPORTE DE VENTAS');
                         $('#btn_chart').hide();
-                        loadSell();
+                        var tipo = 'pendientes';
+                        loadSell(tipo);
                     }else if(countTab > 1){
                         loadConcentratedStatus();
                     }

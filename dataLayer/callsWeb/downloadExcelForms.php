@@ -1434,3 +1434,9 @@ function getnombreAgenciaABuscar($idUser)
     }
     return $res;
 }
+
+
+function getForms($tipoFormulario, $idReporte, $conn)
+{
+    # code...
+}

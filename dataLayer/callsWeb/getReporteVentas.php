@@ -43,11 +43,7 @@ function obtenerReporteVentas($conn, $tipo)
         $stmt->bind_result($id, $agreementNumber, $idClienteGenerado,$phEstatus, $estatus_ph, $estatusVenta,$estatus_venta, $estatusAsignacionInstalacion,$validacionSegundaVenta,$estatus_seg_venta, $estatusReporte, $estatus_instalacion, $idCity, $colonia, $street,$innerNumber,$outterNumber, $nombre_usuario, $agencia, $fecha);
         while ($stmt->fetch()) {
             $row = array();
-            if ($tipo == "pendientes" &&
-                (intval($estatusAsignacionInstalacion) != 54 && 
-                 intval($estatusAsignacionInstalacion) != 53 &&
-                 intval($estatusReporte) != 66 &&
-                 intval($estatusAsignacionInstalacion) != 55)) {
+            if ($tipo == "pendientes" && (intval($estatusAsignacionInstalacion) < 54)) {
                 $row["id"] = $id;
                 $row["agreementNumber"] = $agreementNumber;
                 $row["idClienteGenerado"] = $idClienteGenerado;

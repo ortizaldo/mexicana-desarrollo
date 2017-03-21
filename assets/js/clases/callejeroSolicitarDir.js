@@ -82,6 +82,21 @@ function getNumeros(street, direccionesarray) {
     return numerosArray;
 }
 
+function getIDireccion(street, direccionesarray) {
+    console.log('direccionesarray', direccionesarray);
+    var idDirArray = [];
+    var idDDirArray = {};
+    for (elem in direccionesarray) {
+        if (direccionesarray[elem].calle == street) {
+            idDDirArray = ({'id_direccion': direccionesarray[elem].id_direccion, 'numero_exterior': direccionesarray[elem].numero_exterior});
+            idDirArray.push(idDDirArray);
+        }
+
+    }
+
+    return idDirArray;
+}
+
 function getEntreCalles(street, direccionesArray) {
     betweenStreetsArray = [];
     for (elem in direccionesArray) {
@@ -96,7 +111,7 @@ function getEntreCalles(street, direccionesArray) {
 var directions = [];
 function loadStreets(city, colonia) {
     if (!_.isEmpty(city) && !_.isEmpty(colonia)) {
-        var tipoDir = 'libres';
+        var tipoDir = "todas";
         $.ajax({
             method: "POST",
             url: "dataLayer/callsWeb/siscomCalles.php",
@@ -109,6 +124,7 @@ function loadStreets(city, colonia) {
                     if (ot_direccionesRow) {
                         if (!_.isUndefined(data.ot_direcciones.ot_direccionesRow.length)) {
                             directions = data.ot_direcciones.ot_direccionesRow;
+                            localStorage.setItem("direcciones", directions);
                             var streets = [];
                             _.each(data.ot_direcciones.ot_direccionesRow, function (rStreet, idx) {
                                 streets.push(rStreet.calle);
@@ -129,7 +145,6 @@ function loadStreets(city, colonia) {
                             var calle = data.ot_direcciones.ot_direccionesRow.calle;
                             var entre_calles = data.ot_direcciones.ot_direccionesRow.entre_calles;
                             var numero_exterior = data.ot_direcciones.ot_direccionesRow.numero_exterior;
-                            
                             directions = data.ot_direcciones.ot_direccionesRow;
                             $('#street').html('');
                             $('#street').select2({
@@ -169,11 +184,3 @@ function sortSelectOptions(selector, skip_first) {
     }); 
 }
 /************************************Load Cities, colonias, streets****************************************/
-
-function deleteDuplicates(arrayToClean) {
-    var uniqueVals = [];
-    $.each(arrayToClean, function (i, el) {
-        if ($.inArray(el, uniqueVals) === -1) uniqueVals.push(el);
-    });
-    return uniqueVals;
-}

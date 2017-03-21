@@ -3,6 +3,7 @@
 if (isset($_POST['city']) && isset($_POST['colonia'])) {
     $idMunicipio = $_POST['city'];
     $idColonia = $_POST['colonia'];
+    $tipoDirecciones = $_POST['tipoDir'];
     $clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
     $nuSoapClientMexicana = new nusoap_client($clienteSoapMexicana, true);
     $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
@@ -12,8 +13,11 @@ if (isset($_POST['city']) && isset($_POST['colonia'])) {
         'p_id_municipio' => $idMunicipio,
         'p_colonia_id' => $idColonia
     );
-
-    $resultWsColonias = $nuSoapClientMexicana->call('ws_cmc_direcciones', $postData);
+    if ($tipoDirecciones == "todas") {
+        $resultWsColonias = $nuSoapClientMexicana->call('ws_cmc_direcciones_todas', $postData);
+    }elseif ($tipoDirecciones == "libres") {
+        $resultWsColonias = $nuSoapClientMexicana->call('ws_cmc_direcciones', $postData);
+    }
     //$resSan=utf8_converter($resultWsColonias);
     if ($nuSoapClientMexicana->fault) {
 

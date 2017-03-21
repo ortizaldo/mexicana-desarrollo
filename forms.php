@@ -764,7 +764,6 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
 <script type="text/javascript" src="assets/js/clases/funciones.js"></script>
 <script type="text/javascript" src="assets/js/clases/loadforms.js"></script>
 <script type="text/javascript" src="assets/js/clases/callejero.js"></script>
-<script type="text/javascript" src="assets/js/clases/callejero.js"></script>
 
 <script type="text/javascript">
     var base_url= "http://siscomcmg.com/uploads/";
@@ -3469,7 +3468,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             var txtStatus = $("#txtStatus option:selected").text();
             var txtStatusVal = $("#txtStatus option:selected").val();
             var search = $("#tablaReporte_wrapper input[type=search]").val();
-            Pace.track(function(){
+            //Pace.track(function(){
                 $.ajax({
                     method: "POST",
                     url: "dataLayer/callsWeb/downloadExcelForms.php",
@@ -3516,7 +3515,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
                     }
                 });
-            });
+            //});
         }
     }
     function mySuccessFunction(res){

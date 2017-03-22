@@ -20,10 +20,16 @@ if (isset($_POST['numInstalacionGen']) && isset($_POST['idReport'])) {
                 if ($updateEstatusContrato = $conn->prepare($updateEstatusContratoSQL)) {
                     $updateEstatusContrato->bind_param("i",$idReport);
                     if ($updateEstatusContrato->execute()) {
-                        $result["status"] = "OK";
-                        $result["code"] = "200";
-                        $result["result"] = "Instalacion - #".$numInstalacionGen;
-                        echo json_encode($result);
+                        $stmtRPT = "UPDATE reportTiempoVentas SET fechaFinRealInst = NOW() WHERE idReporte = ?;";
+                        if ($estatusReportTVTA = $conn->prepare($stmtRPT)) {
+                            $estatusReportTVTA->bind_param("i",$idReport);
+                            if ($estatusReportTVTA->execute()) {
+                                $result["status"] = "OK";
+                                $result["code"] = "200";
+                                $result["result"] = "Instalacion - #".$numInstalacionGen;
+                                echo json_encode($result);
+                            }  
+                        }
                     }  
                 }
 			}

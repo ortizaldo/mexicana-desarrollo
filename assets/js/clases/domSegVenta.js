@@ -95,7 +95,7 @@ function Streets() {
     $.ajax({
         method: "POST",
         url: "dataLayer/callsWeb/siscomCalles.php",
-        data: {city: city, colonia: colonia},
+        data: {city: city, colonia: colonia, tipoDir:"libres"},
         dataType: "JSON",
         success: function (data) {
             console.log('data calles', data);

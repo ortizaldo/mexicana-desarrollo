@@ -30,6 +30,7 @@ $FORMULARIO_TIPO_PLOMERO = 2;
 $FORMULARIO_TIPO_INSTALACION = 3;
 $FORMULARIO_TIPO_SEGUNDA_VENTA = 4;
 error_log('entre a mexicana des');
+error_log('entre a mexicana des despues de toda una vida');
 if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 	$DB = new DAO();
 	$conn = $DB->getConnect();
@@ -796,6 +797,7 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 
 					$idWorkflow = 1;
 					error_log('message status installation'.$installation);
+					$anomalia = false;
 					if ($estatusCompletoDesdeMovil == "Completado" && 
 						     ($installation == 'true' || 
 						      $installation == true || 
@@ -811,6 +813,7 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 						      intval($installation) == 0)) {
 						error_log('message entre a completado con anomalia');
 						$idStatus = 7;
+						$anomalia = true;
 					}else{
 						error_log('ninguna de las anteriores');
 						$idStatus = 4;
@@ -843,24 +846,8 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
 						$updateReportAssignedStatus = $conn->prepare("UPDATE `reportHistory` SET `idStatusReport` = ?, `updated_at` = NOW() WHERE `idReport` = ? and `idReportType`=4 ;");
 						$updateReportAssignedStatus->bind_param('ii', $idStatus, $reportID);
 						$updateReportAssignedStatus->execute();
-						if ($statusType == "Completado") {
-							$updateTiempoVenta = $conn->prepare("UPDATE reportTiempoVentas SET `fechaFinRealInst` = NOW(),`fechaFinAnomInst` = NOW() WHERE `idReporte` = ?;");
-							$updateTiempoVenta->bind_param("i", $reportID);
-							$updateTiempoVenta->execute();
-							$oEstructuraCarpetas = new EstructuraCarpetas();
-                            $oEstructuraCarpetas->setIdReporte($reportID);
-                            $oEstructuraCarpetas->crearCarpetaVenta();
-                            $oEstructuraCarpetas->moverProcesoTerminadoVenta();
-                            $oEstructuraCarpetas->crearCarpetaPloemro();
-                            $oEstructuraCarpetas->moverProcesoTerminadoPlomero();
-                            $oEstructuraCarpetas->crearCarpetaInstalacion();
-                            $oEstructuraCarpetas->moverTemporalInstalacion();
-						} else if ($estatusCompletoDesdeMovil == "Completado" && 
-							      ($installation == 'false' || 
-							       $installation == false || 
-							       $installation == '0' ||
-							       intval($installation) == 0)) {
-							error_log('estatusCompletoDesdeMovil '.$estatusCompletoDesdeMovil);
+						if ($statusType == "Completado" && $anomalia == true) {
+							error_log('message installation'.$installation);
 							$updateTiempoVenta = $conn->prepare("UPDATE reportTiempoVentas SET `fechaInicioAnomInst` = NOW() WHERE `idReporte` = ?;");
 							$updateTiempoVenta->bind_param("i", $reportID);
 							$updateTiempoVenta->execute();
@@ -868,9 +855,27 @@ if (isset($_POST["token"]) && isset($_POST["solicitud"])) {
                             $oEstructuraCarpetas->setIdReporte($reportID);
                             $oEstructuraCarpetas->crearCarpetaInstalacion();
                             $oEstructuraCarpetas->moverTemporalInstalacion();
+						}elseif ($statusType == "Completado" && $anomalia == false) {
+							$fechaInicioAnomInst = getFechasInstalation($reportID);
+							if ($fechaInicioAnomInst != "" && ($fechaInicioAnomInst != null || $fechaInicioAnomInst != 'null')) {
+								$sqlSTMT = "UPDATE reportTiempoVentas SET `fechaFinRealInst` = NOW(),`fechaFinAnomInst` = NOW() WHERE `idReporte` = ?;";
+							}else{
+								$sqlSTMT = "UPDATE reportTiempoVentas SET `fechaFinRealInst` = NOW() WHERE `idReporte` = ?;";
+							}
+							if ($updateTiempoVenta = $conn->prepare($sqlSTMT)) {
+								error_log('message terminamoooos'.$installation);
+								$updateTiempoVenta->bind_param("i", $reportID);
+								$updateTiempoVenta->execute();
+								$oEstructuraCarpetas = new EstructuraCarpetas();
+	                            $oEstructuraCarpetas->setIdReporte($reportID);
+	                            $oEstructuraCarpetas->crearCarpetaVenta();
+	                            $oEstructuraCarpetas->moverProcesoTerminadoVenta();
+	                            $oEstructuraCarpetas->crearCarpetaPloemro();
+	                            $oEstructuraCarpetas->moverProcesoTerminadoPlomero();
+	                            $oEstructuraCarpetas->crearCarpetaInstalacion();
+	                            $oEstructuraCarpetas->moverTemporalInstalacion();
+							}
 						}
-
-
 					}
 					$conn->close;
 
@@ -914,6 +919,32 @@ function obteneridAgencia($agencia)
 					if ($idAgency != '') {
 						$res=$idAgency;
 					}
+				}
+			}
+		}
+		return $res;
+		$conn->close();
+	}
+	//validamos si el empleado asignado al formulario tipoVenta es plomero si no es plomero asignamos un plomero
+}
+
+function getFechasInstalation($idReport)
+{
+	if ($idReport != '') {
+		$DB = new DAO();
+		$conn = $DB->getConnect();
+		$queryEncontrarPlomero="SELECT fechaInicioAnomInst
+								FROM reportTiempoVentas
+								WHERE 0=0 
+								and idReporte=?";
+		$res='';
+		if ($stmt = $conn->prepare($queryEncontrarPlomero)) {
+			$stmt->bind_param("i", $idReport);
+			if ($stmt->execute()) {
+				$stmt->store_result();
+				$stmt->bind_result($fechaInicioAnomInst);
+				if ($stmt->fetch()) {
+					$res=$fechaInicioAnomInst;
 				}
 			}
 		}
@@ -1743,9 +1774,9 @@ function getIdCity($city)
 {
 	require_once('../../dataLayer/libs/nusoap_lib/nusoap.php');
 
-	$clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
+	$clienteSoapMexicana = "http://111.111.111.3/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
 	$nuSoapClientMexicana = new nusoap_client($clienteSoapMexicana, true);
-	$nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
+	$nuSoapClientMexicana->forceEndpoint = "http://111.111.111.3/wsa/wsa1/";
 	$nuSoapClientMexicana->soap_defencoding = 'UTF-8';
 	$nuSoapClientMexicana->decode_utf8 = false;
 
@@ -2015,7 +2046,7 @@ function actualizarReportTiempos($idReporteGenerado, $estatusWorkFlow)
     $ESTATUS_VENTA_COMPLETA = 3;
     $ESTATUS_VENTA_RECHAZADO = 2;
     
-    $reportTiempoSQL = "SELECT id FROM reportTiempoVentas WHERE idReporte = ?";
+    $reportTiempoSQL = "SELECT id, fechaInicioFinanciera, fechaInicioRechazo FROM reportTiempoVentas WHERE idReporte = ?";
     if($smtTiempo = $conn->prepare($reportTiempoSQL))
     {
         error_log("entro en primer if");
@@ -2024,19 +2055,20 @@ function actualizarReportTiempos($idReporteGenerado, $estatusWorkFlow)
         {
             error_log("entro en segundo if");
             $smtTiempo->store_result();
-            $smtTiempo->bind_result($idReportTiempo);
+            $smtTiempo->bind_result($idReportTiempo, $fechaInicioFinanciera, $fechaInicioRechazo);
             if($smtTiempo->fetch())
             {
-                error_log("entro en la parte donde si hay id");
                 if($estatusWorkFlow == $ESTATUS_VENTA_COMPLETA){
-                    $reportActTiempoSQL = "UPDATE reportTiempoVentas SET fechaFinRechazo = NOW() WHERE idReporte = ?;";
+                	if ($fechaInicioFinanciera != "" && ($fechaInicioFinanciera != null || $fechaInicioFinanciera != 'null')) {
+                		$reportActTiempoSQL = "UPDATE reportTiempoVentas SET fechaFinVenta = NOW(),fechaPrimeraCaptura = NOW(), fechaFinFinanciera = NOW() WHERE idReporte = ?;";
+                	}elseif ($fechaInicioRechazo != "" && ($fechaInicioRechazo != null || $fechaInicioRechazo != 'null')) {
+                		$reportActTiempoSQL = "UPDATE reportTiempoVentas SET fechaFinVenta = NOW(),fechaPrimeraCaptura = NOW(), fechaFinRechazo = NOW() WHERE idReporte = ?;";
+                	}
                     $smtReportActTiempo = $conn->prepare($reportActTiempoSQL);
                     $smtReportActTiempo->bind_param("i",$idReporteGenerado);
                     $smtReportActTiempo->execute();
                 }
-            }
-            else
-            {
+            }else{
                 error_log("entro en la parte donde no hay id y tiene que validar si inserta solo sii esta completado");
                 error_log(json_encode(array("status" => "entra en  el else", "estatusWorkflow" => $estatusWorkFlow, "idReporteGenerado" => $idReporteGenerado, "reportHistory" => $reportHistory)));
 
@@ -2054,26 +2086,18 @@ function actualizarReportTiempos($idReporteGenerado, $estatusWorkFlow)
                         if($smtReportActTiempo->execute())
                         {
                             error_log("inserto");
-                        }
-                        else
-                        {
+                        }else{
                             error_log("No isnerto " . $conn->error);
                         }
-                    }
-                    else
-                    {
+                    }else{
                         error_log("entra en  el else donde no pudo insertar" . $conn->error);
                     }
                 }
             }
-        }
-        else
-        {
+        }else{
              error_log("error al recuperar reporttiempos" . $conn->error);
         }
-    }
-    else
-    {
+    }else{
         error_log("error al recuperar reporttiemposssss" . $conn->error);
     }
     $conn->close(); 

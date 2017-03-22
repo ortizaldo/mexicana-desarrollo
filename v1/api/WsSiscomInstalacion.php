@@ -17,7 +17,7 @@ if (isset($_POST['p_cia'])
     $it_solicitud = (array)$arrayItSolicitud;
     $clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
     $nuSoapClientMexicana = new nusoap_client($clienteSoapMexicana, true);
-    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.80:8080/wsa/wsa1/";
+    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
     $nuSoapClientMexicana->soap_defencoding = 'UTF-8';
     $nuSoapClientMexicana->decode_utf8 = false;
     $postData = array(

@@ -153,7 +153,7 @@ if (isset($_POST["idUsuario"])) {
                     $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
                     $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
             );
-            //if (intval($agreementNumber) == 37927) {
+            //if (intval($agreementNumber) == 979799) {
                 $reportData["Id"] = $id;
                 $reportData["idReportType"] = $idReportType;
                 $reportData['idStatus'] =$idStatus;
@@ -204,16 +204,12 @@ if (isset($_POST["idUsuario"])) {
                 $fecha = $created_at;
                 switch ($name) {
                     case 'Venta':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                        if ($descriptionStatus == "EN PROCESO") {
                             $fecha=$fechaInicioVenta;
+                        }elseif ($descriptionStatus == "CAPTURA COMPLETADA" || $descriptionStatus == "REAGENDADA") {
+                            $fecha=$fechaPrimeraCaptura;
                         }elseif ($descriptionStatus == "RECHAZADO") {
-                            if ($fechaInicioRechazo != "" && $fechaFinRechazo != "") {
-                                $fecha=$fechaFinRechazo;
-                            }elseif ($fechaInicioRechazo != "" && $fechaFinRechazo == "") {
-                                $fecha=$fechaInicioRechazo;
-                            }elseif ($fechaInicioRechazo == "" && $fechaFinRechazo != "") {
-                                $fecha=$fechaFinRechazo;
-                            }
+                            $fecha=$fechaInicioRechazo;
                         }elseif ($descriptionStatus == "VALIDADO POR MEXICANA") {
                             $fecha=$fechaInicioFinanciera;
                         }elseif ($descriptionStatus == "VALIDACIONES COMPLETAS") {
@@ -227,31 +223,41 @@ if (isset($_POST["idUsuario"])) {
                         }
                     break;
                     case 'Plomero':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                            $fecha = $fechaInicioRealizoPH;
+                        if ($descriptionStatus == "EN PROCESO") {
+                            $fecha = $fechaInicioAsigPH;
                         }elseif ($descriptionStatus == "REAGENDADA") {
-                            error_log('message fechaInicioAnomPH '.$fechaInicioAnomPH);
                             $fecha = $fechaInicioAnomPH;
                         }elseif ($descriptionStatus == "COMPLETO") {
                             if ($fechaFinAnomPH != "") {
-                                $fecha = $fechaInicioAnomPH;
+                                $fecha = $fechaFinAnomPH;
                             }else{
                                 $fecha = $fechaFinRealizoPH;
                             }
                         }
                     break;
                     case 'Instalacion':
-                        if ($descriptionStatus == "EN PROCESO" || $descriptionStatus == "REAGENDADA") {
-                            $fecha = $fechaInicioAsigInst;
-                        }elseif ($descriptionStatus == "COMPLETO") {
-                            $fecha = $fechaFinAsigInst;
-                        }elseif ($descriptionStatus == "INSTALACION ENVIADA") {
+                        if ($descriptionStatus == "EN PROCESO") {
+                            if ($fechaInicioAsigInst != "" && $fechaInicioRealInst == "") {
+                                $fecha=$fechaInicioAsigInst;
+                            }elseif ($fechaInicioAsigInst != "" && $fechaInicioRealInst != "") {
+                                $fecha=$fechaInicioRealInst;
+                            }
+                        }elseif ($descriptionStatus == "ANOMALIA") {
+                            $fecha=$fechaInicioAnomInst;
+                        }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "INSTALACION ENVIADA") {
                             $fecha = $fechaFinRealInst;
                         }
                     break;
                     case 'Segunda Venta':
                         if ($descriptionStatus == "EN PROCESO") {
                             $fecha = $fechaPrimeraCaptura;
+                            if ($fechaFinFinanciera != "" && $fechaPrimeraCaptura != "") {
+                                $fecha=$fechaFinFinanciera;
+                            }elseif ($fechaPrimeraCaptura != "" && $fechaFinFinanciera == "") {
+                                $fecha=$fechaPrimeraCaptura;
+                            }elseif ($fechaFinFinanciera != "" && $fechaPrimeraCaptura == "") {
+                                $fecha=$fechaFinFinanciera;
+                            }
                         }elseif ($descriptionStatus == "COMPLETO" || $descriptionStatus == "REVISION_SEGUNDA_CAPTURA") {
                             $fecha = $fechaSegundaCaptura;
                         }
@@ -846,7 +852,13 @@ function getEstatusSegundaVenta($estatusSegundaVenta,$estatusVenta, $phEstatus, 
                 $stmtTEstatus = "UPDATE tEstatusContrato SET validacionSegundaVenta = ? WHERE idReporte = ?;";
                 if ($estatusCrontratoReport = $conn->prepare($stmtTEstatus)) {
                     $estatusCrontratoReport->bind_param("ii", $statusSegundaVenta,$idReporte);
-                    $estatusCrontratoReport->execute();
+                    if ($estatusCrontratoReport->execute()) {
+                        $stmtRPT = "UPDATE reportTiempoVentas SET fechaSegundaCaptura = NOW() WHERE idReporte = ?;";
+                        if ($estatusReportTVTA = $conn->prepare($stmtRPT)) {
+                            $estatusReportTVTA->bind_param("i",$idReporte);
+                            $estatusReportTVTA->execute();
+                        }
+                    }
                 }else{
                     //error_log('maldito error '.$conn->error);
                 }

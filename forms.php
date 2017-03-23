@@ -3468,7 +3468,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             var txtStatus = $("#txtStatus option:selected").text();
             var txtStatusVal = $("#txtStatus option:selected").val();
             var search = $("#tablaReporte_wrapper input[type=search]").val();
-            //Pace.track(function(){
+            Pace.track(function(){
                 $.ajax({
                     method: "POST",
                     url: "dataLayer/callsWeb/downloadExcelForms.php",
@@ -3494,7 +3494,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                             $('#btn_download').prop('disabled', false);
                             var tipoReporte;
                             var arrObjDatos=[], myFailure, arrExcel=[], payload={}, reports=[];
-                            Pace.track(function(){
+                            /*Pace.track(function(){
                                 $.ajax({
                                     method: "POST",
                                     url: "dataLayer/callsWeb/loadFormExcel.php",
@@ -3506,6 +3506,45 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                         mySuccessFunction(data);
                                     }
                                 });
+                            });*/
+                            _.each(data, function(dato, index) {
+                                //if(parseInt(dato.id) === 2071){
+                                    switch(parseInt(dato.idReportType)) {
+                                        case 1:
+                                            tipoReporte='Censo';
+                                            break;
+                                        case 2:
+                                            tipoReporte='Venta';
+                                            break;
+                                        case 3:
+                                            tipoReporte='Plomero';
+                                            break;
+                                        case 4:
+                                            tipoReporte='Instalacion';
+                                            break;
+                                        case 5:
+                                            tipoReporte='Segunda Venta';
+                                            break;
+                                    }
+                                    arrObjDatos.push($.ajax({
+                                        method: "POST",
+                                        url: "dataLayer/callsWeb/loadFormExcel.php",
+                                        data: {
+                                            collection:dato,
+                                            form:dato.id,
+                                            type:tipoReporte,
+                                            idUsuario:dato.idUserAssigned,
+                                        },
+                                        dataType: "JSON",
+                                        async:false
+                                    }));
+                                //}
+                            });
+                            $.when.apply(undefined,arrObjDatos).then(function() {
+                                var objects=arguments;
+                                arrExcel.push(arguments);
+                            }).done(function() {
+                                mySuccessFunction(arrExcel)
                             });
                         } 
                     },
@@ -3515,13 +3554,14 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
                     }
                 });
-            //});
+            });
         }
     }
-    function mySuccessFunction(res){
+    /*function mySuccessFunction(res){
         var rows=[];
         var size = Object.keys(res).length;
         console.log('size', size);
+        console.log('res', res);
         if (size > 0) {
             $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
             Pace.track(function(){
@@ -3550,6 +3590,41 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                 });
             });
         }
+    }*/
+
+    function mySuccessFunction(res){
+        var rows=[];
+        if (res.length === 1) {
+            if (res[0].length > 0) {
+                _.each(res[0], function (row, idx) {
+                    rows.push(row[0]);
+                });
+                $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
+                $.ajax({
+                    method: "POST",
+                    url: "dataLayer/callsWeb/createExcel.php",
+                    data: {
+                        collection:rows,
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        $('#b_download').show();
+                        var $a = $("<a>");
+                        $a.attr("href",data.file);
+                        $("#b_download").append($a);
+                        $a.attr("download","ReporteFormularios_.xls");
+                        $a[0].click();
+                        $('#b_download').hide();
+                        $('#b_download a').remove();
+                        $('#btn_download').prop('disabled', false);
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log('textStatus', textStatus);
+                        $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
+                    }
+                });
+            }
+        }
     }
     $('#addSecondSell:not(:disabled)').click(function () {
         $('#addSecondSell').prop('disabled', true);
@@ -3572,16 +3647,16 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                         configurarToastCentrado();
                         $('#addSecondSell').prop('disabled', false);
                     }else{
-                        if ((data.response[0].financiamiento === 'AYOPSA' && tipoSolicitud === 'MEX')) {
+                        if ((data.response[0].financiamiento.toUpperCase() === 'AYOPSA' && tipoSolicitud === 'MEX')) {
                             MostrarToast(2, "El contrato seleccionado no corresponde a una financiera..");
                             configurarToastCentrado();
                             $('#addSecondSell').prop('disabled', false);
-                        }else if((data.response[0].financiamiento === 'MEXGAS' && tipoSolicitud === 'AYO')){
+                        }else if((data.response[0].financiamiento.toUpperCase() === 'MEXGAS' && tipoSolicitud === 'AYO')){
                             MostrarToast(2, "El contrato seleccionado no corresponde a Mexicana..");
                             configurarToastCentrado();
                             $('#addSecondSell').prop('disabled', false);
-                        }else if((data.response[0].financiamiento === 'AYOPSA' && tipoSolicitud === 'AYO') ||
-                                 (data.response[0].financiamiento === 'MEXGAS' && tipoSolicitud === 'MEX')){
+                        }else if((data.response[0].financiamiento.toUpperCase() === 'AYOPSA' && tipoSolicitud === 'AYO') ||
+                                 (data.response[0].financiamiento.toUpperCase() === 'MEXGAS' && tipoSolicitud === 'MEX')){
                             secondSell();
                         }                        
                     }

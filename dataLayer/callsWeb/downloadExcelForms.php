@@ -260,7 +260,7 @@ echo "txtStatusVal ".$txtStatusVal."\n";*/
 if ($result->num_rows > 0) {
     $cont2=0;
     while($row = $result->fetch_array()) {
-        //if (intval($row["agreementNumber"]) == 34136) {
+        //if (intval($row["agreementNumber"]) == 35445) {
             $idReporte=$row["id"];
             $estatusCenso=$row["estatusCenso"];
             $estatusReporte=$row["estatusReporte"];
@@ -280,57 +280,69 @@ if ($result->num_rows > 0) {
                     $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
             );
 
+
             switch ($row["name"]) {
                 case 'Venta':
-                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "CAPTURA COMPLETADA" || $estatusTexto == "REAGENDADA") {
+                    if ($estatusTexto == "EN PROCESO") {
                         $fecha=$row['fechaInicioVenta'];
+                    }elseif ($estatusTexto == "CAPTURA COMPLETADA" || $estatusTexto == "REAGENDADA") {
+                        $fecha=$row["fechaPrimeraCaptura"];
                     }elseif ($estatusTexto == "RECHAZADO") {
-                        if ($row['fechaInicioRechazo'] != "" && $row['fechaFinRechazo'] != "") {
-                            $fecha=$row['fechaFinRechazo'];
-                        }elseif ($row['fechaInicioRechazo'] != "" && $row['fechaFinRechazo'] == "") {
-                            $fecha=$row['fechaInicioRechazo'];
-                        }elseif ($row['fechaInicioRechazo'] == "" && $row['fechaFinRechazo'] != "") {
-                            $fecha=$row['fechaFinRechazo'];
-                        }
+                        $fecha=$row["fechaInicioRechazo"];
                     }elseif ($estatusTexto == "VALIDADO POR MEXICANA") {
-                        $fecha=$row['fechaInicioFinanciera'];
+                        $fecha=$row["fechaInicioFinanciera"];
                     }elseif ($estatusTexto == "VALIDACIONES COMPLETAS") {
-                        if ($row['fechaInicioFinanciera'] != "" && $row['fechaFinFinanciera'] != "") {
-                            $fecha=$row['fechaFinFinanciera'];
-                        }elseif ($row['fechaInicioFinanciera'] != "" && $row['fechaFinFinanciera'] == "") {
-                            $fecha=$row['fechaInicioFinanciera'];
-                        }elseif ($row['fechaInicioFinanciera'] == "" && $row['fechaFinFinanciera'] != "") {
-                            $fecha=$row['fechaFinFinanciera'];
+                        if ($row["fechaInicioFinanciera"] != "" && $row["fechaFinFinanciera"] != "") {
+                            $fecha=$row["fechaFinFinanciera"];
+                        }elseif ($row["fechaInicioFinanciera"] != "" && $row["fechaFinFinanciera"] == "") {
+                            $fecha=$row["fechaInicioFinanciera"];
+                        }elseif ($row["fechaInicioFinanciera"] == "" && $row["fechaFinFinanciera"] != "") {
+                            $fecha=$row["fechaFinFinanciera"];
                         }
                     }
                 break;
                 case 'Plomero':
-                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "REAGENDADA") {
-                        $fecha = $row['fechaInicioAsigPH'];
+                    if ($estatusTexto == "EN PROCESO") {
+                        $fecha = $row["fechaInicioAsigPH"];
+                    }elseif ($estatusTexto == "REAGENDADA") {
+                        $fecha = $row["fechaInicioAnomPH"];
                     }elseif ($estatusTexto == "COMPLETO") {
-                        $fecha = $row['fechaFinRealizoPH'];
+                        if ($row["fechaFinAnomPH"] != "") {
+                            $fecha = $row["fechaFinAnomPH"];
+                        }else{
+                            $fecha = $row["fechaFinRealizoPH"];
+                        }
                     }
                 break;
                 case 'Instalacion':
-                    if ($estatusTexto == "EN PROCESO" || $estatusTexto == "REAGENDADA") {
-                        $fecha = $row['fechaInicioAsigInst'];
-                    }elseif ($estatusTexto == "COMPLETO") {
-                        $fecha = $row['fechaFinAsigInst'];
-                    }elseif ($estatusTexto == "INSTALACION ENVIADA") {
-                        $rowF=date('Y-m-d', strtotime($row['fechaFinRealInst']));
-                        //echo $rowF."\n";
-                        $fecha = $row['fechaFinRealInst'];
+                    if ($estatusTexto == "EN PROCESO") {
+                        if ($row["fechaInicioAsigInst"] != "" && $row["fechaInicioRealInst"] == "") {
+                            $fecha=$row["fechaInicioAsigInst"];
+                        }elseif ($row["fechaInicioAsigInst"] != "" && $row["fechaInicioRealInst"] != "") {
+                            $fecha=$row["fechaInicioRealInst"];
+                        }
+                    }elseif ($estatusTexto == "ANOMALIA") {
+                        $fecha=$row["fechaInicioAnomInst"];
+                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "INSTALACION ENVIADA") {
+                        $fecha = $row["fechaFinRealInst"];
                     }
                 break;
                 case 'Segunda Venta':
                     if ($estatusTexto == "EN PROCESO") {
-                        $fecha = $row['fechaPrimeraCaptura'];
-                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "REVISION SEGUNDA CAPTURA") {
-                        $fecha = $row['fechaSegundaCaptura'];
+                        $fecha = $row["fechaPrimeraCaptura"];
+                        if ($row["fechaFinFinanciera"] != "" && $row["fechaPrimeraCaptura"] != "") {
+                            $fecha=$row["fechaFinFinanciera"];
+                        }elseif ($row["fechaPrimeraCaptura"] != "" && $row["fechaFinFinanciera"] == "") {
+                            $fecha=$row["fechaPrimeraCaptura"];
+                        }elseif ($row["fechaFinFinanciera"] != "" && $row["fechaPrimeraCaptura"] == "") {
+                            $fecha=$row["fechaFinFinanciera"];
+                        }
+                    }elseif ($estatusTexto == "COMPLETO" || $estatusTexto == "REVISION_SEGUNDA_CAPTURA") {
+                        $fecha = $row["fechaSegundaCaptura"];
                     }
                 break;
                 case 'Censo':
-                    $fecha = $row["created_at"];
+                    $fecha = $created_at;
                 break;
             }
             /*echo "txtTypeVal ".$txtTypeVal."\n";

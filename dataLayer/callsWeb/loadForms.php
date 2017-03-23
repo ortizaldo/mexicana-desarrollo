@@ -153,7 +153,7 @@ if (isset($_POST["idUsuario"])) {
                     $phEstatus, $estatusSegundaVenta, $validacionSegundaVenta,
                     $validacionInstalacion, $estatusAsignacionInstalacion, $idReportType
             );
-            //if (intval($agreementNumber) == 979799) {
+            //if (intval($agreementNumber) == 35445) {
                 $reportData["Id"] = $id;
                 $reportData["idReportType"] = $idReportType;
                 $reportData['idStatus'] =$idStatus;

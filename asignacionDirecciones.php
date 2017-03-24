@@ -148,7 +148,7 @@ include("header.php") ?>
                                                         <td style='background-color: #f0f0f0;'>Liberar</td>
                                                     </tr>
                                                 </thead>
-                                            <tbody id='bodyData'>
+                                            <tbody id='bodyDataDirecciones'>
                                             </tbody>
                                             </table>
                                         </section>
@@ -427,7 +427,6 @@ include("header.php") ?>
                 $('#btnCreateSearch:not(:disabled)').click(function (e) {
                     e.preventDefault();
                     $('#btnCreateSearch').prop('disabled', true);
-                    console.log('directions', directions);
                     var street = $('#street option:selected').text();
                     var txtNumber = $('#txtNumber option:selected').text();
                     var txMun = $('#txMun option:selected').text();
@@ -447,6 +446,8 @@ include("header.php") ?>
                         return false;
                     }else{
                         var arrStatusDir = [];
+                        $('#bodyData').html('');
+                        $("#liberacionDireccionesTable").DataTable().destroy();
                         if (_.isEmpty(street) && _.isEmpty(txtNumber)) {
                             $("#bodyData").html("");
                             $("#liberacionDireccionesTable").DataTable().destroy();
@@ -462,7 +463,7 @@ include("header.php") ?>
                                             datosDir: directions,
                                             colonia: txtCol,
                                             municipio: txMun,
-                                            todos:1, 
+                                            todos:1,
                                         },
                                         dataType: "JSON",
                                         success: function (data) {
@@ -489,7 +490,88 @@ include("header.php") ?>
                                 });
                             }
                         }else if (!_.isEmpty(street) && !_.isEmpty(txtNumber)) {
-
+                            if (!_.isUndefined(directions.length)) {
+                                _.each(directions, function (rowD) {
+                                    if (rowD.calle === street && parseInt(rowD.numero_exterior) === parseInt(txtNumber)) {
+                                        Pace.track(function(){
+                                            $.ajax({
+                                                method: "POST",
+                                                url: "dataLayer/callsWeb/siscomStatusDir.php",
+                                                data: {
+                                                    datosDir: rowD,
+                                                    todos:0,
+                                                },
+                                                dataType: "JSON",
+                                                success: function (data) {
+                                                    console.log('data', data);
+                                                    mySuccessFunction(data)
+                                                }
+                                            });
+                                        });
+                                    }
+                                });
+                            }else{
+                                Pace.track(function(){
+                                    $.ajax({
+                                        method: "POST",
+                                        url: "dataLayer/callsWeb/siscomStatusDir.php",
+                                        data: {
+                                            datosDir: directions,
+                                            todos:0,
+                                        },
+                                        dataType: "JSON",
+                                        success: function (data) {
+                                            console.log('data', data);
+                                            mySuccessFunction(data)
+                                        }
+                                    });
+                                });
+                            }
+                            $('#btnCreateSearch').prop('disabled', false);
+                        }else if (!_.isEmpty(street) && _.isEmpty(txtNumber)) {
+                            if (!_.isUndefined(directions.length)) {
+                                var directionsAlt = [];
+                                _.each(directions, function (rowD) {
+                                    if (rowD.calle === street) {
+                                        console.log('directions2', rowD);
+                                        directionsAlt.push(rowD);
+                                    }
+                                });
+                                Pace.track(function(){
+                                    $.ajax({
+                                        method: "POST",
+                                        url: "dataLayer/callsWeb/siscomStatusDir.php",
+                                        data: {
+                                            datosDir: directionsAlt,
+                                            colonia: txtCol,
+                                            municipio: txMun,
+                                            todos:1,
+                                        },
+                                        dataType: "JSON",
+                                        success: function (data) {
+                                            console.log('data', data);
+                                            mySuccessFunction(data)
+                                        }
+                                    });
+                                });
+                            }else{
+                                Pace.track(function(){
+                                    $.ajax({
+                                        method: "POST",
+                                        url: "dataLayer/callsWeb/siscomStatusDir.php",
+                                        data: {
+                                            datosDir: directions,
+                                            todos:0,
+                                        },
+                                        dataType: "JSON",
+                                        success: function (data) {
+                                            console.log('data', data);
+                                            mySuccessFunction(data)
+                                        }
+                                    });
+                                });
+                            }
+                            $('#btnCreateSearch').prop('disabled', false);
                         }
                     }
                 });
@@ -534,8 +616,8 @@ include("header.php") ?>
                     });
                     //Pace.stop();
                     $('#bodyData').html('');
-                    $("#bodyData").append(htmlAppend);
                     $("#liberacionDireccionesTable").DataTable().destroy();
+                    $("#bodyData").append(htmlAppend);
                     $("#liberacionDireccionesTable").DataTable({
                         "columnDefs": [{
                             "defaultContent": "-",
@@ -764,10 +846,10 @@ include("header.php") ?>
                                     //}
                                 });
                             }
-                            $('#bodyData').html('');
-                            $('#bodyData').empty();
-                            $('#bodyData').append(htmlAppend);
                             $("#liberacionDirecciones").DataTable().destroy();
+                            $('#bodyDataDirecciones').html('');
+                            $('#bodyDataDirecciones').empty();
+                            $('#bodyDataDirecciones').append(htmlAppend);
                             $("#liberacionDirecciones").DataTable({
                                 "columnDefs": [{
                                     "defaultContent": "-",

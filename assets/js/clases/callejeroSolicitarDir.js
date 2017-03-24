@@ -184,3 +184,11 @@ function sortSelectOptions(selector, skip_first) {
     }); 
 }
 /************************************Load Cities, colonias, streets****************************************/
+
+function deleteDuplicates(arrayToClean) {
+    var uniqueVals = [];
+    $.each(arrayToClean, function (i, el) {
+        if ($.inArray(el, uniqueVals) === -1) uniqueVals.push(el);
+    });
+    return uniqueVals;
+}

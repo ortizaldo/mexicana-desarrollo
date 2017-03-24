@@ -495,6 +495,7 @@ function sendSecondSell($post)
     $curl = curl_init();
 
     curl_setopt($curl, CURLOPT_URL, "http://siscomcmg.com:8080/v1/api/WsSiscomGuardaContrato.php");
+    //curl_setopt($curl, CURLOPT_URL, "http://siscomcmg.com/v1/api/WsSiscomGuardaContrato.php");
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, array('ip_cia_id' => $ip_cia_id, 
                                                                   'ip_usr_id' => "migesa2", 

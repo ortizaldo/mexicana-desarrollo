@@ -673,9 +673,11 @@ function getIdCity($city)
 {
     require_once('../../dataLayer/libs/nusoap_lib/nusoap.php');
 
-    $clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
+    //$clienteSoapMexicana = "http://111.111.111.18:8080/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
+    $clienteSoapMexicana = "http://111.111.111.3/wsa/wsa1/wsdl?targetURI=urn:com-mexgas-services:siscom";
     $nuSoapClientMexicana = new nusoap_client($clienteSoapMexicana, true);
-    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
+    //$nuSoapClientMexicana->forceEndpoint = "http://111.111.111.18:8080/wsa/wsa1/";
+    $nuSoapClientMexicana->forceEndpoint = "http://111.111.111.3/wsa/wsa1/";
     $nuSoapClientMexicana->soap_defencoding = 'UTF-8';
     $nuSoapClientMexicana->decode_utf8 = false;
 

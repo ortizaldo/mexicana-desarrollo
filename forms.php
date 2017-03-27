@@ -2569,6 +2569,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             },
             dataType: "JSON",
             success: function (data) {
+                console.log('data plomero', data);
                 //obtenemos los datos de el reporte con plomeria
                 if(data.length > 0){
                     //seteamos los inputs

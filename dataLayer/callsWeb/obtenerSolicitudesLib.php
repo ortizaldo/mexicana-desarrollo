@@ -3,33 +3,32 @@ $DB = new DAO();
 $conn = $DB->getConnect();
 session_start();
 $agency=strtoupper($_SESSION["nickname"]);
-$obtenerDirAssign = "SELECT idsolicitud,agencia,calle,entreCalles,num,colonia,mun,idDireccion,fechaSol,estatusDir,estatus, comentarios, fechaLib, tiempoLib FROM solicitudLibDir";
-if ($connDir = $conn->prepare($obtenerDirAssign)) {
-    if ($connDir->execute()) {
-        $connDir->store_result();
-        $connDir->bind_result($idsolicitud,$agencia,$calle,$entreCalles,$num,$colonia,$mun,$idDireccion,$fechaSol,$estatusDir,$estatus, $comentarios, $fechaLib, $tiempoLib);
-        $cont=0;
-        while ($connDir->fetch()) {
-            $requests[$cont]['idsolicitud'] = $idsolicitud;
-            $requests[$cont]['agencia'] = $agencia;
-            $requests[$cont]['calle'] = $calle;
-            $requests[$cont]['entreCalles'] = $entreCalles;
-            $requests[$cont]['num'] = $num;
-            $requests[$cont]['colonia'] = $colonia;
-            $requests[$cont]['mun'] = $mun;
-            $requests[$cont]['idDireccion'] = $idDireccion;
-            $requests[$cont]['fechaSol'] = $fechaSol;
-            $requests[$cont]['estatusDir'] = $estatusDir;
-            $requests[$cont]['estatus'] = $estatus;
-            $requests[$cont]['comentarios'] = $comentarios;
-            $requests[$cont]['fechaLib'] = $fechaLib;
-            $requests[$cont]['tiempoLib'] = $tiempoLib;
-            $cont++;
-        }
-        $response["status"] = "OK";
-        $response["code"] = "200";
-        $response["response"] = $requests;
-    }
+if ($agency != "SUPERADMIN") {
+    $obtenerDirAssign = "SELECT idsolicitud,agencia,calle,entreCalles,num,colonia,mun,idDireccion,fechaSol,estatusDir,estatus, comentarios, fechaLib, tiempoLib 
+                     FROM solicitudLibDir where agencia LIKE '%".$agency."%'";
+}else{
+    $obtenerDirAssign = "SELECT idsolicitud,agencia,calle,entreCalles,num,colonia,mun,idDireccion,fechaSol,estatusDir,estatus, comentarios, fechaLib, tiempoLib 
+                     FROM solicitudLibDir;";
 }
-echo json_encode($response);
+
+$result = $conn->query($obtenerDirAssign);
+while( $row = $result->fetch_array() ) {
+    $requests['idsolicitud'] = $row[0];
+    $requests['agencia'] = $row[1];
+    $requests['calle'] = $row[2];
+    $requests['entreCalles'] = $row[3];
+    $requests['num'] = $row[4];
+    $requests['colonia'] = $row[5];
+    $requests['mun'] = $row[6];
+    $requests['idDireccion'] = $row[7];
+    $requests['fechaSol'] = $row[8];
+    $requests['estatusDir'] = $row[9];
+    $requests['estatus'] = $row[10];
+    $requests['comentarios'] = $row[11];
+    $requests['fechaLib'] = $row[12];
+    $requests['tiempoLib'] = $row[13];
+    $reports[] = $requests;
+}
+$result->free_result();
+echo json_encode($reports);
 $conn->close();

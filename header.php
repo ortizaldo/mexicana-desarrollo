@@ -246,14 +246,14 @@ if (!isset($_SESSION["nickname"]) || $_SESSION["nickname"] == NULL) {
                 } else {
                     echo '<li id="gouser" class="limenu"><a href="admins.php"><i id="gouser" class="fa fa-user"></i><span>Usuarios</span></a></li>';
                 } ?>
-
-                <!--<li><h3 class="navigation-title">Formularios</h3></li>
-                <li id="goform"   class="limenu"><a href="form.php"><i class="fa fa-file"></i> <span>Mis Formulario</span></a></li>-->
-
                 <li><h3 class="navigation-title">Reportes</h3></li>
                 <li id="gogeneral" class="limenu"><a href="forms.php"><i class="fa fa-search"></i><span>Consultas</span></a>
-                <li id="gogeneral" class="limenu"><a href="asignacionDirecciones.php"><i class="fa fa-toggle-on"></i><span>Direcciones</span></a>
-                </li>
+                <?php
+                if ($_SESSION["nickname"] != "AYOPSA" && $_SESSION["nickname"] != "CallCenter") {
+                    echo '<li id="gogeneral" class="limenu"><a href="asignacionDirecciones.php"><i class="fa fa-toggle-on"></i><span>Direcciones</span></a>
+                </li>';
+                }
+                ?>
                 <?php if(!(isset($_SESSION["typeAgency"]) && $_SESSION["typeAgency"] == "CallCenter")): ?>
                 
                     <?php if ( $_SESSION["id"] != 4) {?>

@@ -49,6 +49,7 @@ include("header.php") ?>
                                          $_SESSION["typeAgency"] == "Instalacion") &&
                                         (strtoupper($_SESSION["nickname"]) != 'AYOPSA' && strtoupper($_SESSION["nickname"]) != 'SUPERADMIN')) {
                                         echo '<li class="col-md-3 active" ><a href="#solicitarDireccion" class="solicitarDireccion" data-toggle="tab">Solicitar Direccion</a></li>';
+                                        /*echo '<li class="col-md-3 " ><a href="#estatusDireccion" class="estatusDireccion" data-toggle="tab">Estatus Liberacion</a></li>';*/
                                     }
                                 ?>
                             </ul>
@@ -129,6 +130,7 @@ include("header.php") ?>
                                             </section>
                                         </div>
                                     </div>
+                                    <!--<div data-toggle="tab" class="tab-pane" id="estatusDireccion"></div>-->
                                 <?php endif; ?>
                                 <?php if($_SESSION["id"] == 1): ?>
                                 <div class="tab-pane fade active in" id="solicitarDireccion">
@@ -237,7 +239,74 @@ include("header.php") ?>
             <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
             <script type="text/javascript">
                 var concentratedArray = [];
+                /*function loadHeaders() {
+                    $("#liberacionDirecciones").html(
+                        +"<div class='row'>"
+                            +"<section class='panel'>"
+                                +"<table id='liberacionDireccionesTable' class='table table-striped custom-table table-hover dataTable no-footer'>"
+                                    +"<thead>"
+                                        +"<tr>"
+                                            +"<td style='background-color: #f0f0f0;'>Municipio</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Colonia</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Direccion</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Estatus</td>"
+                                            +"<td style='background-color: #f7f7f7;'>Solicitar</td>"
+                                        +"</tr>"
+                                    +"</thead>"
+                                +"<tbody id='bodyData'>"
+                                +"</tbody>"
+                                +"</table>"
+                            +"</section>"
+                        +"</div>");
+
+                    $("#estatusDireccion").html(
+                        +"<div class='row'>"
+                            +"<section class='panel'>"
+                                +"<table id='liberacionDireccionesTbl' class='table table-striped custom-table table-hover dataTable no-footer'>"
+                                    +"<thead>"
+                                        +"<tr>"
+                                            +"<td style='background-color: #f7f7f7;'>Direcci&oacute;n</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Estatus</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Agencia</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Estatus</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Comentarios</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Fec. Sol</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Fec. Fin</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Tiempo Liberacion</td>"
+                                        +"</tr>"
+                                    +"</thead>"
+                                +"<tbody id='bodyDataLDT'>"
+                                +"</tbody>"
+                                +"</table>"
+                            +"</section>"
+                        +"</div>"
+                    );
+                    $("#solicitarDireccion").html(
+                        +"<div class='row'>"
+                            +"<section class='panel'>"
+                                +"<table id='liberacionDirecciones' class='table table-striped custom-table table-hover dataTable no-footer'>"
+                                    +"<thead>"
+                                        +"<tr>"
+                                            +"<td style='background-color: #f7f7f7;'>Direcci&oacute;n</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Estatus</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Agencia</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Estatus</td> "
+                                            +"<td style='background-color: #f0f0f0;'>Comentarios</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Fec. Sol</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Fec. Fin</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Tiempo Liberacion</td>"
+                                            +"<td style='background-color: #f0f0f0;'>Liberar</td>"
+                                        +"</tr>"
+                                    +"</thead>"
+                                +"<tbody id='bodyDataDirecciones'>"
+                                +"</tbody>"
+                                +"</table>"
+                            +"</section>"
+                        +"</div>"
+                    );
+                }*/
                 $(document).ready(function () {
+                    //loadHeaders();
                     paceOptions = {
                         document: false, // disabled
                         eventLag: false, // disabled
@@ -259,6 +328,10 @@ include("header.php") ?>
                     if (lengthAncore === 1) {
                         $('#bodyData').html('');
                         loadSolicitudes();
+                    }else if (lengthAncore === 0) {
+                        $('#dateFrom').hide();
+                        $('#dateTo').hide();
+                        //loadHeaders();
                     }
                 });
 
@@ -266,7 +339,29 @@ include("header.php") ?>
                     $('#dateFrom').val('');
                     $('#dateTo').val('');
                     $('#bodyData').html('');
+                    $('#dateFrom').show();
+                    $('#dateTo').show();
+                    //loadHeaders();
                     loadSolicitudes();
+                });
+
+                $(document).on('click', '.estatusDireccion', function () {
+                    $('#dateFrom').val('');
+                    $('#dateTo').val('');
+                    $('#bodyData').html('');
+                    $('#dateFrom').show();
+                    $('#dateTo').show();
+                    //loadHeaders();
+                    loadSolicitudes();
+                });
+
+                $(document).on('click', '.solicitarDireccion', function () {
+                    console.log('solicitarDireccion');
+                    $('#dateFrom').val('');
+                    $('#dateTo').val('');
+                    $('#dateFrom').hide();
+                    $('#dateTo').hide();
+                    //loadHeaders();
                 });
 
                 $(document).on('click', '.liberacionDirecciones', function () {
@@ -784,78 +879,86 @@ include("header.php") ?>
                 function loadSolicitudes() {
                     $.ajax({
                         method: "GET",
-                        //url: "dataLayer/callsWeb/sellsReport.php",
                         url: "dataLayer/callsWeb/obtenerSolicitudesLib.php",
                         dataType: "JSON",
                         data: {},
                         success: function (data) {
                             console.log('obtenerSolicitudesLib', data);
-                            var existResponse = _.has(data, 'response');
-                            if (existResponse) {
-                                var htmlAppend = "", direccionFormato="";
-                                var calle = "",entre_calles = "",id_direccion = "",numero_exterior = "",
-                                    statusDireccion = "",direccion = "", colonia="", mun="", checkboxStatus = "", 
-                                    comentarios="", fechaLib="", tiempoLib="";
-                                _.each(data.response, function(sol, index) {
-                                    //if (parseInt(sell.agreementNumber) === 34830) {
-                                        calle = sol.calle;
-                                        entre_calles = sol.entreCalles;
-                                        id_direccion = sol.id_direccion;
-                                        numero_exterior = sol.num;
-                                        statusDireccion = sol.statusDireccion;
-                                        colonia = sol.colonia;
-                                        mun = sol.mun;
-                                        fechaLib = sol.fechaLib;
-                                        tiempoLib = sol.tiempoLib;
-                                        comentarios=(sol.comentarios === '' || typeof(sol.comentarios) === 'undefined' || sol.comentarios === null) ? '' : sol.comentarios;
-                                        fechaLib=(sol.fechaLib === '' || typeof(sol.fechaLib) === 'undefined' || sol.fechaLib === null) ? '' : sol.fechaLib;
-                                        tiempoLib=(sol.tiempoLib === '' || typeof(sol.tiempoLib) === 'undefined' || sol.tiempoLib === null) ? '' : sol.tiempoLib;
-                                        direccionFormato = '<address>';
-                                            direccionFormato += '<strong>'+colonia+'</strong><br>';
-                                            direccionFormato += 'Calle .- '+calle+'<br>';
-                                            direccionFormato += 'Num .- '+numero_exterior+'<br>';
-                                            direccionFormato += 'Entre Calles .- '+entre_calles+'<br>';
-                                            direccionFormato += 'Municipio .- '+mun+'<br>';
-                                        direccionFormato += '</address>';
-                                        if (parseInt(sol.estatus) === 0) {
-                                            checkboxStatus = '<span class="label label-danger">Direccion No Liberada</span>';
-                                        }else if (parseInt(sol.estatus) === 1){
-                                            checkboxStatus = '<span class="label label-success">Direccion Habilitada</span>';
-                                        }
-                                        htmlAppend += '<tr id="idSol'+sol.idsolicitud+'" data-id="'+sol.idsolicitud+'">';
-                                        htmlAppend += '<td>' + direccionFormato + '</td>';
-                                        htmlAppend += '<td>' + sol.estatusDir + '</td>';
-                                        htmlAppend += '<td>' + sol.agencia + '</td>';
-                                        htmlAppend += '<td>' + checkboxStatus + '</td>';
-                                        if (_.isEmpty(comentarios) && parseInt(sol.estatus) === 0) {
-                                            htmlAppend += '<td><textarea class="form-control" rows="3" placeholder="Escribe un comentario" class="comentLibDir"></textarea></td>';
-                                        }else{
-                                            htmlAppend += '<td>'+comentarios+'</td>';
-                                        }
-                                        htmlAppend += '<td class="fechaSol" data-fecha="'+sol.fechaSol+'">' + sol.fechaSol + '</td>';
-                                        htmlAppend += '<td>'+fechaLib+'</td>';
-                                        htmlAppend += '<td>'+tiempoLib+'</td>';
-                                        if (parseInt(sol.estatus) === 0) {
-                                            htmlAppend += '<td><button class="btn btn-default liberarDireccion" type="button">';
-                                            htmlAppend += '<i class="fa fa-paper-plane" aria-hidden="true">&nbsp;</i>Liberar Direccion</button>';
-                                            htmlAppend += '</td>';
-                                        }else{
-                                            htmlAppend += '<td></td>';
-                                        }
-                                        htmlAppend += '</tr>';
-                                    //}
-                                });
+                            var htmlAppend = "", direccionFormato="";
+                            var calle = "",entre_calles = "",id_direccion = "",numero_exterior = "",
+                                statusDireccion = "",direccion = "", colonia="", mun="", checkboxStatus = "", 
+                                comentarios="", fechaLib="", tiempoLib="";
+                            var nickname = localStorage.getItem("id");
+                            _.each(data, function(sol, index) {
+                                //if (parseInt(sell.agreementNumber) === 34830) {
+                                    calle = sol.calle;
+                                    entre_calles = sol.entreCalles;
+                                    id_direccion = sol.id_direccion;
+                                    numero_exterior = sol.num;
+                                    statusDireccion = sol.statusDireccion;
+                                    colonia = sol.colonia;
+                                    mun = sol.mun;
+                                    fechaLib = sol.fechaLib;
+                                    tiempoLib = sol.tiempoLib;
+                                    comentarios=(sol.comentarios === '' || typeof(sol.comentarios) === 'undefined' || sol.comentarios === null) ? '' : sol.comentarios;
+                                    fechaLib=(sol.fechaLib === '' || typeof(sol.fechaLib) === 'undefined' || sol.fechaLib === null) ? '' : sol.fechaLib;
+                                    tiempoLib=(sol.tiempoLib === '' || typeof(sol.tiempoLib) === 'undefined' || sol.tiempoLib === null) ? '' : sol.tiempoLib;
+                                    direccionFormato = '<address>';
+                                        direccionFormato += '<strong>'+colonia+'</strong><br>';
+                                        direccionFormato += 'Calle .- '+calle+'<br>';
+                                        direccionFormato += 'Num .- '+numero_exterior+'<br>';
+                                        direccionFormato += 'Entre Calles .- '+entre_calles+'<br>';
+                                        direccionFormato += 'Municipio .- '+mun+'<br>';
+                                    direccionFormato += '</address>';
+                                    if (parseInt(sol.estatus) === 0) {
+                                        checkboxStatus = '<span class="label label-danger">Direccion No Liberada</span>';
+                                    }else if (parseInt(sol.estatus) === 1){
+                                        checkboxStatus = '<span class="label label-success">Direccion Habilitada</span>';
+                                    }
+                                    if (nickname.toUpperCase() === "SUPERADMIN") {
+                                        htmlAppend += getHTMLSuper(sol.idsolicitud,
+                                                                   direccionFormato,
+                                                                   sol.estatusDir,
+                                                                   sol.agencia,
+                                                                   checkboxStatus,
+                                                                   comentarios,
+                                                                   sol.estatus,
+                                                                   sol.fechaSol,
+                                                                   fechaLib,
+                                                                   tiempoLib);
+                                    }else if (nickname.toUpperCase() !== "SUPERADMIN" && nickname.toUpperCase() === sol.agencia.toUpperCase()) {
+                                        htmlAppend += getHTMLSuper(sol.idsolicitud,
+                                                                   direccionFormato,
+                                                                   sol.estatusDir,
+                                                                   sol.agencia,
+                                                                   checkboxStatus,
+                                                                   comentarios,
+                                                                   sol.estatus,
+                                                                   sol.fechaSol,
+                                                                   fechaLib,
+                                                                   tiempoLib);
+                                    }
+                                //}
+                            });
+                            var tableLib = "";
+                            var bodyData = "";
+                            if (nickname.toUpperCase() === "SUPERADMIN") {
+                                tableLib = $("#liberacionDirecciones");
+                                bodyData = $("#bodyDataDirecciones");
+                            }else if (nickname.toUpperCase() !== "SUPERADMIN") {
+                                tableLib = $("#liberacionDireccionesTbl");
+                                bodyData = $("#bodyDataLDT");
                             }
-                            $("#liberacionDirecciones").DataTable().destroy();
-                            $('#bodyDataDirecciones').html('');
-                            $('#bodyDataDirecciones').empty();
-                            $('#bodyDataDirecciones').append(htmlAppend);
-                            $("#liberacionDirecciones").DataTable({
+                            $(tableLib).DataTable().destroy();
+                            $(bodyData).html('');
+                            $(bodyData).empty();
+                            $(bodyData).append(htmlAppend);
+                            $(tableLib).DataTable({
                                 "columnDefs": [{
                                     "defaultContent": "-",
                                     "targets": "_all"
                                 }],
-                                "order": [[0, 'desc']],
+                                "order": [[5, 'desc']],
                                 autoWidth: true,
                                 searching: true,
                                 "language": {
@@ -872,6 +975,46 @@ include("header.php") ?>
                             });
                         }
                     });
+                }
+
+                function getHTMLSuper (idsolicitud,direccionFormato,estatusDir,agencia,checkboxStatus,comentarios,estatus,fechaSol,fechaLib,tiempoLib){
+                    var htmlAppend = "";
+                    var nickname = localStorage.getItem("id");
+                    if (nickname.toUpperCase() === "SUPERADMIN") {
+                        htmlAppend += '<tr id="idSol'+idsolicitud+'" data-id="'+idsolicitud+'">';
+                        htmlAppend += '<td>' + direccionFormato + '</td>';
+                        htmlAppend += '<td>' + estatusDir + '</td>';
+                        htmlAppend += '<td>' + agencia + '</td>';
+                        htmlAppend += '<td>' + checkboxStatus + '</td>';
+                        if (_.isEmpty(comentarios) && parseInt(estatus) === 0) {
+                            htmlAppend += '<td><textarea class="form-control" rows="3" placeholder="Escribe un comentario" class="comentLibDir"></textarea></td>';
+                        }else{
+                            htmlAppend += '<td>'+comentarios+'</td>';
+                        }
+                        htmlAppend += '<td class="fechaSol" data-fecha="'+fechaSol+'">' + fechaSol + '</td>';
+                        htmlAppend += '<td>'+fechaLib+'</td>';
+                        htmlAppend += '<td>'+tiempoLib+'</td>';
+                        if (parseInt(estatus) === 0) {
+                            htmlAppend += '<td><button class="btn btn-default liberarDireccion" type="button">';
+                            htmlAppend += '<i class="fa fa-paper-plane" aria-hidden="true">&nbsp;</i>Liberar Direccion</button>';
+                            htmlAppend += '</td>';
+                        }else{
+                            htmlAppend += '<td></td>';
+                        }
+                        htmlAppend += '</tr>';
+                    }else if (nickname.toUpperCase() !== "SUPERADMIN") {
+                        htmlAppend += '<tr id="idSol'+idsolicitud+'" data-id="'+idsolicitud+'">';
+                        htmlAppend += '<td>' + direccionFormato + '</td>';
+                        htmlAppend += '<td>' + estatusDir + '</td>';
+                        htmlAppend += '<td>' + agencia + '</td>';
+                        htmlAppend += '<td>' + checkboxStatus + '</td>';
+                        htmlAppend += '<td>'+comentarios+'</td>';
+                        htmlAppend += '<td class="fechaSol" data-fecha="'+fechaSol+'">' + fechaSol + '</td>';
+                        htmlAppend += '<td>'+fechaLib+'</td>';
+                        htmlAppend += '<td>'+tiempoLib+'</td>';
+                        htmlAppend += '</tr>';
+                    }
+                    return htmlAppend;
                 }
 
                 function getTotalDuration(then) {

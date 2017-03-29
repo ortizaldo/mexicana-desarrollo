@@ -41,7 +41,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                     <p><b>CONSULTAS</b></p>
 
                     <form method="POST"
-                          action="dataLayer/callsWeb/downloadExcelForms.php">
+                          action="#">
                         <input id="inputIdUser" name="inputIdUser" type="text" class="hidden"
                                value="<?= $_SESSION["id"]; ?>"/>
                         <input id="inputNickUserLogg" name="inputNickUserLogg" type="text" class="hidden"
@@ -118,6 +118,14 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
                                     <button type="submit" id="b_download" class="btn btn-success" style="display: none">
                                         <a href=""></a>
                                     </button>
+                                    <?php if($_SESSION["id"] == 1): ?>
+                                        <button type="submit" id="btn_downloadDiario" class="btn btn-success">
+                                            <span class="fa fa-calendar" style="color:#fff;"></span>
+                                        </button>
+                                        <button type="submit" id="b_downloadDiario" class="btn btn-success" style="display: none">
+                                            <a href=""></a>
+                                        </button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         </table>
@@ -3430,7 +3438,7 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             generarAsignacion(localStorage.getItem("id"), employeeToAssing, report, employeeProfile, msg);
         }
     });
-    $('#btn_download:not(:disabled)').click(function () {
+    $('#btn_download:not(:disabled)').click(function (e) {
         $('#btn_download').prop('disabled', true);
         $("#btn_download").notify("Empezo proceso de exportacion", "info");
         var dateFrom = $('#dateFrom').val();
@@ -3459,6 +3467,208 @@ $estatus_instalacion = $oEstructuraCarpetas->getEstatusInstalacion();
             //setInterval(generarExcel(dateFrom,dateTo,inputIdUser), 6000);
         }
     });
+
+    $('#btn_downloadDiario:not(:disabled)').click(function (e) {
+        e.preventDefault();
+        //$('#btn_downloadDiario').prop('disabled', true);
+        $("#btn_downloadDiario").notify("Empezo proceso de exportacion", "info");
+        var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+        var firstDay = new Date(y, m, 1);
+        var ayer = moment().subtract(1, 'days').format("YYYY-MM-DD");
+        var now = moment();
+
+        firstDay = moment(firstDay).format('YYYY-MM-DD');
+        now = now.format('YYYY-MM-DD');
+        console.log('firstDay', firstDay);
+        console.log('now', now);
+        Pace.track(function(){
+            $.ajax({
+                method: "GET",
+                url: "dataLayer/callsWeb/getReporteDiario.php",
+                dataType: "JSON",
+                data: {startMonth : firstDay, ayer: ayer, hoy: now},
+                success: function (data) {
+                    if (parseInt(data.hoy.total.contratos) === 0 && parseInt(data.hoy.total.medidores) === 0) {
+                        var dataObj={
+                            totalContratosMed : data.total, desglose : data.desglose
+                        };
+                        data.totales = dataObj;
+                    }else if (parseInt(data.hoy.total.contratos) === 0 && parseInt(data.hoy.total.medidores) > 0) {
+                        var contratos = parseInt(data.hoy.total.contratos);
+                        var medidores = parseInt(data.hoy.total.medidores);
+                        var sumaTotContratos = (parseInt(contratos)) + (parseInt(data.total.contratos));
+                        var sumaTotMedidores = parseInt(medidores) + parseInt(data.total.medidores);
+                        var dataObj={
+                            totalContratosMed:{}
+                        };
+                        dataObj.totalContratosMed = {
+                            total:{
+                                contratos:sumaTotContratos, medidores:sumaTotMedidores
+                            },
+                            totalDesglose:{
+                                sucursal:{
+                                    numContratosAyo:data.desglose.sucursal.numContratosAyo, numContratosMex:data.desglose.sucursal.numContratosMex
+                                },
+                                financieras:{
+                                    numContratosAyo:data.desglose.financieras.numContratosAyo, numContratosMex:data.desglose.financieras.numContratosMex
+                                },
+                                desgloseFinanciamiento:{
+                                    exp : data.desglose.desgloseFinanciamiento.financieras.Exp,
+                                    loteActual : data.desglose.desgloseFinanciamiento.financieras.loteActual,
+                                    zonaMadura : data.desglose.desgloseFinanciamiento.financieras.zonaMadura
+                                },
+                                agencias:data.desglose.agencias,
+                                agenciaInst:[]
+                            },
+                        };
+
+                        var totalAgenciaInst = 0;
+                        if (!_.isUndefined(data.desglose.agenciaInst.length) && !_.isEmpty(data.desglose.agenciaInst)) {
+                            _.each(data.desglose.agenciaInst, function (rowA, idxA) {
+                                if (!_.isUndefined(data.hoy.desglose.agenciaInst.length) && !_.isEmpty(data.desglose.agenciaInst)) {
+                                    dataObj.totalContratosMed.totalDesglose["agenciaInst"].push({agencia:rowA.agencia, numReportes:rowA.numReportes});
+                                    _.each(data.hoy.desglose.agenciaInst, function (rowAg, idx) {
+                                        if (rowAg.agencia === rowA.agencia) {
+                                            var agencia = rowA.agencia;
+                                            totalAgenciaInst = parseInt(rowAg.numReportes) + parseInt(rowA.numReportes);
+                                            dataObj.totalContratosMed.totalDesglose.agenciaInst[idxA].numReportes = totalAgenciaInst
+                                            //rowA.numReportes=totalAgencia;
+                                            totalAgenciaInst = 0;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        console.log('data', data);
+                        console.log('dataObj', dataObj);
+                        //pasamos los totales de data.desglose de los concentrados del mes y del actual
+                    }else if (parseInt(data.hoy.total.contratos) > 0 && parseInt(data.hoy.total.medidores) > 0) {
+                        //pasamos los totales de data.desglose de medidores y contratos de los concentrados del mes y del actual
+                        var contratos = parseInt(data.hoy.total.contratos);
+                        var medidores = parseInt(data.hoy.total.medidores);
+                        var sumaTotContratos = (parseInt(contratos)) + (parseInt(data.total.contratos));
+                        var sumaTotMedidores = parseInt(medidores) + parseInt(data.total.medidores);
+                        var numContratosAyo = parseInt(data.hoy.desglose.sucursal.numContratosAyo) + parseInt(data.desglose.sucursal.numContratosAyo);
+                        var numContratosMex = parseInt(data.hoy.desglose.sucursal.numContratosMex) + parseInt(data.desglose.sucursal.numContratosMex);
+                        var numContratosAyoFin = parseInt(data.hoy.desglose.financieras.numContratosAyo) + parseInt(data.desglose.financieras.numContratosAyo);
+                        var numContratosMexFin = parseInt(data.hoy.desglose.financieras.numContratosMex) + parseInt(data.desglose.financieras.numContratosMex);
+
+                        var desgFinHoy = data.hoy.desglose.desgloseFinanciamiento.financieras;
+                        var desgFinAyer = data.desglose.desgloseFinanciamiento.financieras;
+                        var ExpT = 0, loteActualT = 0, zonaMaduraT = 0;
+                        if ((_.has(desgFinHoy, 'Exp') &&
+                             _.has(desgFinHoy, 'loteActual') &&
+                             _.has(desgFinHoy, 'zonaMadura')) &&
+                            (_.has(desgFinAyer, 'Exp') &&
+                             _.has(desgFinAyer, 'loteActual') &&
+                             _.has(desgFinAyer, 'zonaMadura'))) {
+                            ExpT = parseInt(desgFinHoy.Exp) + parseInt(desgFinAyer.Exp);
+                            loteActualT = parseInt(desgFinHoy.loteActual) + parseInt(desgFinAyer.loteActual);
+                            zonaMaduraT = parseInt(desgFinHoy.zonaMadura) + parseInt(desgFinAyer.zonaMadura);
+                        }
+
+
+                        var dataObj={
+                            totalContratosMed:{}
+                        };
+                        dataObj.totalContratosMed = {
+                            total:{
+                                contratos:sumaTotContratos, medidores:sumaTotMedidores
+                            },
+                            totalDesglose:{
+                                sucursal:{
+                                    numContratosAyo:numContratosAyo, numContratosMex:numContratosMex
+                                },
+                                financieras:{
+                                    numContratosAyo:numContratosAyoFin, numContratosMex:numContratosMexFin
+                                },
+                                desgloseFinanciamiento:{
+                                    exp : ExpT,
+                                    loteActual : loteActualT,
+                                    zonaMadura : zonaMaduraT
+                                },
+                                agencias:[],
+                                agenciaInst:[]
+                            },
+                        };
+
+                        var totalAgencia = 0;
+                        if (!_.isUndefined(data.desglose.agencias.length) && !_.isEmpty(data.desglose.agencias)) {
+                            _.each(data.desglose.agencias, function (rowA, idxA) {
+                                if (!_.isUndefined(data.hoy.desglose.agencias.length) && !_.isEmpty(data.desglose.agencias)) {
+                                    dataObj.totalContratosMed.totalDesglose["agencias"].push({agencia:rowA.agencia, numReportes:rowA.numReportes});
+                                    _.each(data.hoy.desglose.agencias, function (rowAg, idx) {
+                                        if (rowAg.agencia === rowA.agencia) {
+                                            var agencia = rowA.agencia;
+                                            totalAgencia = parseInt(rowAg.numReportes) + parseInt(rowA.numReportes);
+                                            dataObj.totalContratosMed.totalDesglose.agencias[idxA].numReportes = totalAgencia
+                                            //rowA.numReportes=totalAgencia;
+                                            totalAgencia = 0;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        var totalAgenciaInst = 0;
+                        if (!_.isUndefined(data.desglose.agenciaInst.length) && !_.isEmpty(data.desglose.agenciaInst)) {
+                            _.each(data.desglose.agenciaInst, function (rowA, idxA) {
+                                if (!_.isUndefined(data.hoy.desglose.agenciaInst.length) && !_.isEmpty(data.desglose.agenciaInst)) {
+                                    dataObj.totalContratosMed.totalDesglose["agenciaInst"].push({agencia:rowA.agencia, numReportes:rowA.numReportes});
+                                    _.each(data.hoy.desglose.agenciaInst, function (rowAg, idx) {
+                                        if (rowAg.agencia === rowA.agencia) {
+                                            var agencia = rowA.agencia;
+                                            totalAgenciaInst = parseInt(rowAg.numReportes) + parseInt(rowA.numReportes);
+                                            dataObj.totalContratosMed.totalDesglose.agenciaInst[idxA].numReportes = totalAgenciaInst
+                                            //rowA.numReportes=totalAgencia;
+                                            totalAgenciaInst = 0;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        console.log('data', data);
+                        console.log('dataObj', dataObj);
+                        //sumaDesglose
+                    }
+                    descargarReporteDiario(data, ayer,now, dataObj);
+                }
+            });
+        });
+        //generarExcel(dateFrom,dateTo,inputIdUser);
+    });
+    function descargarReporteDiario(data, ayer, now, dataT){
+        var rows=[];
+        $("#btn_download").notify("El archivo termino de generarse correctamente", "success");
+        Pace.track(function(){
+            $.ajax({
+                method: "POST",
+                url: "dataLayer/callsWeb/createExcelDiario.php",
+                data: {
+                    collection:data,
+                    collectionT:dataT,
+                    ayer:ayer,
+                    now:now,
+                },
+                dataType: "JSON",
+                success: function (data) {
+                    $('#b_download').show();
+                    var $a = $("<a>");
+                    $a.attr("href",data.file);
+                    $("#b_download").append($a);
+                    $a.attr("download","ReporteFormularios_.xls");
+                    $a[0].click();
+                    $('#b_download').hide();
+                    $('#b_download a').remove();
+                    $('#btn_download').prop('disabled', false);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('textStatus', textStatus);
+                    $("#btn_download").notify("Ocurrio un problema al generar el archivo", "error");
+                }
+            });
+        });
+    }
     function generarExcel(dateFrom,dateTo,inputIdUser){
         if(inputIdUser !== '' && inputIdUser !== null && typeof(inputIdUser) !== 'undefined'){
             var isCheckedCompletos = $('#completos').is(':checked');

@@ -258,6 +258,9 @@ function sendInstalacion($post)
             case 'Cta.Teflon 3/4x260pl L':
             $inst['t_cinta_teflon']=$value['cantidad'];
             break;
+            case 'Adaptador Macho 1/2':
+            $inst['t_adaptador_macho1-2']=$value['cantidad'];
+            break;
         }
     }
     $returnData['it_instalacionesRow'] = $inst;

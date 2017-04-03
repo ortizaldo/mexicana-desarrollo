@@ -511,6 +511,10 @@ if (isset($_POST["collection"])) {
                                 $material28=$detValue["material"];
                                 $cantMat28=$detValue["qty"];
                             break;
+                            case 'Adaptador Macho 1/2':
+                                $material28=$detValue["material"];
+                                $cantMat28=$detValue["qty"];
+                            break;
                         }
                         $contador++;
                     }

@@ -24,7 +24,7 @@ if (isset($_POST["token"]) ){
                         $catInst->bind_result($idCatInst, $idMedidor, $materialInstalacion);
                         //var_dump($catInst);
                         $cont=0;
-                        $positionArrayMaterial = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24, 25, 26, 27);
+                        $positionArrayMaterial = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24, 25, 26, 27, 28);
                         while ($catInst->fetch()) {
                             switch ($materialInstalacion) {
                                 case 'Tue.Union 3/4 G':
@@ -196,6 +196,12 @@ if (isset($_POST["token"]) ){
                                         'desc' => $materialInstalacion
                                     );
                                     break;
+                                case 'Adaptador Macho 1/2':
+                                $positionArrayMaterial[28] = array(
+                                    'id' => $idCatInst,
+                                    'desc' => $materialInstalacion
+                                );
+                                break;
                             }
                         }
                         //$catInstArr[] = $requests;
